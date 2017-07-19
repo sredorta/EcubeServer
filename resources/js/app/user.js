@@ -112,6 +112,7 @@ User.prototype.print = function() {
     console.log("lat : " + this.latitude);
     console.log("lon : " + this.longitude);
     console.log("avatar length : " + this.avatar.length);
+    console.log("use home: " + this.Pref_useHome);
     console.log("zoom : " + this.Pref_zoomValue);
   
 };
@@ -399,6 +400,17 @@ User.prototype.update = function(field,value) {
         var serializedData = jQuery.param(myObject);
         this.ajaxCall(serializedData,ProjectSettings.serverUrl + "/api/user.update.php", "update");
 };
+
+//Update one field
+User.prototype.updatePrefs = function() {
+       
+        var myObject = {Pref_useHome:this.Pref_useHome, Pref_sendNotifEmail:this.Pref_sendNotifEmail, Pref_zoomValue:this.Pref_zoomValue};
+        console.log("updating prefs");
+        console.log(myObject);
+        var serializedData = jQuery.param(myObject);
+        this.ajaxCall(serializedData,ProjectSettings.serverUrl + "/api/user.update.php", "update");
+};
+
 
 //Update one field
 User.prototype.updateHomeLocation = function(latitude,longitude) {

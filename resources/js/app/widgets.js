@@ -2991,7 +2991,7 @@ $(document).ready(function(){
                         </div> \
                         <div id="id-preferences-modal-text-end"></div> \
                     </div>\
-                   <button id="id-preferences-modal-button-apply" class="ui-button ui-widget ui-corner-all">Apply</button> \
+                   <div><button id="id-preferences-modal-button-apply" class="ui-button ui-widget ui-corner-all">Apply</button></div> \
             </div>';
         $(this.element).html(widgetHTML);
         $(this.element).find("#id-preferences-slider-zoom-value").css({marginLeft:"20px",fontWeight:"bold"});
@@ -3029,6 +3029,9 @@ $(document).ready(function(){
                     myObj.slider().find(".ui-slider-handle").removeClass("updated-handle-on");
                 }
                 console.log(ui.value);
+                console.log(myObj.attr('id'));
+                if (myObj.attr('id') === "id-preferences-slider-home") Globals.myUser.Pref_useHome = ui.value;
+                if (myObj.attr('id') === "id-preferences-slider-notifications-email") Globals.myUser.Pref_sendNotifEmail = ui.value; 
 		return 'Current value: ' + ui.value;
             }
           });              
@@ -3041,6 +3044,7 @@ $(document).ready(function(){
                 var myZoom = ui.value - 9;
                 myObj.find("#id-preferences-slider-zoom-value").html('( ' + myZoom + 'X )');
                 console.log(ui.value);
+                Globals.myUser.Pref_zoomValue = ui.value; //Update the value of the global user
 		return 'Current value: ' + ui.value;
             }
         });
@@ -3049,26 +3053,25 @@ $(document).ready(function(){
         $(this.element).find("#id-preferences-slider-home").slider('value',Globals.myUser.Pref_useHome);
         $(this.element).find("#id-preferences-slider-notifications-email").slider('value',Globals.myUser.Pref_sendNotifEmail);
         
-        $(this.element).find("#id-session-expired-modal-card").css({zIndex:10000});
-        $(this.element).find("#id-session-expired-modal-button-apply").css({
+        $(this.element).find("#id-preferences-modal-card").css({zIndex:10000});
+        $(this.element).find("#id-preferences-modal-button-apply").css({
             marginTop:"20px",
-            marginBottom:"20px"        
-        });
-               $(this.element).find("#id-session-expired-modal-text").css({
+            marginBottom:"20px"
+        }).parent().css({
             margin:"0 auto",
-            textAlign:"center"
-        });
-        $(this.element).find("#id-session-expired-modal-text p").css({
-            marginTop:"0px",
-            marginBottom:"0px",
             textAlign:"center"
         });
         
         //Handle the modal login    
         var myUser = new User();       
-        $("#id-session-expired-modal-button-apply").on('click', function() {
-            myUser.clear();
-            location.reload(); //Restart the page
+        $("#id-preferences-modal-button-apply").on('click', function() {
+             //Save the updated preferences
+             Globals.myUser.print();
+             Globals.myDB.saveMe();
+             Globals.myUser.updatePrefs();
+             
+             
+             
         });    
     
         //Close modal on click

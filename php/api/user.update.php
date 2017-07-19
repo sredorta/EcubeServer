@@ -114,6 +114,46 @@ if ($myUser->latitude!= "") {
     $json->output();
 }
 
+if ($myUser->Pref_useHome!= "") {
+    if ($myUser->dB_exists()) {
+        $json = new JsonResponse();
+        $json->result = KEY_CODE_ERROR_USER_PHONE_USED; 
+        $json->output();
+        exit();
+    }
+    $myCurrentUser->dB_updateField("Pref_useHome", $myUser->Pref_useHome);
+    $json = new JsonResponse();
+    $json->result = KEY_CODE_SUCCESS;     
+    $json->output();
+}
+
+if ($myUser->Pref_sendNotifEmail!= "") {
+    if ($myUser->dB_exists()) {
+        $json = new JsonResponse();
+        $json->result = KEY_CODE_ERROR_USER_PHONE_USED; 
+        $json->output();
+        exit();
+    }
+    $myCurrentUser->dB_updateField("Pref_sendNotifEmail", $myUser->Pref_sendNotifEmail);
+    $json = new JsonResponse();
+    $json->result = KEY_CODE_SUCCESS;     
+    $json->output();
+}
+
+if ($myUser->Pref_zoomValue!= "") {
+    if ($myUser->dB_exists()) {
+        $json = new JsonResponse();
+        $json->result = KEY_CODE_ERROR_USER_PHONE_USED; 
+        $json->output();
+        exit();
+    }
+    $myCurrentUser->dB_updateField("Pref_zoomValue", $myUser->Pref_zoomValue);
+    $json = new JsonResponse();
+    $json->result = KEY_CODE_SUCCESS;     
+    $json->output();
+}
+
+
 
 if ($passwordToUpdate != "") {
     if ($myUser->password != $myCurrentUser->dB_getField("password")) {
