@@ -386,9 +386,16 @@ User.prototype.removeAccount = function() {
 };
 
 
-//Remove account and data associated
+//Update one field
 User.prototype.update = function(field,value) {
         eval("var myObject = \{" + field + ":\"" + value +"\"\}");
+        var serializedData = jQuery.param(myObject);
+        this.ajaxCall(serializedData,ProjectSettings.serverUrl + "/api/user.update.php", "update");
+};
+
+//Update one field
+User.prototype.updateHomeLocation = function(latitude,longitude) {
+        var myObject = {latitude:latitude, longitude:longitude};
         var serializedData = jQuery.param(myObject);
         this.ajaxCall(serializedData,ProjectSettings.serverUrl + "/api/user.update.php", "update");
 };

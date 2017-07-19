@@ -35,7 +35,9 @@ if (isset($_SERVER['HTTP_COOKIE'])) {
         $parts = explode('=', $cookie);
         $name = trim($parts[0]);
         $params = session_get_cookie_params();
-        setcookie($name, '', 0, $params['path'], $params['domain'], $params['secure'], isset($params['httponly']));
+        if ($name === "PHPSESSID") {
+            setcookie($name, '', 0, $params['path'], $params['domain'], $params['secure'], isset($params['httponly']));
+        }
     }
 }
 session_destroy();

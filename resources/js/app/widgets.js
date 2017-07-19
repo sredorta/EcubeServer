@@ -2009,26 +2009,18 @@ $(document).ready(function(){
             }
         });    
         $(this.element).on('User.signup.ajaxRequestSuccess', function(event, response) {
-            myObject._log("SUCCESS : user.signup");
-            var myResult = JSON.parse(response.account);
+            myObject._log("SUCCESS : user.signup");           
+            Globals.myUser.reload(myUser);
             
-            //Create the cookie
-/*            if  ($("#id-signup-modal-form-keep-checkbox").prop('checked')) {
-                $.createCookie("key", myResult.session_id,60*24*365); //Set 1 year cookie lifetime
-                myObject._log("Created 1 year cookie !");
-            } else {
-                $.createCookie("key", myResult.session_id, ProjectSettings.sessionDurationMinutes);
-                myObject._log("Created session cookie !");
-            }*/
-            $.createCookie("presence", true, ProjectSettings.sessionDurationMinutes);
-            myUser.save(myUser);  //Save the user to localStorage
-            //Trigger User.loggedIn
-            jQuery(window).trigger("Global.User.loggedIn");
-            //Regenerate the empty form
-            console.log("Reset form !");
+            Globals.myDB.saveMe();  //Save downloaded user into db for later usage
+            Globals.myDB.getMe();  // This will trigger global event Global.User.available
+            console.log("Here is the user restored :");
+            console.log(Globals.myUser);
+            //Now trigger the window
+            jQuery(window).trigger("Global.User.loggedIn");    
+
             myObject.hide();
-            myObject.reset();
-            
+            myObject.reset();           
         });
     
         //Close modal on click
@@ -2800,7 +2792,8 @@ $(document).ready(function(){
         this._setUserData();
  
         //Do the apply on the modifications
-        var myUser = new User();
+        var myUser = Globals.myUser;
+        myUser.print();
         var field;
         var value;
         $("#id-profile-edit-modal-button-apply").on('click', function() {
@@ -2809,7 +2802,7 @@ $(document).ready(function(){
             myUser.callingObject = $("#id-profile-edit-modal-profile-edit");            
             if ($("#id-profile-edit-modal-profile-edit").pluginFormValidator("isValid")) {
                 myObject._log("Form is valid");
-                myUser.get(); //Get all data from localStorage
+                //myUser.get(); //Get all data from localStorage
                 myWidget.find(".widget-ajax-error-spin").css({opacity:1});
                 field = $("#id-profile-edit-modal-text-input-layout").data("update-action");
                 if (field !== "avatar") {
@@ -2831,9 +2824,12 @@ $(document).ready(function(){
  
             if (field === "first_name") field = "firstName";
             if (field === "last_name") field ="lastName";
-            localStorage.setItem("user." + field,value);
+            console.log('Globals.myUser.' + field +'=' + value);
+            eval('Globals.myUser.' + field +'="' + value + '"');
+            Globals.myDB.saveMe();
             myObject._setUserData();
-            $(window).trigger("Global.User.available");
+
+            
         });
 
         
@@ -2843,34 +2839,24 @@ $(document).ready(function(){
             myObject.hide();
             myObject.reset();
         });
- /*
-        //Handle the modal login    
-        var myUser = new User();       
-        $("#id-session-expired-modal-button-apply").on('click', function() {
-            console.log("here");
-            myUser.clear();
-            $.eraseCookie("key");
-            location.reload(); //Restart the page
-        });    
-    */
         
         
-    //End of modal login   
+    //End of modal Edit profile   
     };
     
     //Set all data from user
     Plugin.prototype._setUserData = function() {      
         $(this.element).find("#id-profile-edit-modal-profile-picture").pluginProfilePicture({inputDisabled:true});
-        $(this.element).find("#id-profile-edit-modal-profile-picture").pluginProfilePicture("setImage", localStorage.getItem("user.avatar"));
+        $(this.element).find("#id-profile-edit-modal-profile-picture").pluginProfilePicture("setImage", localStorage.getItem("avatar_0"));
         
-        var timestamp = parseInt((localStorage.getItem("user.creation_timestamp")) * 1000);
+        var timestamp = parseInt(Globals.myUser.creation_timestamp * 1000);
         var dateText = new Date(timestamp).toLocaleDateString();
         dateText = dateText +"  "+ new Date(timestamp).toLocaleTimeString();
         $("#id-profile-edit-modal-profile-created-date").html(dateText);
-        $("#id-profile-edit-modal-profile-text-name span:nth-child(1)").html(localStorage.getItem("user.firstName"));
-        $("#id-profile-edit-modal-profile-text-name span:nth-child(2)").html(localStorage.getItem("user.lastName"));
-        $("#id-profile-edit-modal-profile-text-email span").html(localStorage.getItem("user.email"));
-        $("#id-profile-edit-modal-profile-text-phone span").html(localStorage.getItem("user.phone"));        
+        $("#id-profile-edit-modal-profile-text-name span:nth-child(1)").html(Globals.myUser.firstName);
+        $("#id-profile-edit-modal-profile-text-name span:nth-child(2)").html(Globals.myUser.lastName);
+        $("#id-profile-edit-modal-profile-text-email span").html(Globals.myUser.email);
+        $("#id-profile-edit-modal-profile-text-phone span").html(Globals.myUser.phone);        
     };
     
     //Shows the modal

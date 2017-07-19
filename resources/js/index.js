@@ -165,6 +165,7 @@ $(document).ready(function(){
         mapMarkerHomePosition = null;
         var uluru = {lat: parseFloat($.readCookie('latitude')), lng: parseFloat($.readCookie('longitude'))};
         console.log(uluru);
+        mapMainGlobal.setZoom(12);
         mapMainGlobal.panTo(uluru);
     });   
         
@@ -175,36 +176,97 @@ $(document).ready(function(){
     $("#id-header-navbar-button-signup").on('click', function() {
         $("#id-signup-modal").pluginModalFormSignup("show");
     });
+  
+    //----------------------------------------------------------------------
+    // FORGOT PASSWORD
+    //----------------------------------------------------------------------
+    $(window).on('Global.User.forgotPassword', function() {
+        console.log("Got event user forgotPassword");
+        $("#id-forgot-password-modal").pluginModalFormForgotPassword("show");
+    });
     
+    //----------------------------------------------------------------------
+    // CHANGE PASSWORD
+    //----------------------------------------------------------------------
+    $("#id-header-navbar-change-password").on('click', function() {
+        $("#id-change-password-modal").pluginModalFormChangePassword();
+        $("#id-change-password-modal").pluginModalFormChangePassword("show");
+    });
     
-        //----------------------------------------------------------------------
-        // FORGOT PASSWORD
-        //----------------------------------------------------------------------
-        $(window).on('Global.User.forgotPassword', function() {
-            console.log("Got event user forgotPassword");
-            $("#id-forgot-password-modal").pluginModalFormForgotPassword("show");
+    //----------------------------------------------------------------------
+    // REMOVE ACCOUNT
+    //----------------------------------------------------------------------       
+    $("#id-header-navbar-remove-account").on('click',function() {
+        $("#id-remove-account-modal").pluginModalFormRemoveAccount();
+        $("#id-remove-account-modal").pluginModalFormRemoveAccount("show");
+    });
+    
+    //----------------------------------------------------------------------
+    // PROFILE EDIT
+    //----------------------------------------------------------------------               
+    $("#id-header-navbar-profile-edit").on('click',function() {
+        $("#id-profile-edit-modal").pluginModalFormProfileEdit();
+        $("#id-profile-edit-modal").pluginModalFormProfileEdit("show");
+    });
+    
+    //----------------------------------------------------------------------
+    // CHANGE HOME LOCATION
+    //----------------------------------------------------------------------  
+    $("#id-header-navbar-edit-home").on('click', function() {
+        //Zoom map to home location marker
+        mapMainGlobal.setZoom(12);
+        mapMainGlobal.panTo(mapMarkerHomePosition.getPosition());
+        
+        //Emable the marker to be draggable and set bounce anymation
+        mapMarkerHomePosition.setDraggable(true);
+        if (mapMarkerHomePosition.getAnimation() !== null) {
+          mapMarkerHomePosition.setAnimation(null);
+        } else {
+          mapMarkerHomePosition.setAnimation(google.maps.Animation.BOUNCE);
+        }
+        //Remove bounce animation on drag start
+        google.maps.event.addListener(mapMarkerHomePosition, 'drag', function() {
+             mapMarkerHomePosition.setAnimation(null);
         });
-        //----------------------------------------------------------------------
-        // CHANGE PASSWORD
-        //----------------------------------------------------------------------
-        $("#id-header-navbar-change-password").on('click', function() {
-            $("#id-change-password-modal").pluginModalFormChangePassword();
-            $("#id-change-password-modal").pluginModalFormChangePassword("show");
+        
+        //Show infoWindow on dragEnd
+        var contentString =
+            '<div id="id-profile-edit-home-marker-content">'+
+            '<p>Click on the marker to set this position</p>'+ 
+            '<p>as your home position</p>' + 
+            '</div>';
+        var infowindow = new google.maps.InfoWindow({content: contentString});
+        google.maps.event.addListener(mapMarkerHomePosition, 'dragend', function() {
+            infowindow.open(mapMainGlobal, mapMarkerHomePosition);
         });
-        //----------------------------------------------------------------------
-        // REMOVE ACCOUNT
-        //----------------------------------------------------------------------       
-        $("#id-header-navbar-remove-account").on('click',function() {
-            $("#id-remove-account-modal").pluginModalFormRemoveAccount();
-            $("#id-remove-account-modal").pluginModalFormRemoveAccount("show");
-        });
-        //----------------------------------------------------------------------
-        // PROFILE EDIT
-        //----------------------------------------------------------------------               
-        $("#id-header-navbar-profile-edit").on('click',function() {
-            $("#id-profile-edit-modal").pluginModalFormProfileEdit();
-            $("#id-profile-edit-modal").pluginModalFormProfileEdit("show");
-        });
+        
+        google.maps.event.addListener(mapMarkerHomePosition, 'click', function() {
+          infowindow.close();  //Close the infoWindow
+          mapMarkerHomePosition.setDraggable(false);
+          //Do the ajax call to update new coordinates
+          var latitude = mapMarkerHomePosition.getPosition().lat();
+          var longitude = mapMarkerHomePosition.getPosition().lng();
+          var myUser = new User();
+          myUser.updateHomeLocation(latitude,longitude);
+          Globals.myUser.latitude = latitude;
+          Globals.myUser.longitude = longitude;
+          Globals.myDB.saveMe();
+          console.log(latitude);
+          console.log(longitude);         
+        });        
+    });
+
+    //----------------------------------------------------------------------
+    // PREFERENCES EDIT
+    //----------------------------------------------------------------------               
+    $("#id-header-navbar-edit-preferences").on('click',function() {
+        console.log("Editing prefs");
+        $("#id-profile-preferences-modal").pluginModalFormPreferences();
+        $("#id-profile-preferences-modal").pluginModalFormPreferences("show");
+    });
+
+
+
 
 
         //----------------------------------------------------------------------
