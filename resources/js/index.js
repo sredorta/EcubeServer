@@ -102,16 +102,21 @@ $(document).ready(function(){
     //When user is available or has been updated we update all related objects
     $(window).on('Global.User.available', function () {
         console.log("Got event user available !");
-        $("#id-header-navbar-profile-plugin").pluginProfilePicture("setImage", Globals.myUser.avatar);
+        $("#id-header-navbar-profile-plugin").pluginProfilePicture("setImage", localStorage.getItem("avatar_0"));
         $("#id-header-navbar-profile-plugin").pluginProfilePicture("setLoggedIn");
         $("#id-header-navbar-button-login").css({visibility:"hidden"});
         $("#id-header-navbar-button-signup").css({visibility:"hidden"});
         $("#id-header-navbar-button-user").css({visibility:"visible"});
         $("#id-header-navbar-profile-plugin").css({visibility:"visible"});
-            
+        //Enable disable home displacement depending on Pref_useHome
+        if (Globals.myUser.Pref_useHome == 0) {
+            $("#id-header-navbar-edit-home").css({visibility:"hidden"});
+        } else {
+            $("#id-header-navbar-edit-home").css({visibility:"visible"});
+        }
         //Add marker with home location
         console.log("USE HOME IS : " + Globals.myUser.Pref_useHome);
-        if (Globals.myUser.Pref_useHome) {
+        if (Globals.myUser.Pref_useHome == 1) {
             var uluru = {lat: parseFloat(Globals.myUser.latitude), lng: parseFloat(Globals.myUser.longitude)};
             console.log(uluru);
             mapMainGlobal.setZoom(parseInt(Globals.myUser.Pref_zoomValue));
@@ -172,10 +177,8 @@ $(document).ready(function(){
         //Pan back to user location
         mapMarkerHomePosition.setMap(null);        //Remove home position marker
         mapMarkerHomePosition = null;
-        var uluru = {lat: parseFloat($.readCookie('latitude')), lng: parseFloat($.readCookie('longitude'))};
-        console.log(uluru);
         mapMainGlobal.setZoom(12);
-        mapMainGlobal.panTo(uluru);
+        mapMainGlobal.panTo(mapMarkerCurrentPosition.getPosition());
     });   
         
     //----------------------------------------------------------------------
@@ -221,9 +224,9 @@ $(document).ready(function(){
     //----------------------------------------------------------------------
     // CHANGE HOME LOCATION
     //----------------------------------------------------------------------  
-    $("#id-header-navbar-edit-home").on('click', function() {
+    $("#id-header-navbar-edit-home").on('click', function() {        
         //Zoom map to home location marker
-        mapMainGlobal.setZoom(12);
+        mapMainGlobal.setZoom(parseInt(Globals.myUser.Pref_zoomValue));
         mapMainGlobal.panTo(mapMarkerHomePosition.getPosition());
         
         //Emable the marker to be draggable and set bounce anymation
