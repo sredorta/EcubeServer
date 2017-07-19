@@ -3069,9 +3069,8 @@ $(document).ready(function(){
              Globals.myUser.print();
              Globals.myDB.saveMe();
              Globals.myUser.updatePrefs();
-             
-             
-             
+             Globals.myDB.getMe();
+             myObject.hide();   
         });    
     
         //Close modal on click

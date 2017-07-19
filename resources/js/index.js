@@ -110,19 +110,27 @@ $(document).ready(function(){
         $("#id-header-navbar-profile-plugin").css({visibility:"visible"});
             
         //Add marker with home location
-        var uluru = {lat: parseFloat(Globals.myUser.latitude), lng: parseFloat(Globals.myUser.longitude)};
-        console.log(uluru);
-        mapMainGlobal.setZoom(12);
-        mapMainGlobal.panTo(uluru);
-        //We only create the marker once !
-        if (mapMarkerHomePosition !== null) mapMarkerHomePosition.setMap(null);
-        mapMarkerHomePosition = null;
-        mapMarkerHomePosition = new google.maps.Marker({
-            position: uluru,
-            animation: google.maps.Animation.DROP,
-            icon: "./resources/img/icon-marker-home.png",
-            map: mapMainGlobal
-        });              
+        console.log("USE HOME IS : " + Globals.myUser.Pref_useHome);
+        if (Globals.myUser.Pref_useHome) {
+            var uluru = {lat: parseFloat(Globals.myUser.latitude), lng: parseFloat(Globals.myUser.longitude)};
+            console.log(uluru);
+            mapMainGlobal.setZoom(parseInt(Globals.myUser.Pref_zoomValue));
+            mapMainGlobal.panTo(uluru);
+            //We only create the marker once !
+            if (mapMarkerHomePosition !== null) mapMarkerHomePosition.setMap(null);
+            mapMarkerHomePosition = null;
+            mapMarkerHomePosition = new google.maps.Marker({
+                position: uluru,
+                animation: google.maps.Animation.DROP,
+                icon: "./resources/img/icon-marker-home.png",
+                map: mapMainGlobal
+            });
+        } else {
+            if (mapMarkerHomePosition !== null) mapMarkerHomePosition.setMap(null);
+            mapMarkerHomePosition = null;
+            mapMainGlobal.setZoom(parseInt(Globals.myUser.Pref_zoomValue));
+            mapMainGlobal.panTo(mapMarkerCurrentPosition.getPosition());
+        }
     });
       
     //----------------------------------------------------------------------
