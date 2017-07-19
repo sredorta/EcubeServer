@@ -10,9 +10,9 @@ and open the template in the editor.
 /*------------------------------------------------------------------------------
      MAIN STYLE
 ------------------------------------------------------------------------------*/
-[contenteditable="true"]:focus {
+[contenteditable="true"]:focus, input:focus, textarea:focus, select:focus, button:focus, span:focus {
     outline: none;
-}
+} 
 
 * {
     margin: 0px;
@@ -112,11 +112,17 @@ body, html {
     position:absolute;
     display:block;
 }
-/*TMP --------------------------------------------------------------------------*/
+/*TOGGLE --------------------------------------------------------------------------*/
+.ui-slider .ui-slider-handle {
+    background: #c1e2b3;
+}
+.ui-slider .updated-handle-on {
+    background: #4CAF50;
+}
 
 
 
-
+/*END of TOGGLE*/
 
 .navbar-default > div {
     width:100%;

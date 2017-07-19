@@ -56,6 +56,7 @@ IndexedDB.prototype.saveMe = function() {
     var db = myObject.db;
     myObject._log("save User");
     var myUser = Globals.myUser;
+    myUser.print();
     myUser.callingObject = "";
     localStorage.setItem("avatar_0", myUser.avatar);
     myUser.avatar= "";

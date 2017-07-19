@@ -112,6 +112,7 @@ $(document).ready(function(){
         //Add marker with home location
         var uluru = {lat: parseFloat(Globals.myUser.latitude), lng: parseFloat(Globals.myUser.longitude)};
         console.log(uluru);
+        mapMainGlobal.setZoom(12);
         mapMainGlobal.panTo(uluru);
         //We only create the marker once !
         if (mapMarkerHomePosition !== null) mapMarkerHomePosition.setMap(null);

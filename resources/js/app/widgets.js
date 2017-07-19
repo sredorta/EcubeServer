@@ -2950,7 +2950,226 @@ $(document).ready(function(){
         myColor:"yellow"
     };
 })( jQuery, window, document );
+//------------------------------------------------------------------------------
+//  pluginModalFormPreferences: Modal form for preferences handling
+//------------------------------------------------------------------------------
+;(function ( $, window, document, undefined ) {
+    var pluginName = 'pluginModalFormPreferences';
 
+    // The actual plugin constructor
+    function Plugin( element, options ) {
+        this.element = element;
+        this.options = $.extend( {}, $.fn[pluginName].defaults, options) ;        
+        this._name = pluginName;
+        this._debug = true;
+        this.init();
+    }
+
+    //Main function for the pluggin
+    Plugin.prototype.init = function () {
+        var myWidget = $(this.element);
+        var myObject = this;
+        // You can use this.element and this.options
+        var widgetHTML = '\
+            <div id="id-preferences-modal-card" class="modal-card modal-card-center"> \
+                <i class="modal-close mdi mdi-24px mdi-close-circle-outline"></i>\
+                <h1><i class="mdi mdi-18px mdi-settings"></i> Preferences</h1> \
+                   <div>\
+                        <div id="id-preferences-modal-text">\
+                            <p>Use home location as my location</p>\
+                            <p>Send email on notifications</p>\
+                            <p>Third text</p>\
+                            <p>Fourth text</p>\
+                            <p>Default zoom :  <span id="id-preferences-slider-zoom-value">value</span></p>\
+                        </div>\
+                        <div id="id-preferences-modal-toggles">\
+                            <div id="id-preferences-slider-home" class="slider-on-off"></div> \
+                            <div id="id-preferences-slider-notifications-email" class="slider-on-off"></div> \
+                            <div id="id-preferences-slider-home2" class="slider-on-off"></div> \
+                            <div id="id-preferences-slider-home3" class="slider-on-off"></div> \
+                            <div id="id-preferences-slider-zoom"></div> \
+                        </div> \
+                        <div id="id-preferences-modal-text-end"></div> \
+                    </div>\
+                   <button id="id-preferences-modal-button-apply" class="ui-button ui-widget ui-corner-all">Apply</button> \
+            </div>';
+        $(this.element).html(widgetHTML);
+        $(this.element).find("#id-preferences-slider-zoom-value").css({marginLeft:"20px",fontWeight:"bold"});
+        $(this.element).find("#id-preferences-modal-text").css({float:"left",width:"250px"});
+        $(this.element).find("#id-preferences-modal-text").find("p").css({marginBottom:"0px",height:"28px",lineHeight:"28px"});
+        $(this.element).find("#id-preferences-modal-toggles").css({float:"left",width:"100px",paddingLeft:"5px"});
+        $(this.element).find("#id-preferences-modal-text-end").css({clear:"both"});
+        $(this.element).find(".slider-on-off").slider({min:0, max:1}).css({marginLeft:"45px"});
+        $(this.element).find("#id-preferences-slider-zoom").slider({min:10,max:20});
+        $(this.element).find(".ui-slider-horizontal").each(function() {
+            $(this).css({
+                height: "12px",
+                width: "35px",
+                marginTop:"15px",
+                marginBottom:"15px"
+            });
+        });
+        
+        $(this.element).find("#id-preferences-slider-zoom").css({width:"80px",paddingLeft:"0px"});
+        
+        //Change slider handle depending on value for on-off
+        $(this.element).find(".slider-on-off").each(function() {
+            var myObj = $(this);
+          $(this).slider({
+            start: function (event, ui) {
+                console.log("here !!!");
+                myObj.slider().find(".ui-slider-handle").removeClass("updated-handle-on");
+            },
+            change: function(event, ui) {
+                console.log("Current value is: " + ui.value);
+                if (ui.value === 1) {
+                    console.log("adding class");
+                    myObj.slider().find(".ui-slider-handle").addClass("updated-handle-on");
+                } else {
+                    myObj.slider().find(".ui-slider-handle").removeClass("updated-handle-on");
+                }
+                console.log(ui.value);
+		return 'Current value: ' + ui.value;
+            }
+          });              
+        });
+        //Change the zoom value on slider change
+        var myObj = $(this.element);
+        $(this.element).find("#id-preferences-slider-zoom").slider({
+            change: function(event, ui) {                
+                console.log("Current value is: " + ui.value);
+                var myZoom = ui.value - 9;
+                myObj.find("#id-preferences-slider-zoom-value").html('( ' + myZoom + 'X )');
+                console.log(ui.value);
+		return 'Current value: ' + ui.value;
+            }
+        });
+        //Set all default values
+        $(this.element).find("#id-preferences-slider-zoom").slider('value',parseInt(Globals.myUser.Pref_zoomValue)); //Set default zooming
+        $(this.element).find("#id-preferences-slider-home").slider('value',Globals.myUser.Pref_useHome);
+        $(this.element).find("#id-preferences-slider-notifications-email").slider('value',Globals.myUser.Pref_sendNotifEmail);
+        
+        $(this.element).find("#id-session-expired-modal-card").css({zIndex:10000});
+        $(this.element).find("#id-session-expired-modal-button-apply").css({
+            marginTop:"20px",
+            marginBottom:"20px"        
+        });
+               $(this.element).find("#id-session-expired-modal-text").css({
+            margin:"0 auto",
+            textAlign:"center"
+        });
+        $(this.element).find("#id-session-expired-modal-text p").css({
+            marginTop:"0px",
+            marginBottom:"0px",
+            textAlign:"center"
+        });
+        
+        //Handle the modal login    
+        var myUser = new User();       
+        $("#id-session-expired-modal-button-apply").on('click', function() {
+            myUser.clear();
+            location.reload(); //Restart the page
+        });    
+    
+        //Close modal on click
+        $(this.element).find(".modal-close").on('click', function () {
+            myObject.hide();
+            myObject.reset();
+        });
+        
+    //End of modal preferences   
+    };
+    
+    //Shows the modal
+    Plugin.prototype.show = function() {
+        this._log("Showing modal !");
+        $(this.element).css({visibility:"visible",display:"block"});
+    };  
+    //Hides the modal
+    Plugin.prototype.hide = function() {
+        this._log("Hiding modal !");
+        var myWidget = $(this.element);
+        $(this.element).css({visibility:"hidden"});
+        
+    };    
+    //Hides the modal
+    Plugin.prototype.reset = function() {
+        this._log("Reset form !");
+        $(this.element).find(".widget-text-input-layout").pluginTextInputLayout("reset");
+        $(this.element).find(".widget-ajax-error-text").css({opacity:0}); 
+    };        
+    //Prints logging if debug enabled
+    Plugin.prototype._log = function(txt) {
+        if (this._debug) console.log(this._name + ":: " + txt);
+    };
+    //Enables debug
+    Plugin.prototype.enableDebug = function () {
+        this._debug = true;
+        this._log("Debug enabled !");
+    };
+    //Disables debug
+    Plugin.prototype.disableDebug = function () {
+        this._log("Debug enabled !");
+        this._debug = false;
+    };
+    //Removes any associated data
+    Plugin.prototype.destroy = function () {
+         //this.element.removeData();
+    };
+    
+    //Example of Getter 
+    Plugin.prototype.getData = function () {
+       this._log("In getData !");
+       return this._debug;
+    }; 
+   
+     
+
+    // A really lightweight plugin wrapper around the constructor, 
+    // preventing against multiple instantiations
+    $.fn[pluginName] = function ( options, myData ) {
+        var args = arguments;
+        
+         if (options === undefined || typeof options === 'object') {
+            // Creates a new plugin instance, for each selected element, and
+            // stores a reference withint the element's data
+            return this.each(function() {
+                if (!$.data(this, 'plugin_' + pluginName)) {
+                    $.data(this, 'plugin_' + pluginName, new Plugin(this, options));
+                }
+            });
+        } else if (typeof options === 'string' && options[0] !== '_' && options !== 'init') {
+            // Call a public pluguin method (not starting with an underscore) for each 
+            // selected element.
+            if (Array.prototype.slice.call(args, 1).length == 0 && $.inArray(options, $.fn[pluginName].getters) != -1) {
+                // If the user does not pass any arguments and the method allows to
+                // work as a getter then break the chainability so we can return a value
+                // instead the element reference.
+                var instance = $.data(this[0], 'plugin_' + pluginName);
+                return instance[options].apply(instance, Array.prototype.slice.call(args, 1));
+            } else {
+                // Invoke the speficied method on each selected element
+                return this.each(function() {
+                    var instance = $.data(this, 'plugin_' + pluginName);
+                    if (instance instanceof Plugin && typeof instance[options] === 'function') {
+                        instance[options].apply(instance, Array.prototype.slice.call(args, 1));
+                    } else {
+                        console.warn("Function " + options + " is not defined !");
+                    }
+                });
+            }
+        }
+    };       
+        
+    
+    //Declare here all the getters here !
+    $.fn[pluginName].getters = ['getData'];
+    //Declare the defaults here
+    $.fn[pluginName].defaults = {
+        propertyName: "value",
+        myColor:"yellow"
+    };
+})( jQuery, window, document );
 // -----------------------------------------------------------------------------
 // Session helper 
 // -----------------------------------------------------------------------------

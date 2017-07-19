@@ -95,6 +95,9 @@ function User(object) {
     this.longitude = "";
     this.password = "";
     this.keep=false;
+    this.Pref_useHome=true;
+    this.Pref_sendNotifEmail=true;
+    this.Pref_zoomValue=12;
 }
 
 //For debug
@@ -109,6 +112,7 @@ User.prototype.print = function() {
     console.log("lat : " + this.latitude);
     console.log("lon : " + this.longitude);
     console.log("avatar length : " + this.avatar.length);
+    console.log("zoom : " + this.Pref_zoomValue);
   
 };
 
@@ -201,6 +205,9 @@ User.prototype.reload = function(myObject) {
     if (myObject.avatar_timestamp!== "") this.avatar_timestamp = myObject.avatar_timestamp;
     if (myObject.latitude!== "") this.latitude = myObject.latitude;
     if (myObject.longitude!== "") this.longitude = myObject.longitude;
+    if (myObject.Pref_useHome!=="") this.Pref_useHome = myObject.Pref_useHome;
+    if (myObject.Pref_sendNotifEmail!=="") this.Pref_sendNotifEmail = myObject.Pref_sendNotifEmail;
+    if (myObject.Pref_zoomValue!=="") this.Pref_zoomValue = myObject.Pref_zoomValue;
 };
 
 //Save user to localStorage

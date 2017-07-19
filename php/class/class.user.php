@@ -24,6 +24,9 @@ class User {
     public $validated_phone;
     public $creation_timestamp;
     public $login_timestamp;
+    public $Pref_useHome;
+    public $Pref_sendNotifEmail;
+    public $Pref_zoomValue;
     				
     function __construct() {}
     
@@ -61,9 +64,18 @@ class User {
        if (isset($_POST['latitude'])) {
            $this->latitude = $_POST['latitude'];
        }        
-        if (isset($_POST['longitude'])) {
+       if (isset($_POST['longitude'])) {
            $this->longitude = $_POST['longitude'];
-       }         
+       }
+       if (isset($_POST['Pref_useHome'])) {
+           $this->Pref_useHome = $_POST['Pref_useHome'];
+       }
+       if (isset($_POST['Pref_sendNotifEmail'])) {
+           $this->Pref_sendNotifEmail = $_POST['Pref_sendNotifEmail'];
+       }
+       if (isset($_POST['Pref_zoomValue'])) {
+           $this->Pref_zoomValue = $_POST['Pref_zoomValue'];
+       }       
     }
 
     
