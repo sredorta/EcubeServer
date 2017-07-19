@@ -1,0 +1,393 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : 26-Jun-2017, 16:59:11
+    Author     : sergi
+*/
+/*------------------------------------------------------------------------------
+     MAIN STYLE
+------------------------------------------------------------------------------*/
+[contenteditable="true"]:focus {
+    outline: none;
+}
+
+* {
+    margin: 0px;
+    padding: 0px;
+    box-sizing: border-box;
+}
+
+body, html {
+  height: 100%;
+  width:100%;
+}
+.body-default {  
+    color:#1b5e20; 
+    min-width:500px;
+    background: white;
+    font-family: verdana ;
+    font-size: 90%;
+}
+.body-container-default {
+    display:flex;
+    flex-direction: column;
+    width:100%;
+    height:100%;
+    min-height: 350px;
+}
+
+/*main-container style*/
+.main-container-default {
+    flex:1 1 auto;
+    background-color:#E8F5E9; 
+    padding-bottom:10px;
+    padding-top:0px;    
+    display: block;
+    min-height: 200px;
+}
+
+.footer-default {
+    flex:0 1 50px;
+    min-height:100px;
+    max-height:100px;
+}
+
+
+.ui-button {
+    min-width: 100px;
+}
+
+
+
+#id-header-navbar {
+    width:100%;
+    background-color:#4CAF50;
+    color:white;
+    margin-bottom: 0px;
+}
+#bs-example-navbar-collapse-1 {
+    padding-right: 60px;
+}
+#id-header-navbar-profile-plugin {
+    width:40px;
+    height:40px;
+    margin-left:5px;
+    margin-top:5px;
+}
+/*We start with all hidden and we decide in function of loggedIn or not to show*/
+#id-header-navbar-button-user {
+    visibility: hidden;
+}
+#id-header-navbar-button-login {
+    visibility:hidden;
+}
+#id-header-navbar-button-signup {
+    visibility:hidden;
+}
+#id-header-navbar-profile-plugin {
+    visibility:hidden;
+}
+/*Icons on the navbar*/
+.navbar-icon {
+    color:white;
+    margin-right:10px;
+    margin-left:10px;
+}
+.navbar-icon-counter {
+    border:2px solid white;
+    background-color: red;
+    width:18px;
+    height:18px;
+    text-height: font-size;
+    text-align: center;
+    border-radius:50%;
+    font-size:11px;
+    font-weight: bold;
+    color:white;
+    top:10px;
+    left:25px;
+    position:absolute;
+    display:block;
+}
+/*TMP --------------------------------------------------------------------------*/
+
+
+
+
+
+.navbar-default > div {
+    width:100%;
+    background-color:#4CAF50;
+    color:white;
+}
+.navbar-brand {
+    padding-top:0;
+    padding-bottom:0;
+}
+.navbar-brand img {
+    transform: scale(0.8);
+}
+#id-header-navbar-button-login {
+    background-color: #A4B42B;
+    /*background-image: none !important;*/
+    color: #E6EE9C;
+    font-weight: bold;
+    min-width:100px;
+    border:1.2px solid #E6EE9C;
+    margin-right:10px;
+    margin-left:10px;
+}
+
+
+#id-header-navbar-button-signup {
+    background-color: #A4B42B;
+    color: #E6EE9C;
+    min-width:100px;
+    border:1px solid #E6EE9C;
+    margin-right:10px;
+    margin-left:10px;
+}
+
+
+
+.navbar-default .navbar-nav>.open>a, .navbar-default .navbar-nav>.open>a:focus, .navbar-default .navbar-nav>.open>a:hover {
+    color: white;
+    background-color: red;
+}
+.navbar-default .navbar-nav>.open>a, .navbar-default .navbar-nav>.open>a:hover {
+    color: white;
+    background-color: red;
+}
+.navbar-default .navbar-nav>li>a {
+    color: white;
+}
+
+.navbar-btn .ui-button {
+    margin-top:2px;
+}
+
+/*Modal dialog ---------------------------------------------------------------*/
+.modal {
+    visibility:hidden;
+    display: block;  /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 100; /* Sit on top */
+    left: 0;
+    top: 0%;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+
+/* The Close Button */
+.modal-close {
+    width:24px;
+    height:24px;
+    position:absolute;
+    padding-right: 0px;
+    padding-top:0px;
+    right:0;
+    top:0;
+    color:grey;
+    font-weight: bold;
+}
+
+.modal-close:hover,
+.modal-close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.modal-card {
+    /* Add shadows to create the "card" effect */
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+    border-radius: 2px;
+    transition: 0.3s;
+    background-color:white;
+    margin: 10px;
+    text-align: left;
+    padding-top:10px;
+    padding-left:20px;
+    padding-bottom:10px;
+    padding-right:20px;
+}
+
+
+.modal-card h1 {
+    font-size: 15px;
+    font-weight: bold;
+    color: #A4B42B;
+    padding-top: 5px;
+    padding-bottom:5px;
+    margin-bottom:15px;
+    border-bottom:1px solid #9E9D24;
+    align-content: center;
+}
+
+.modal-card h2 {
+    font-size: 14px;
+    font-weight: bold;
+    line-height: 30px;
+    vertical-align: middle;
+}
+
+
+.modal-card-center {
+    position:absolute;
+    top:50%;
+    left:50%;
+    transform: translate(-50%,-50%);
+}
+.modal-card-bottom {
+    position:absolute;
+    bottom:0;
+}
+.modal-card-right {
+    position:absolute;
+    right:0;
+}
+.modal-card-info {
+    /*background-color: #f6fcf4;*/
+}
+.modal-card-info h2 {
+    font-size: 16px;
+    font-weight: bold;
+    line-height: 30px;
+    vertical-align: middle;
+}
+.modal-card-info :not(h1) {
+    text-align:center;
+    margin:0 auto;
+}
+.modal-card-info button {
+    margin:20px;
+}
+/*------------------------------------------------------------------------------
+     CLICKABLE TEXT
+------------------------------------------------------------------------------*/
+.text-clickable-default:hover {
+    color:#00C853;
+    text-decoration: underline;
+    cursor:pointer;
+}
+.text-warning {
+    color:#f57f17;
+}
+/*
+//------------------------------------------------------------------------------
+// Widgets css
+//------------------------------------------------------------------------------
+*/
+
+/*-- Country DropDown --------------------------------------------------------*/
+
+.widget-phone-dropdown-button {
+    width:90px;
+    height:20px;
+    border:none;
+    box-shadow: 0 2px 4px 0 rgba(0,0,0,0.4);
+    color:#1b5e20;
+    background-color: #f9f2f4;
+    text-align: left;
+    padding-left:10px;
+    font-size: 13px;
+    font-weight: bold;
+}
+.widget-phone-dropdown-button:hover {
+    background-color: #f1f1f1;
+}
+.widget-phone-dropdown-button:active {
+    background-color: #f1f1f1;
+    outline:none;
+}
+.widget-phone-dropdown-button:focus {
+    outline:none;
+}
+
+.widget-phone-dropdown-content {
+    position:absolute;
+    list-style-type: none;
+    background-color:white;
+    width:150px;
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+    border-radius: 2px;
+    transition: 0.3s;
+    background-color:white;
+    text-align: left;
+}
+.widget-phone-dropdown-content li > span {
+    width:100%;
+    padding: 8px 8px;
+    font-size: 12px;
+    color: #1b5e20;
+    display: inline-block;
+    text-align: left;
+}
+.widget-phone-dropdown-content li > span:hover {
+    background-color: #f1f1f1;
+    color: #00C853;
+}
+.country i {
+    position:relative;
+    width:20px;
+    height:14px;
+    transform: scale(1.2);
+    top:5px;
+    display:inline-block;
+}
+.widget-text-input-layout {
+    min-height: 55px;
+}
+
+
+/* Checkbox*/
+.checkbox-default {
+    text-align: left;
+    padding-top:5px;
+    color:#1b5e20;
+    font-size: 10px;
+    font-family: cursive;
+}
+.checkbox-default input {
+    margin-right:10px;
+    vertical-align: bottom;
+}
+
+
+.widget-ajax-error-spin {
+    margin-right: 5px;
+    opacity:0;
+}
+
+.widget-ajax-error-spin-shadow {
+    margin-left: 5px;
+    opacity:0;
+}
+
+.widget-ajax-error-text {
+    opacity:0;
+    background-color: #f9f2f4;
+    position:relative;
+    border:1px solid red;
+    color:red;
+    font-size: 12px;
+    padding: 5px;
+    margin-top:5px;
+    margin-bottom: 0px;
+    width:100%;
+    min-height:30px;
+}
+
+
+/* --- Project specific -------------------------------------------------------*/
+#main-map-canvas {
+    width:100%;
+    height:600px;
+}

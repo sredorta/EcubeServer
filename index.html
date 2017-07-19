@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+        <title>eCube solutions</title>
+        <meta charset="utf-8">
+        <meta name="description" content="Ecube">
+        <meta name="keywords" content="ecube,locker">  
+        <link rel="icon" href="./resources/img/my_logo.png">
+      
+        <!-- External libraries -->
+        <!--<script data-main="resources/js/index" src="external/requirejs/require.js"></script>-->
+        <script src="./external/lib/jquery.js" type="text/javascript" defer></script>
+        <script src="./external/lib/bootstrap.min.js" type="text/javascript" defer></script>
+        <script src="./external/lib/jquery-ui.min.js" type="text/javascript" defer></script>
+        <script src="./external/lib/libphonenumber.js" type="text/javascript" defer></script>
+        <!-- Internal libraries -->
+        <script src="./resources/js/app/user.js" type="text/javascript" defer></script>
+        <script src="./resources/js/app/iDB.js" type="text/javascript" defer></script>
+        <script src="./resources/js/app/widgets.js" type="text/javascript" defer></script>
+        <script src="./resources/js/index.js" type="text/javascript" defer></script>
+        <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDIz-VDnw942HsOjImuNkJO3Vosl5BhkbA" async defer></script>  
+        <link href="./resources/fonts/materialdesignicons.min.css" media="all" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href ="./external/css/jquery-ui.css">
+        <link rel="stylesheet" href ="./external/css/jquery-ui.theme.css">
+        <link rel="stylesheet" href ="./external/css/bootstrap.min.css">
+        <link rel="stylesheet" href ="./resources/css/mystyle-default.css">
+         <body>       
+         <div class="body-container-default">
+           <header id="id-header">
+           </header>   
+<nav id="id-header-navbar" class="navbar navbar-default">
+  <div class="container-fluid">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="#">
+        <img alt="Brand" src="resources/img/menubar-title.jpg">
+      </a>  
+    </div>
+
+    <!-- Collect the nav links, forms, and other content for toggling -->
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <ul class="nav navbar-nav">
+        <li class="active"><a href="#">Link <span class="sr-only">(current)</span></a></li>
+        <li><a href="#">Link</a></li>
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Dropdown <span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a href="#">Action</a></li>
+            <li><a href="#">Another action</a></li>
+            <li><a href="#">Something else here</a></li>
+            <li role="separator" class="divider"></li>
+            <li><a href="#">Separated link</a></li>
+            <li role="separator" class="divider"></li>
+            <li><a href="#">One more separated link</a></li>
+          </ul>
+        </li>
+      </ul>
+      <form class="navbar-form navbar-left">
+        <div class="input-group">               
+                <input type="text" class="form-control" placeholder="Search" aria-describedby="basic-addon1">
+                <span class="input-group-addon" id="basic-addon1"><i class="mdi mdi-18px mdi-magnify"></i></span>
+        </div> 
+      </form>
+      <ul class="nav navbar-nav navbar-right">
+        <li><a href="#">Link</a></li>
+        <li>
+            <p class="navbar-btn">
+                    <a id="id-header-navbar-button-signup" href="#" class="ui-button ui-widget ui-corner-all">Sign Up</a>
+            </p>
+        </li>
+        <li>
+            <p class="navbar-btn">
+                    <a id="id-header-navbar-button-login" href="#" class="ui-button ui-widget ui-corner-all">Log In</a>
+            </p>
+        </li>
+        <li>
+            <p class="navbar-btn">
+                <a id="id-header-navbar-button-notification" href="#"><i class="navbar-icon mdi mdi-24px mdi-bell"></i><span class="navbar-icon-counter">2</span></a>
+            </p>
+        </li>
+        <li>
+            <p class="navbar-btn">
+                <a id="id-header-navbar-button-cart"  href="#"><i class="navbar-icon mdi mdi-24px mdi-cart"></i><span class="navbar-icon-counter">6</span></a>
+            </p>
+        </li>
+        <li class="dropdown">
+          <a id="id-header-navbar-button-user" href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">User<span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li id="id-header-navbar-profile-edit"><a href="#"><i class="mdi mdi-18px mdi-account-edit"></i> Edit profile</a></li>
+            <li id="id-header-navbar-change-password"><a href="#"><i class="mdi mdi-18px mdi-account-key"></i> Change password</a></li>
+            <li><a href="#"><i class="mdi mdi-18px mdi-settings"></i> Preferences</a></li>
+            <li id="id-header-navbar-remove-account"><a href="#"><i class="mdi mdi-18px mdi-account-remove"></i> Remove account</a></li>
+            <li role="separator" class="divider"></li>
+            <li id="id-header-navbar-logout"><a href="#"><i class="mdi mdi-18px mdi-logout"></i> Log out</a></li>
+          </ul>
+        </li>
+        <li>
+            <div id="id-header-navbar-profile-plugin" class="plugin-profile-picture"></div>
+        </li>
+      </ul>
+    </div><!-- /.navbar-collapse -->
+  </div><!-- /.container-fluid -->
+</nav>                
+                
+
+ 
+           <section class="main-container-default">
+            <div id="main-map-canvas"></div>
+
+      
+        <!-- Modal forms-->
+        <div id="id-login-modal" class="modal"></div> <!-- Modal form for login-->
+        <div id="id-signup-modal" class="modal"></div> <!-- Modal form for signup-->
+        <div id="id-forgot-password-modal" class="modal"></div> <!-- Modal form for login-->
+        <div id="id-login-validated-email"></div>     <!-- Modal form for not validated email-->
+        <div id="id-change-password-modal" class="modal"></div>     <!-- Modal form for changing password-->
+        <div id="id-remove-account-modal" class="modal"></div>     <!-- Modal form for account removal-->
+        <div id="id-session-expired-modal" class="modal"></div><!-- Modal form for session expired-->
+
+        <div id="id-profile-edit-modal" class="modal">        </div> 
+
+            
+            
+            
+           </section>
+            
+            <footer class="footer-default"></footer>
+        </div>       
+        
+        
+        
+
+    </body>
+</html>
