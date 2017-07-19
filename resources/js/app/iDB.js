@@ -60,10 +60,8 @@ IndexedDB.prototype.saveMe = function() {
     localStorage.setItem("avatar_0", myUser.avatar);
     myUser.avatar= "";
     myUser.id = 0;
-    console.log(myUser);
     var tx = db.transaction(['myself'], "readwrite");
     var store = tx.objectStore('myself');
-    myUser.print();
     store.put(myUser);  //We only have one entry in this table
 };
 
@@ -77,8 +75,6 @@ IndexedDB.prototype.getMe = function() {
     getUser.onsuccess = function() {
         Globals.myUser.reload(getUser.result);  //Reload the user
         Globals.myUser.avatar = localStorage.getItem("avatar_0");
-        console.log("RELOADED USER FROM DB:");
-        Globals.myUser.print();
         $(window).trigger("Global.User.available"); // Update profile objects
     };
 /*    var cursor = store.openCursor();

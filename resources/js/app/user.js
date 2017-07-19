@@ -6,7 +6,9 @@
 
 //To be moved to global settings!
 var Globals = {};
-Globals.myUser = new User(); //Global variable that contains current loggedIn user
+Globals.myUser = new User();        //Global variable that contains current loggedIn user
+Globals.myDB = new IndexedDB();     //Global variable containing IndexedDB access
+
 
 var ProjectSettings = {};
 ProjectSettings.defaultCountry = "ES";
@@ -18,7 +20,6 @@ ProjectSettings.sessionDurationMinutes = 20; //This should be set to 60 but for 
 if (ProjectSettings.useLocalServer) {
     ProjectSettings.domain = "http://127.0.0.1/eCubeServer";
     ProjectSettings.serverUrl = "http://localhost/eCubeServer/php";
-    //ProjectSettings.serverUrl = "http://127.0.0.1/eCubeWeb/public_html/php";
 } else {
     ProjectSettings.domain = "http://www.ecube-solutions.com/"
     ProjectSettings.serverUrl = "http://www.ecube-solutions.com/php";

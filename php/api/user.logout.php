@@ -14,7 +14,9 @@ if (isset($_SERVER['HTTP_COOKIE'])) {
         $name = trim($parts[0]);
         echo 'Erased cookie: ' . $name;
         $params = session_get_cookie_params();
-        setcookie($name, '', 0, $params['path'], $params['domain'], $params['secure'], isset($params['httponly']));
+        if ($name === "PHPSESSID") {
+            setcookie($name, '', 0, $params['path'], $params['domain'], $params['secure'], isset($params['httponly']));
+        }
     }
 }
 //Destroy the session

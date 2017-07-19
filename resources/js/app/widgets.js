@@ -1350,14 +1350,14 @@ $(document).ready(function(){
             var myResponse = JSON.parse(response.account);
             Globals.myUser.reload(myResponse);
             
-            myDB.saveMe();  //Save downloaded user into db for later usage
-            myDB.getMe();  // This will trigger global event Global.User.available
+            Globals.myDB.saveMe();  //Save downloaded user into db for later usage
+            Globals.myDB.getMe();  // This will trigger global event Global.User.available
             console.log("Here is the user restored :");
             console.log(Globals.myUser);
             //myUser.get();
             //Now trigger the window
             console.log("Are we triggering ?????????????????");
- //           jQuery(window).trigger("Global.User.loggedIn");    
+            jQuery(window).trigger("Global.User.loggedIn");    
 
             myObject.hide();
             myObject.reset();
