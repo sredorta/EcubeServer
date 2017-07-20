@@ -136,7 +136,9 @@ $(document).ready(function(){
         }
         
         //Get notifications
-        Globals.myUser.notificationsGet();
+        Globals.myDB.sync();
+        //Globals.myUser.notificationsGet();
+        //console.log(parseInt(new Date().getTime() / 1000));
     });
       
     //----------------------------------------------------------------------

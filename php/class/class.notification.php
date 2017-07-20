@@ -13,6 +13,8 @@ class Notification {
     public $user_id;
     public $message;
     public $from;
+    public $visited;
+    public $timestamp;
     				
     function __construct() {}
     
