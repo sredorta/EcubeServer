@@ -32,5 +32,6 @@ include ("../class/class.json.php");                //json class
 include ("../class/class.singleton.php");           //Singleton class
 include ("../class/class.database.php");            //Database access class
 include ("../class/class.user.php");                //user class
+include ("../class/class.notification.php");                //user class
 include ("../class/class.email.php");               //Email send helper
 Log::i("", "------- End of loading --------"); //Show that we have loaded the file

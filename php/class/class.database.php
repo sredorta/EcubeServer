@@ -120,6 +120,19 @@ class Database extends Singleton {
         }
     }
     
+    //Returns result from sql
+    function get($sql) {
+       //$sql = "SELECT notifications.* FROM users JOIN notifications ON users.id = notifications.user_id WHERE users.id = 177";
+        //$sql = "SELECT notifications.* users JOIN notifications ON users.id = notifications.user_id WHERE users.id = 177";
+        Log::i("DATABASE::get", $sql);
+        $result = mysqli_query($this->mConnexion, $sql);
+        $myResult = mysqli_fetch_all($result,MYSQLI_ASSOC);
+        foreach ($myResult as $item) {
+           Log::i("NOTIF", implode(",", $item));
+        }
+        return $myResult;
+    }
+    
     function removeRow($table, $whereField) {
         $sql = "DELETE FROM $table WHERE $whereField";
         Log::i("DATABASE::removeRow", $sql);

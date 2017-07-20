@@ -16,8 +16,6 @@ if(DATABASE_ENVIRONMENT == "localhost") {
 	define('DB_SERVER',"localhost");
 	define('DB_DUMP_FILE', __DIR__ . "/../toolbox/mydatabase.sql");
 	define('DB_DATABASE_IMPORT_TARGET', "id228014_db_stations");  //This is only for testing
-        //Tables definition
-        define('DB_TABLE_USERS', "users");
 } else {
 	/* Database connection variables */
 	define('DB_USER_PREFIX',"u623978670_");	
@@ -27,9 +25,12 @@ if(DATABASE_ENVIRONMENT == "localhost") {
 	define('DB_SERVER',"10.4.1.126");
 	define('DB_DUMP_FILE', __DIR__ . "/../toolbox/mydatabase.sql");
 	define('DB_DATABASE_IMPORT_TARGET', DB_DATABASE);         //This is the target for the import DB
-        //Tables definition
-        define('DB_TABLE_USERS', "users");
 }
+
+//Table names
+define('DB_TABLE_USERS', "users");
+define('DB_TABLE_NOTIFICATIONS', "notifications");
+
 //TODO to be moved in a separated file
 //Return key codes in the json message
 define('KEY_CODE_SUCCESS',"success");

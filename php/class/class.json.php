@@ -50,4 +50,8 @@ class JsonResponseAccount extends JsonResponse {
     public $account;
 
 }
+class JsonResponseNotifications extends JsonResponse {
+    //We add account that is an object with all the fileds of a user class
+    public $notifications;
+}
 Log::i(basename(__FILE__), "End of loading..."); //Show that we have loaded the file

@@ -115,10 +115,8 @@ $(document).ready(function(){
             $("#id-header-navbar-edit-home").css({visibility:"visible"});
         }
         //Add marker with home location
-        console.log("USE HOME IS : " + Globals.myUser.Pref_useHome);
         if (Globals.myUser.Pref_useHome == 1) {
             var uluru = {lat: parseFloat(Globals.myUser.latitude), lng: parseFloat(Globals.myUser.longitude)};
-            console.log(uluru);
             mapMainGlobal.setZoom(parseInt(Globals.myUser.Pref_zoomValue));
             mapMainGlobal.panTo(uluru);
             //We only create the marker once !
