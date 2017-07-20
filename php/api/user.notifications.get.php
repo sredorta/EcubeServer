@@ -2,28 +2,36 @@
 include ("../constants/constants.general.php");
 
 $myUser = new User(); 
-$myUser->initFromPOST();
 
-$myUser->email = "sergi.redorta@hotmail.com";
-//We need to get id from session !!!!!!!!!!!!!!!!!!!!!!!!!!!!! this is only for debug !!!!!!!!!!!!!!!!
+//Check if we have a session as required
+session_start();
+
+Log::i("SESSION", "Restored session for id: " . $_SESSION['user_id']);
+
+//Get the userID from the session if available
+if (!isset($_SESSION['user_id'])) {
+    $json = new JsonResponseAccount();
+    $json->result = KEY_CODE_ERROR_SESSION_INVALID;
+    $json->output();
+}
 
 //Open DB
 $myDb = Database::instance();
 $myDb->openDatabase(); // If there is an error a Json is sent with the error message
 
-if ($myUser->dB_exists() == false) {
-    $json = new JsonResponseAccount();
-    $json->result = KEY_CODE_ERROR_USER_NOT_EXISTS;
-    $json->output();
-    exit;
+$myUser->id = $_SESSION['user_id'];
+if (!$myUser->dB_exists()) {      
+        $json = new JsonResponse();
+        $json->result = KEY_CODE_ERROR_USER_NOT_EXISTS;
+        $json->output();
+        exit();
 }
-$myUser->id = $myUser->dB_getId();
 
 //Get the fields from the notification object
 $myNotif = new Notification();
 
 //Now that we have the id of the user we find the notifications of the user
-$sql = "SELECT " . $myNotif->getFieldsAll() ." FROM users JOIN notifications ON users.id = notifications.user_id WHERE users.id = 177";
+$sql = "SELECT " . $myNotif->getFieldsAll() ." FROM users JOIN notifications ON users.id = notifications.user_id WHERE users.id = " . $myUser->id;
 $result = $myDb->get($sql);
 $myNotificationsList = array();
 foreach ($result as $row) {

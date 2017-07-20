@@ -134,6 +134,9 @@ $(document).ready(function(){
             mapMainGlobal.setZoom(parseInt(Globals.myUser.Pref_zoomValue));
             mapMainGlobal.panTo(mapMarkerCurrentPosition.getPosition());
         }
+        
+        //Get notifications
+        Globals.myUser.notificationsGet();
     });
       
     //----------------------------------------------------------------------

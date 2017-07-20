@@ -418,3 +418,9 @@ User.prototype.updateHomeLocation = function(latitude,longitude) {
         var serializedData = jQuery.param(myObject);
         this.ajaxCall(serializedData,ProjectSettings.serverUrl + "/api/user.update.php", "update");
 };
+
+//Update one field
+User.prototype.notificationsGet = function() {
+        var serializedData = "";
+        this.ajaxCall(serializedData,ProjectSettings.serverUrl + "/api/user.notifications.get.php", "notifications_get");
+};
