@@ -2,7 +2,7 @@
  * Handles indexed dB
  */
 
-/* global Globals */
+/* global Globals, ProjectSettings */
 
 function IndexedDB() {
     this._name = "IndexedDB";
@@ -22,18 +22,35 @@ IndexedDB.prototype.init = function() {
     var myObject = this;
     this._log("Opening database");
     var indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB || window.shimIndexedDB;
-    var openRequest = indexedDB.open('myDb',2);
+    
+    if (this.db != null) this.db.close(); //Close if the DB was open
+    //Remove the dB to get fresh dB
+    var req = indexedDB.deleteDatabase("myDb");
+    req.onsuccess = function () {
+        myObject._log("Deleted database successfully");
+        var openRequest = indexedDB.open('myDb',2);
+    };
+    req.onerror = function () {
+        myObject._log("Couldn't delete database");
+    };
+    req.onblocked = function () {
+        myObject._log("Couldn't delete database due to the operation being blocked");
+    };
+    
+    
+    var openRequest = indexedDB.open('myDb',1);
   
     //Create the schema
     openRequest.onupgradeneeded = function() {
        myObject.db = openRequest.result; 
        myObject._log("Upgrade needed");
-       myObject.create(myObject.db);
+       myObject.create();
     };
    
    openRequest.onsuccess = function(e) {
        myObject._log("Database open !");
        myObject.db = openRequest.result;
+       console.log("Triggering: Global.iDB.ready");
        $(window).trigger('Global.iDB.ready');
    };
    
@@ -43,18 +60,36 @@ IndexedDB.prototype.init = function() {
    };
 
 };
+
+
 //Create the schema
-IndexedDB.prototype.create = function(db) {
+IndexedDB.prototype.create = function() {
+    var db = this.db;
     var myObject = this;
     myObject._log("Create db");
-    db.deleteObjectStore('users');
-    db.deleteObjectStore('myself');
-    db.deleteObjectStore('notifications');
+    //this.delete();
     var store = db.createObjectStore('users', {keyPath: 'id'}); //Users table
     store.createIndex('email', 'email',  {unique:false});
     store = db.createObjectStore('myself', {keyPath: 'id'}); //myself table
     store = db.createObjectStore('notifications', {keyPath: 'notification_id'}); //Notifications table
 };
+
+IndexedDB.prototype.close = function() {
+   //this.delete(); //Delete user related data
+   var indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB || window.shimIndexedDB;
+ 
+   this.db.close();
+   var req = indexedDB.deleteDatabase("myDb");
+   req.onsuccess = function () {
+        console.log("Deleted database successfully");
+   };
+   req.onerror = function () {
+      console.log("Couldn't delete database");
+   };
+   req.onblocked = function () {
+       console.log("Couldn't delete database due to the operation being blocked");
+   };
+}
 
 
 IndexedDB.prototype.saveMe = function() {
@@ -92,36 +127,64 @@ IndexedDB.prototype.clone_user = function () {
   var db = myObject.db;
   var myUser = new User();  
   //Get the user from the server into the iDB
-  myObject._log("Clonning user...");
-  if ($.readCookie("PHPSESSID")!== null) {
-    myUser.callingObject = $(document);  
-    myUser.restore();  //Restore from server the current user 
-    $(document).on("User.restore.ajaxRequestSuccess", function(event, response) {
-        var myResponse = JSON.parse(response.account);
-        Globals.myUser.reload(myResponse);
-        localStorage.set
-        var tx = db.transaction(['myself'], "readwrite");
-        var store = tx.objectStore('myself');
-        console.log("Before error!!!");
-        myUser.reload(Globals.myUser);
-        myUser.avatar = "";
-        console.log(myResponse);
-        store.put(myResponse);
-        $(window).trigger('Global.user.available');
-        console.log("After error!!!");
+  myObject._log("Clonning user..:::::::::::::::.");
+    console.log("PHPSESSID not null");
+    //Restore the user
+    var serializedData = "";
+    var url = ProjectSettings.serverUrl + "/api/user.restore.php";
+    console.log("Running ajax with request: " + url );
+    var request = $.ajax({
+            url: url,
+            type: "POST",
+            data: serializedData
+        });
+    console.log(request);    
+    // Callback handler that will be called on success
+    request.done(function (response, textStatus, jqXHR){
+        console.log("done, sending success event !");
+        console.log("-------------------------");
+        console.log(response);
+        console.log("-------------------------");
+        //Now check if the answer is success and if not provide the error message from the server
+        if (response.result === "success") {
+            var myResponse = JSON.parse(response.account);
+            Globals.myUser.reload(myResponse);
+            localStorage.setItem("avatar_0", myResponse.avatar);
+            var tx = db.transaction(['myself'], "readwrite");
+            var store = tx.objectStore('myself');
+            myUser.reload(Globals.myUser);
+            myUser.avatar = "avatar_0";
+            console.log(myResponse);
+            store.put(myResponse); 
+        } else {
+            console.log(new AjaxHelper().getServerMessage(response.result));
+        }
+        //Pop-up session expired
+        if (response.result === "error.session.invalid") {
+            jQuery(window).trigger("Global.User.sessionExpired");
+        }
+    });
 
-    });  
-    $(document).on("User.restore.ajaxRequestAlways", function() {
+    // Callback handler that will be called on failure
+    request.fail(function (jqXHR, textStatus, errorThrown){
+        console.log(jqXHR);
+        //Triger the event to do the necessary things at the caller with the formated answer
+        console.log("I´m in the user and triggering fail with message : " + new AjaxHelper().getStatusMessage(errorThrown, jqXHR.status));
+    });
+
+    // Callback handler that will be called regardless
+    // if the request failed or succeeded
+    request.always(function () {
+        
         console.log("User restored in dB:");
         console.log(Globals.myUser);
-        console.log("Triggering : Global.iDB.clone.user");
+        console.log("Triggering : Global.iDB.user.ready");
+        console.log(Globals.myUser);
+        console.log("Latitude: " + Globals.myUser.latitude);
+        console.log("Longitude: " + Globals.myUser.longitude);
         $(window).trigger('Global.iDB.user.ready');
-    });
-  } else {
-//      Globals.myUser.print();
-      console.log("Triggering : Global.iDB.clone.user");
-      $(window).trigger('Global.iDB.user.ready');
-  }
+        $(window).trigger('iDB.user.ready'); 
+    });      
 };
 
 IndexedDB.prototype.clone_notifications = function () {
@@ -167,7 +230,7 @@ IndexedDB.prototype.clone = function() {
   var db = myObject.db;
   
   myObject.clone_user();
-  $(window).on('Global.iDB.user.ready', function() {
+  $(window).on('iDB.user.ready', function() {
     myObject.clone_notifications();
   });
   $(window).on('Global.iDB.user.notifications.ready', function() {

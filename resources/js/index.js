@@ -28,37 +28,13 @@ $(document).ready(function(){
     $("#id-forgot-password-modal").pluginModalFormForgotPassword();    
     
     
-    //------------------- iDB initialization
-    console.log("here!");
-    Globals.myDB.init(); //Reset the database
-    $(window).on('Global.iDB.ready', function () {
-        console.log("here!!!");
-        if ($.readCookie("PHPSESSID")== null) {
-            $("#id-header-navbar-button-login").css({visibility:"visible"});
-            $("#id-header-navbar-button-signup").css({visibility:"visible"});
-            $("#id-header-navbar-profile-plugin").css({visibility:"visible"});
-        }
-        Globals.myDB.clone();    
-    });
-    $(window).on('Global.iDB.clone.completed', function () {
-        Globals.myDB.syncStart();
-    });    
-    
-    $(window).on('Global.iDB.user.ready', function() {
-        console.log("Got event : Global.iDB.user.ready");
-        User.getLocation();   //Start the localization
-    });
-    
-    
-    
     //----------------------------------------------------------------------
-    // Localize user and setup map
+    // Localize user and setup map and then init the iDB with user data if logged-in
     //----------------------------------------------------------------------
-    //Get the coordinates of the user     
-//    User.getLocation();   //Start the localization
-
+    User.getLocation();   //Start the localization
     //When location is available update cookies
     $(window).on('Global.User.localized', function(event,location,type) {
+        console.log("Got event Global.User.localized ! : " + type);
         //When it's coarse we zoom the map and wait for the fine event           
         if (type === "coarse") {
             var uluru = {lat: location.latitude, lng: location.longitude};
@@ -86,82 +62,105 @@ $(document).ready(function(){
                 animation: google.maps.Animation.DROP,
                 map: mapMainGlobal
             });
-            Globals.myDB.clone();
-//            jQuery(window).trigger("Global.User.restore"); //Trigger auto restore if PHPSESSID exists and valid
-        }
-    });
-        
-        
-    //----------------------------------------------------------------------
-    // Check if user is logged in
-    // ---------------------------------------------------------------------
-    $(window).on('Global.User.restore', function(event,location,type) {
-        //Check if we have a valid cookie with a session and if so restore the user
-        if ($.readCookie("PHPSESSID")!== null) {
-            Globals.myUser.restore();  //Restore from server the current user         
-        } else {
-            $("#id-header-navbar-button-login").css({visibility:"visible"});
-            $("#id-header-navbar-button-signup").css({visibility:"visible"});
-            $("#id-header-navbar-profile-plugin").css({visibility:"visible"});
             
+            //------------------- iDB initialization
+           
+            Globals.myDB.init(); //Reset the database
         }
-        $(this).on("User.restore.ajaxRequestSuccess", function(event, response) {
-            var myResponse = JSON.parse(response.account);
-            Globals.myUser.reload(myResponse);
-            Globals.myDB.saveMe();  //Save downloaded user into db for later usage
-            Globals.myDB.getMe();
-            //Now trigger the window
-            jQuery(window).trigger("Global.User.loggedIn");           
-           $(this).unbind("User.restore.ajaxRequestSuccess");
-        });
-        
-        $(this).on("User.restore.ajaxRequestFail", function(event, response) {
+    });
+    
+    //----------------------------------------------------------------------
+    // iDB syncronization
+    //----------------------------------------------------------------------
+    $(window).on('Global.iDB.ready', function () {
+        if ($.readCookie("PHPSESSID")== null) {
             $("#id-header-navbar-button-login").css({visibility:"visible"});
             $("#id-header-navbar-button-signup").css({visibility:"visible"});
             $("#id-header-navbar-profile-plugin").css({visibility:"visible"});
-            console.log("We got fail !");         
-           $(this).unbind("User.restore.ajaxRequestFail");
-        });
+        }
+        console.log("Clonning db...");
+        Globals.myDB.clone();    
     });
-
+    $(window).on('Global.iDB.clone.completed', function () {
+        Globals.myDB.syncStart();
+    });   
+    
     //----------------------------------------------------------------------
     //When user is available or has been updated we update all related objects
-    $(window).on('Global.User.available', function () {
-        console.log("Got event user available !");
+    $(window).on('Global.iDB.user.ready', function () {
+      console.log("Got event : Global.iDB.user.ready");
+      console.log(Globals.myUser);
+      console.log("Latitude: " + Globals.myUser.latitude);
+      console.log("Longitude: " + Globals.myUser.longitude);
+      if ($.readCookie("PHPSESSID") !== null) {  
         $("#id-header-navbar-profile-plugin").pluginProfilePicture("setImage", localStorage.getItem("avatar_0"));
         $("#id-header-navbar-profile-plugin").pluginProfilePicture("setLoggedIn");
         $("#id-header-navbar-button-login").css({visibility:"hidden"});
         $("#id-header-navbar-button-signup").css({visibility:"hidden"});
         $("#id-header-navbar-button-user").css({visibility:"visible"});
         $("#id-header-navbar-profile-plugin").css({visibility:"visible"});
+        //Show email not validated if required
+        if (Globals.myUser.validated_email === "0") {
+            $("#id-login-validated-email").pluginModalFormValidateEmail();
+            $("#id-login-validated-email").pluginModalFormValidateEmail("show");
+        }
         //Enable disable home displacement depending on Pref_useHome
         if (Globals.myUser.Pref_useHome == 0) {
             $("#id-header-navbar-edit-home").css({visibility:"hidden"});
         } else {
             $("#id-header-navbar-edit-home").css({visibility:"visible"});
         }
+        
+      } else {
+        $(".plugin-profile-picture").pluginProfilePicture("setDefaultImage");
+        $(".plugin-profile-picture").pluginProfilePicture("setLoggedOut");
+        $("#id-header-navbar-button-login").css({visibility:"visible"});
+        $("#id-header-navbar-button-signup").css({visibility:"visible"});
+        $("#id-header-navbar-button-user").css({visibility:"hidden"});
+        $("#id-login-validated-email").pluginModalFormValidateEmail("hide");
+      }
+      if ($.readCookie("PHPSESSID") !== null ) {
         //Add marker with home location
         if (Globals.myUser.Pref_useHome == 1) {
             var uluru = {lat: parseFloat(Globals.myUser.latitude), lng: parseFloat(Globals.myUser.longitude)};
+            console.log(uluru);
             mapMainGlobal.setZoom(parseInt(Globals.myUser.Pref_zoomValue));
             mapMainGlobal.panTo(uluru);
             //We only create the marker once !
             if (mapMarkerHomePosition !== null) mapMarkerHomePosition.setMap(null);
-            mapMarkerHomePosition = null;
-            mapMarkerHomePosition = new google.maps.Marker({
-                position: uluru,
-                animation: google.maps.Animation.DROP,
-                icon: "./resources/img/icon-marker-home.png",
-                map: mapMainGlobal
-            });
+                mapMarkerHomePosition = null;
+                mapMarkerHomePosition = new google.maps.Marker({
+                    position: uluru,
+                    animation: google.maps.Animation.DROP,
+                    icon: "./resources/img/icon-marker-home.png",
+                    map: mapMainGlobal
+                });
         } else {
             if (mapMarkerHomePosition !== null) mapMarkerHomePosition.setMap(null);
-            mapMarkerHomePosition = null;
-            mapMainGlobal.setZoom(parseInt(Globals.myUser.Pref_zoomValue));
-            mapMainGlobal.panTo(mapMarkerCurrentPosition.getPosition());
+                mapMarkerHomePosition = null;
+                mapMainGlobal.setZoom(parseInt(Globals.myUser.Pref_zoomValue));
+                mapMainGlobal.panTo(mapMarkerCurrentPosition.getPosition());
         }
-
+      } else {
+        //Pan back to user location
+        if (mapMarkerHomePosition!== null) {
+            mapMarkerHomePosition.setMap(null);        //Remove home position marker
+            mapMarkerHomePosition = null;
+        }
+        mapMainGlobal.setZoom(12);
+        mapMainGlobal.panTo(mapMarkerCurrentPosition.getPosition());
+      }
     });
+
+    
+    
+    
+ 
+              
+      
+      
+      
+      
       
     //----------------------------------------------------------------------
     //LOGIN
@@ -173,41 +172,25 @@ $(document).ready(function(){
     //Act on loggedIn event
     $(window).on('Global.User.loggedIn', function() {
         console.log("Got event user loggedIn");
-        Globals.myDB.clone_user();
-        //Show email not validated if required
-        if (Globals.myUser.validated_email === "0") {
-            $("#id-login-validated-email").pluginModalFormValidateEmail();
-            $("#id-login-validated-email").pluginModalFormValidateEmail("show");
-        }
-            
+        Globals.myDB.clone_user();            
     });
                
     //----------------------------------------------------------------------
     //LOGOUT
     //----------------------------------------------------------------------
     $("#id-header-navbar-logout").on('click', function() {
-        Globals.myUser.logOut(); //Remove the session
-        Globals.myDB.init();
-        //Globals.myUser.clear(); //Change to remove the IndexedDB !!!
-        jQuery(window).trigger("Global.User.loggedOut");   //Trigger the global event loggedOut
+        var myUser = new User();
+        myUser.callingObject = $(document);
+        myUser.logOut(); //Remove the session
+        $(document).on("User.logout.ajaxRequestAlways", function () {
+            console.log("logged out request completed !!!!!!!!!!");
+            $.eraseCookie("PHPSESSID"); //Erase the cookie and restart the iDB
+            Globals.myDB.syncStop();
+            Globals.myDB.close();
+            location.reload();
+        });
     });
-        
-    //Do all LogginOut tasks
-    $(window).on('Global.User.loggedOut', function() {
-        console.log("Got event user loggedOut");
-        $(".plugin-profile-picture").pluginProfilePicture("setDefaultImage");
-        $(".plugin-profile-picture").pluginProfilePicture("setLoggedOut");
-        $("#id-header-navbar-button-login").css({visibility:"visible"});
-        $("#id-header-navbar-button-signup").css({visibility:"visible"});
-        $("#id-header-navbar-button-user").css({visibility:"hidden"});
-        $("#id-login-validated-email").pluginModalFormValidateEmail("hide");
-        //Pan back to user location
-        mapMarkerHomePosition.setMap(null);        //Remove home position marker
-        mapMarkerHomePosition = null;
-        mapMainGlobal.setZoom(12);
-        mapMainGlobal.panTo(mapMarkerCurrentPosition.getPosition());
-    });   
-        
+
     //----------------------------------------------------------------------
     // SIGNUP
     //----------------------------------------------------------------------
@@ -312,13 +295,13 @@ $(document).ready(function(){
         // SESSION EXPIRE
         //----------------------------------------------------------------------               
         $("#id-session-expired-modal").pluginModalFormSessionExpired();
-        var sessionInterval = setInterval(function () {
+/*        var sessionInterval = setInterval(function () {
             console.log("Checked if session expired ! " + $.readCookie("PHPSESSID"));
             if ($.readCookie("presence") == null) {
                 clearInterval(sessionInterval);
                 $("#id-session-expired-modal").pluginModalFormSessionExpired("show");
             }
-        }, ProjectSettings.sessionDurationMinutes * 60000); //Check every x minutes if we still have the cookie
+        }, ProjectSettings.sessionDurationMinutes * 60000); //Check every x minutes if we still have the cookie*/
         //If we get a session expired in one of the ajax Calls we come here
         $(window).on('Global.User.sessionExpired', function() {
                 $("#id-session-expired-modal").pluginModalFormSessionExpired("show");

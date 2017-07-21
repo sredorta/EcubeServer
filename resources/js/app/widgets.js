@@ -1341,35 +1341,8 @@ $(document).ready(function(){
 
             myObject.hide();
             myObject.reset();
-            
- /*           
-            var myResult = JSON.parse(response.account);
-            //Restore the user with a new AjaxCall
-            $("#id-login-modal-form").pluginFormValidator("setEvent", "User.restore");
-            myUser.callingObject = $("#id-login-modal-form");
-            myUser.restore(); //makes ajax call to download all user content
-            $.createCookie("presence", true, ProjectSettings.sessionDurationMinutes);
-            */
         });
- /*       //When the user has been restored
-        $(this.element).on('User.restore.ajaxRequestSuccess', function(event, response) { 
-            console.log("On restore success !!!!!");
-            var myResponse = JSON.parse(response.account);
-            Globals.myUser.reload(myResponse);
-            
-            Globals.myDB.saveMe();  //Save downloaded user into db for later usage
-            Globals.myDB.getMe();  // This will trigger global event Global.User.available
-            console.log("Here is the user restored :");
-            console.log(Globals.myUser);
-            //myUser.get();
-            //Now trigger the window
-            console.log("Are we triggering ?????????????????");
-            jQuery(window).trigger("Global.User.loggedIn");    
-
-            myObject.hide();
-            myObject.reset();
-        });
- */   
+ 
         //Close modal on click
         $(this.element).find(".modal-close").on('click', function () {
             console.log("removing");

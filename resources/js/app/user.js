@@ -119,6 +119,7 @@ User.prototype.print = function() {
 
 //Gets the location based on the IP address to avoid requests as fallback and then asks for fine position
 User.getLocation = function() {
+    console.log("getLocation !!!");
     var myLocation = {
         country:"",
         latitude:"",
@@ -146,12 +147,14 @@ User.getLocation = function() {
                 longitude:location.longitude,
                 accuracy:10000
             };
+            console.log("Triggering: Global.User.localized coarse");
             jQuery(window).trigger("Global.User.localized",[myLocation,"coarse"]);
             //Now try to get fine location
             if (navigator.geolocation) {
                navigator.geolocation.getCurrentPosition(locationHandler, locationErrorHandler, locationConfig);
                location_timeout = setTimeout(locationErrorHandler, 10000);
             } else {
+               console.log("Triggering: Global.User.localized fine");
                jQuery(window).trigger("Global.User.localized",[myLocation,"fine"]);
             }
         },
@@ -177,6 +180,7 @@ User.getLocation = function() {
                                 longitude:location.coords.longitude,
                                 accuracy:location.coords.accuracy
                             };
+                        console.log("Triggering: Global.User.localized fine");    
                         jQuery(window).trigger("Global.User.localized",[myLocation,"fine"]);
                      } 
                  } 
@@ -185,7 +189,6 @@ User.getLocation = function() {
       });
     }
     function locationErrorHandler() {
-        //We trigger localization event and we will actually be using the coarse coords as we couldn't get fine
         jQuery(window).trigger("Global.User.localized",[myLocation,"fine"]);
         console.log("User did not give access to fine location");
     }    
@@ -295,9 +298,9 @@ User.prototype.ajaxCall = function(serializedData, url, eventName) {
                 jQuery(myObject).trigger("User." + eventName + ".ajaxRequestFail", [new AjaxHelper().getServerMessage(response.result)]);
             }
             //Pop-up session expired
-//            if (response.result === "error.session.invalid") {
-//                jQuery(window).trigger("Global.User.sessionExpired");
-//            }
+            if (response.result === "error.session.invalid") {
+                jQuery(window).trigger("Global.User.sessionExpired");
+            }
         });
 
         // Callback handler that will be called on failure
