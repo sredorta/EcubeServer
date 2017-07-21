@@ -272,7 +272,7 @@ User.prototype.ajaxCall = function(serializedData, url, eventName) {
             request.abort();
         }  
        console.log("POST data : " + serializedData);
-
+       console.log(url);
        // Fire off the request to /form.php
        request = $.ajax({
             url: url,
@@ -295,9 +295,9 @@ User.prototype.ajaxCall = function(serializedData, url, eventName) {
                 jQuery(myObject).trigger("User." + eventName + ".ajaxRequestFail", [new AjaxHelper().getServerMessage(response.result)]);
             }
             //Pop-up session expired
-            if (response.result === "error.session.invalid") {
-                jQuery(window).trigger("Global.User.sessionExpired");
-            }
+//            if (response.result === "error.session.invalid") {
+//                jQuery(window).trigger("Global.User.sessionExpired");
+//            }
         });
 
         // Callback handler that will be called on failure

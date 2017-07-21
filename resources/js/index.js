@@ -25,13 +25,24 @@ $(document).ready(function(){
     $("#id-header-navbar-button-user").css({visibility:"hidden"});
         
     //------------------- iDB initialization
-    Globals.myDB.open();
-        
+    console.log("here!");
+    Globals.myDB.init();
+    $(window).on('Global.iDB.ready', function () {
+        Globals.myDB.clone();    
+    });
+    $(window).on('Global.iDB.clone', function () {
+        Globals.myDB.syncStart();
+    });    
+    
+    
+    
+/*    
     //----------------------------------------------------------------------
     // Localize user and setup map
     //----------------------------------------------------------------------
-   //Get the coordinates of the user       
+    //Get the coordinates of the user     
     User.getLocation();   //Start the localization
+
     //When location is available update cookies
     $(window).on('Global.User.localized', function(event,location,type) {
         //When it's coarse we zoom the map and wait for the fine event           
@@ -61,10 +72,11 @@ $(document).ready(function(){
                 animation: google.maps.Animation.DROP,
                 map: mapMainGlobal
             });
+            Globals.myDB.clone();
             jQuery(window).trigger("Global.User.restore"); //Trigger auto restore if PHPSESSID exists and valid
         }
     });
-        
+ */       
         
     //----------------------------------------------------------------------
     // Check if user is logged in
@@ -134,11 +146,7 @@ $(document).ready(function(){
             mapMainGlobal.setZoom(parseInt(Globals.myUser.Pref_zoomValue));
             mapMainGlobal.panTo(mapMarkerCurrentPosition.getPosition());
         }
-        
-        //Get notifications
-        Globals.myDB.sync();
-        //Globals.myUser.notificationsGet();
-        //console.log(parseInt(new Date().getTime() / 1000));
+
     });
       
     //----------------------------------------------------------------------
@@ -164,6 +172,7 @@ $(document).ready(function(){
     //----------------------------------------------------------------------
     $("#id-header-navbar-logout").on('click', function() {
         Globals.myUser.logOut(); //Remove the session
+        Globals.myDB.init();
         //Globals.myUser.clear(); //Change to remove the IndexedDB !!!
         jQuery(window).trigger("Global.User.loggedOut");   //Trigger the global event loggedOut
     });

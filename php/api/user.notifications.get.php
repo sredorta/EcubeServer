@@ -6,8 +6,6 @@ $myUser = new User();
 //Check if we have a session as required
 session_start();
 
-Log::i("SESSION", "Restored session for id: " . $_SESSION['user_id']);
-
 //Get the userID from the session if available
 if (!isset($_SESSION['user_id'])) {
     $json = new JsonResponseAccount();
