@@ -23,25 +23,39 @@ $(document).ready(function(){
     $("#id-header-navbar-profile-plugin").pluginProfilePicture({inputDisabled:true});
     $("#id-header-navbar-profile-plugin").pluginProfilePicture("setLoggedOut");        
     $("#id-header-navbar-button-user").css({visibility:"hidden"});
-        
+    $("#id-login-modal").pluginModalFormLogin();
+    $("#id-signup-modal").pluginModalFormSignup();
+    $("#id-forgot-password-modal").pluginModalFormForgotPassword();    
+    
+    
     //------------------- iDB initialization
     console.log("here!");
-    Globals.myDB.init();
+    Globals.myDB.init(); //Reset the database
     $(window).on('Global.iDB.ready', function () {
+        console.log("here!!!");
+        if ($.readCookie("PHPSESSID")== null) {
+            $("#id-header-navbar-button-login").css({visibility:"visible"});
+            $("#id-header-navbar-button-signup").css({visibility:"visible"});
+            $("#id-header-navbar-profile-plugin").css({visibility:"visible"});
+        }
         Globals.myDB.clone();    
     });
-    $(window).on('Global.iDB.clone', function () {
+    $(window).on('Global.iDB.clone.completed', function () {
         Globals.myDB.syncStart();
     });    
     
+    $(window).on('Global.iDB.user.ready', function() {
+        console.log("Got event : Global.iDB.user.ready");
+        User.getLocation();   //Start the localization
+    });
     
     
-/*    
+    
     //----------------------------------------------------------------------
     // Localize user and setup map
     //----------------------------------------------------------------------
     //Get the coordinates of the user     
-    User.getLocation();   //Start the localization
+//    User.getLocation();   //Start the localization
 
     //When location is available update cookies
     $(window).on('Global.User.localized', function(event,location,type) {
@@ -73,10 +87,10 @@ $(document).ready(function(){
                 map: mapMainGlobal
             });
             Globals.myDB.clone();
-            jQuery(window).trigger("Global.User.restore"); //Trigger auto restore if PHPSESSID exists and valid
+//            jQuery(window).trigger("Global.User.restore"); //Trigger auto restore if PHPSESSID exists and valid
         }
     });
- */       
+        
         
     //----------------------------------------------------------------------
     // Check if user is logged in
@@ -159,6 +173,7 @@ $(document).ready(function(){
     //Act on loggedIn event
     $(window).on('Global.User.loggedIn', function() {
         console.log("Got event user loggedIn");
+        Globals.myDB.clone_user();
         //Show email not validated if required
         if (Globals.myUser.validated_email === "0") {
             $("#id-login-validated-email").pluginModalFormValidateEmail();

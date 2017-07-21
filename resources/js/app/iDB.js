@@ -17,35 +17,12 @@ IndexedDB.prototype._log = function(txt) {
 };
 
 
-//Will erase the iDB database remove and reopen database
-IndexedDB.prototype.init = function() {
-   var myObject = this;
-   var db = myObject.db;
-   var enter = 0;
-   myObject._log("init");
-   var req = indexedDB.deleteDatabase('myDb');
-    req.onsuccess = function () {
-        myObject._log("Deleted database successfully"); 
-        enter = 1;
-        myObject.open();       
-    };
-    req.onerror = function () {
-        console.log("Couldn't delete database");
-    };
-    req.onblocked = function () {
-        console.log("Couldn't delete database due to the operation being blocked");
-    }; 
-    if (!enter) {
-        
-    }
-};
-
 //Opens the database and recreates the schema if required
-IndexedDB.prototype.open = function() {
+IndexedDB.prototype.init = function() {
     var myObject = this;
     this._log("Opening database");
     var indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB || window.shimIndexedDB;
-    var openRequest = indexedDB.open('myDb',1);
+    var openRequest = indexedDB.open('myDb',2);
   
     //Create the schema
     openRequest.onupgradeneeded = function() {
@@ -70,6 +47,9 @@ IndexedDB.prototype.open = function() {
 IndexedDB.prototype.create = function(db) {
     var myObject = this;
     myObject._log("Create db");
+    db.deleteObjectStore('users');
+    db.deleteObjectStore('myself');
+    db.deleteObjectStore('notifications');
     var store = db.createObjectStore('users', {keyPath: 'id'}); //Users table
     store.createIndex('email', 'email',  {unique:false});
     store = db.createObjectStore('myself', {keyPath: 'id'}); //myself table
@@ -106,9 +86,8 @@ IndexedDB.prototype.getMe = function() {
 };
 
 
-//Will copy the server database into indexedDB
-IndexedDB.prototype.clone = function() {
-  this._log("Clonning IndexedDB...");
+IndexedDB.prototype.clone_user = function () {
+  this._log("Clonning IndexedDB for user...");
   var myObject = this;
   var db = myObject.db;
   var myUser = new User();  
@@ -120,10 +99,16 @@ IndexedDB.prototype.clone = function() {
     $(document).on("User.restore.ajaxRequestSuccess", function(event, response) {
         var myResponse = JSON.parse(response.account);
         Globals.myUser.reload(myResponse);
-        Globals.myUser.print();
+        localStorage.set
         var tx = db.transaction(['myself'], "readwrite");
         var store = tx.objectStore('myself');
-        store.put(Globals.myUser);
+        console.log("Before error!!!");
+        myUser.reload(Globals.myUser);
+        myUser.avatar = "";
+        console.log(myResponse);
+        store.put(myResponse);
+        $(window).trigger('Global.user.available');
+        console.log("After error!!!");
 
     });  
     $(document).on("User.restore.ajaxRequestAlways", function() {
@@ -131,22 +116,27 @@ IndexedDB.prototype.clone = function() {
         console.log(Globals.myUser);
         console.log("Triggering : Global.iDB.clone.user");
         $(window).trigger('Global.iDB.user.ready');
-        $(document).trigger('iDB.clone.user');
     });
-
   } else {
-      $(document).trigger('iDB.clone.user');
+//      Globals.myUser.print();
+      console.log("Triggering : Global.iDB.clone.user");
+      $(window).trigger('Global.iDB.user.ready');
   }
-  //Now get the notifications of the user
-  $(document).on('iDB.clone.user', function() {  
+};
+
+IndexedDB.prototype.clone_notifications = function () {
+  this._log("Clonning IndexedDB for notifications...");
+  var myObject = this;
+  var db = myObject.db;
+  
+    console.log("Clonning notifications...");  
     //Notifications clonning
     if ($.readCookie("PHPSESSID")!== null) {
         var serverNotifications = [];
         var iDBNotifications = [];
         var myUser = Globals.myUser;
         myUser.callingObject = $(document);
-        myUser.notificationsGet();
-    
+        myUser.notificationsGet();    
         //STEP 2: Get the notifications on the Server and compare
         $(document).on('User.notifications_get.ajaxRequestSuccess', function(event, response) {
             myObject._log("SUCCESS : user.notifications_get");
@@ -165,36 +155,34 @@ IndexedDB.prototype.clone = function() {
                     store.put(serverNotifications[i]);
                     console.log("Added into iDB : " + serverNotifications[i].notification_id);
             }
+            $(window).trigger('Global.iDB.user.notifications.ready');
 
         });    
-        $(document).on('User.notifications_get.ajaxRequestAlways', function() {
-            $(document).unbind('User.notifications_get.ajaxRequestSuccess');
-            $(document).trigger('iDB.clone.notifications');
-        });
-    } else {
-        $(document).trigger('iDB.clone.notifications');
     }
+}
+//Will copy the server database into indexedDB
+IndexedDB.prototype.clone = function() {
+  this._log("Clonning IndexedDB...");
+  var myObject = this;
+  var db = myObject.db;
+  
+  myObject.clone_user();
+  $(window).on('Global.iDB.user.ready', function() {
+    myObject.clone_notifications();
+  });
+  $(window).on('Global.iDB.user.notifications.ready', function() {
+     $(window).trigger('Global.iDB.clone.completed'); 
   });
   
-  
-  //Now clone next thing...
-  $(document).on('iDB.clone.notifications', function() {
-     console.log("iDB.notifications.cloned done...");
-     $(document).trigger('iDB.clone.completed');   //To be added at the last clonning process
-  });
-  //Send global event Global.iDB.clone to tell that database has been cloned
-  $(document).on('iDB.clone.completed', function() {
-      $(window).trigger('Global.iDB.clone');
-  });
 };
 
 //Starts the sync process
 IndexedDB.prototype.syncStart = function() {
   var myObject = this;
-  
+  myObject._log("Called syncStart");
   this.interval = setInterval(function() {
       myObject.sync();
-  },10000);  
+  },60000);  
 };
 //Starts the sync process
 IndexedDB.prototype.syncStop = function() {
@@ -202,14 +190,53 @@ IndexedDB.prototype.syncStop = function() {
   clearInterval(myObject.interval);  
 };
 
-
 //Will sync up the data with the server
+IndexedDB.prototype.sync = function() {
+  var myObject = this;  
+  this._log("IndexedDB sync...");
+  if ($.readCookie("PHPSESSID") !== null) {
+      myObject.sync_user();
+      myObject.sync_notifications();
+  }
+};
+
+//Syncs the user between indexedDB and SQL server
+//For the moment we only get from SQL to indexedDB for debug
+IndexedDB.prototype.sync_user = function() {
+    this._log("IndexedDB sync user...");
+    var serverUser = new User();
+    var iDBUser = new User();
+    var myObject = this;
+    var db = myObject.db;
+    //Get iDBUser
+    var tx = db.transaction(['myself'], "readwrite");
+    var store = tx.objectStore('myself');
+    var getUser = store.get(0);
+    getUser.onsuccess = function() {
+        iDBUser.reload(getUser.result);  //Reload the user
+        iDBUser.avatar = localStorage.getItem("avatar_0");
+        //Get SQL user
+        serverUser.callingObject = $(document);
+        serverUser.restore();
+    };  
+
+    //When the user has been restored from SQL
+    $(document).on('User.restore.ajaxRequestSuccess', function(event, response) { 
+            console.log("On restore success !!!!!");
+            var myResponse = JSON.parse(response.account);
+            Globals.myUser.reload(myResponse);
+            localStorage.setItem("avatar_0", myResponse.avatar);
+    });
+    
+};
+
+
 //Server adds notifications with timestamp via time() (UTC)
 //If there are updates during app we will change IdB timestamp with:
 // parseInt(new Date().getTime() / 1000)
 //When update to server then we compare latests timestamp
-IndexedDB.prototype.sync = function() {
-    this._log("IndexedDB sync...");
+IndexedDB.prototype.sync_notifications = function() {
+    this._log("IndexedDB sync notifications...");
     var serverNotifications = [];
     var iDBNotifications = [];
     var myUser = Globals.myUser;
@@ -292,3 +319,5 @@ IndexedDB.prototype.sync = function() {
     });
     
 };
+
+

@@ -1336,15 +1336,22 @@ $(document).ready(function(){
         $(this.element).on('User.login.ajaxRequestSuccess', function(event, response) {
             console.log("We are here and success on login, so now we need to restore");
             myObject._log("SUCCESS : user.login");
+            
+            jQuery(window).trigger("Global.User.loggedIn");    
+
+            myObject.hide();
+            myObject.reset();
+            
+ /*           
             var myResult = JSON.parse(response.account);
             //Restore the user with a new AjaxCall
             $("#id-login-modal-form").pluginFormValidator("setEvent", "User.restore");
             myUser.callingObject = $("#id-login-modal-form");
             myUser.restore(); //makes ajax call to download all user content
             $.createCookie("presence", true, ProjectSettings.sessionDurationMinutes);
-            
+            */
         });
-        //When the user has been restored
+ /*       //When the user has been restored
         $(this.element).on('User.restore.ajaxRequestSuccess', function(event, response) { 
             console.log("On restore success !!!!!");
             var myResponse = JSON.parse(response.account);
@@ -1362,7 +1369,7 @@ $(document).ready(function(){
             myObject.hide();
             myObject.reset();
         });
-    
+ */   
         //Close modal on click
         $(this.element).find(".modal-close").on('click', function () {
             console.log("removing");
