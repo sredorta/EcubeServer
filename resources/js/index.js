@@ -26,7 +26,7 @@ $(document).ready(function(){
     $("#id-login-modal").pluginModalFormLogin();
     $("#id-signup-modal").pluginModalFormSignup();
     $("#id-forgot-password-modal").pluginModalFormForgotPassword(); 
-
+    $("#id-header-navbar-button-notification span").css({visibility:"hidden"});
 
     //----------------------------------------------------------------------
     // Do the correct things depending on if we are logged or not
@@ -40,6 +40,7 @@ $(document).ready(function(){
             $("#id-header-navbar-button-signup").css({visibility:"hidden"});
             $("#id-header-navbar-button-user").css({visibility:"visible"});
             $("#id-header-navbar-profile-plugin").css({visibility:"visible"});
+            $("#id-header-navbar-button-notification").css({visibility:"visible"});
          } else {
             $(".plugin-profile-picture").pluginProfilePicture("setDefaultImage");
             $(".plugin-profile-picture").pluginProfilePicture("setLoggedOut");
@@ -47,7 +48,9 @@ $(document).ready(function(){
             $("#id-header-navbar-button-signup").css({visibility:"visible"});
             $("#id-header-navbar-profile-plugin").css({visibility:"visible"});
             $("#id-header-navbar-button-user").css({visibility:"hidden"});
-            $("#id-login-validated-email").pluginModalFormValidateEmail("hide");             
+            $("#id-header-navbar-button-notification").css({visibility:"hidden"});
+            $("#id-login-validated-email").pluginModalFormValidateEmail("hide");    
+            
          }
     });
     
@@ -168,7 +171,20 @@ $(document).ready(function(){
       }
     });
     
-      
+    //----------------------------------------------------------------------
+    // When user notifications are downloaded
+    //----------------------------------------------------------------------
+    $(window).on('Global.User.notifications_ready', function() {
+       console.log("Got event : Global.User.notifications_ready");
+       console.log("Found a total of notifications : " + Globals.data.notifications.length );
+       if (Globals.data.notifications.length == 0) {
+           $("#id-header-navbar-button-notification span").css({visibility:"hidden"});
+       } else {
+           $("#id-header-navbar-button-notification span").css({visibility:"visible"});
+       }
+       $("#id-header-navbar-button-notification span").html(Globals.data.notifications.length);
+    });
+
       
       
     //----------------------------------------------------------------------
