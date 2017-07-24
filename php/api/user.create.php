@@ -28,6 +28,7 @@ $myUser->creation_timestamp = time();
 $myUser->login_timestamp = time();
 $myUser->validated_email = "0";
 $myUser->validated_phone = "0";
+$myUser->timestamp = time();
 $myUser->printMe("After restoring from post:"); //Only for debug
 $avatar = $myUser->avatar;
 $myUser->avatar="";

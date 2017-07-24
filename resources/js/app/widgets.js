@@ -2767,7 +2767,7 @@ $(document).ready(function(){
         this._setUserData();
  
         //Do the apply on the modifications
-        var myUser = Globals.myUser;
+        var myUser = jQuery.extend(true, {}, Globals.data.myself);
         myUser.print();
         var field;
         var value;
@@ -2785,7 +2785,9 @@ $(document).ready(function(){
                 } else {
                     value = $("#id-profile-edit-modal-text-input-layout").find(".widget-profile-picture").pluginProfilePicture("getImageString");
                 }
-                myUser.update(field,value);
+                var now = parseInt(new Date().getTime() / 1000);
+                myUser.update(field,value,now);
+                Globals.data.myself.timestamp = now;
             }
         });    
         $(this.element).on('User.update.ajaxRequestAlways', function(event, response) {
@@ -2799,9 +2801,9 @@ $(document).ready(function(){
  
             if (field === "first_name") field = "firstName";
             if (field === "last_name") field ="lastName";
-            console.log('Globals.myUser.' + field +'=' + value);
-            eval('Globals.myUser.' + field +'="' + value + '"');
-            Globals.myDB.saveMe();
+            console.log("Globals.data.myself." + field + "=" + "\"" + value + "\";");
+            eval ("Globals.data.myself." + field + "=" + "\"" + value + "\";");
+            console.log(Globals.data.myself);
             myObject._setUserData();
 
             
@@ -2822,16 +2824,16 @@ $(document).ready(function(){
     //Set all data from user
     Plugin.prototype._setUserData = function() {      
         $(this.element).find("#id-profile-edit-modal-profile-picture").pluginProfilePicture({inputDisabled:true});
-        $(this.element).find("#id-profile-edit-modal-profile-picture").pluginProfilePicture("setImage", localStorage.getItem("avatar_0"));
+        $(this.element).find("#id-profile-edit-modal-profile-picture").pluginProfilePicture("setImage", Globals.data.myself.avatar);
         
-        var timestamp = parseInt(Globals.myUser.creation_timestamp * 1000);
+        var timestamp = parseInt(Globals.data.myself.creation_timestamp * 1000);
         var dateText = new Date(timestamp).toLocaleDateString();
         dateText = dateText +"  "+ new Date(timestamp).toLocaleTimeString();
         $("#id-profile-edit-modal-profile-created-date").html(dateText);
-        $("#id-profile-edit-modal-profile-text-name span:nth-child(1)").html(Globals.myUser.firstName);
-        $("#id-profile-edit-modal-profile-text-name span:nth-child(2)").html(Globals.myUser.lastName);
-        $("#id-profile-edit-modal-profile-text-email span").html(Globals.myUser.email);
-        $("#id-profile-edit-modal-profile-text-phone span").html(Globals.myUser.phone);        
+        $("#id-profile-edit-modal-profile-text-name span:nth-child(1)").html(Globals.data.myself.firstName);
+        $("#id-profile-edit-modal-profile-text-name span:nth-child(2)").html(Globals.data.myself.lastName);
+        $("#id-profile-edit-modal-profile-text-email span").html(Globals.data.myself.email);
+        $("#id-profile-edit-modal-profile-text-phone span").html(Globals.data.myself.phone);        
     };
     
     //Shows the modal
@@ -3005,8 +3007,8 @@ $(document).ready(function(){
                 }
                 console.log(ui.value);
                 console.log(myObj.attr('id'));
-                if (myObj.attr('id') === "id-preferences-slider-home") Globals.myUser.Pref_useHome = ui.value;
-                if (myObj.attr('id') === "id-preferences-slider-notifications-email") Globals.myUser.Pref_sendNotifEmail = ui.value; 
+                if (myObj.attr('id') === "id-preferences-slider-home") Globals.data.myself.Pref_useHome = ui.value;
+                if (myObj.attr('id') === "id-preferences-slider-notifications-email") Globals.data.myself.Pref_sendNotifEmail = ui.value; 
 		return 'Current value: ' + ui.value;
             }
           });              
@@ -3019,14 +3021,14 @@ $(document).ready(function(){
                 var myZoom = ui.value - 9;
                 myObj.find("#id-preferences-slider-zoom-value").html('( ' + myZoom + 'X )');
                 console.log(ui.value);
-                Globals.myUser.Pref_zoomValue = ui.value; //Update the value of the global user
+                Globals.data.myself.Pref_zoomValue = ui.value; //Update the value of the global user
 		return 'Current value: ' + ui.value;
             }
         });
         //Set all default values
-        $(this.element).find("#id-preferences-slider-zoom").slider('value',parseInt(Globals.myUser.Pref_zoomValue)); //Set default zooming
-        $(this.element).find("#id-preferences-slider-home").slider('value',Globals.myUser.Pref_useHome);
-        $(this.element).find("#id-preferences-slider-notifications-email").slider('value',Globals.myUser.Pref_sendNotifEmail);
+        $(this.element).find("#id-preferences-slider-zoom").slider('value',parseInt(Globals.data.myself.Pref_zoomValue)); //Set default zooming
+        $(this.element).find("#id-preferences-slider-home").slider('value',Globals.data.myself.Pref_useHome);
+        $(this.element).find("#id-preferences-slider-notifications-email").slider('value',Globals.data.myself.Pref_sendNotifEmail);
         
         $(this.element).find("#id-preferences-modal-card").css({zIndex:10000});
         $(this.element).find("#id-preferences-modal-button-apply").css({
@@ -3041,10 +3043,9 @@ $(document).ready(function(){
         var myUser = new User();       
         $("#id-preferences-modal-button-apply").on('click', function() {
              //Save the updated preferences
-             Globals.myUser.print();
-             Globals.myDB.saveMe();
-             Globals.myUser.updatePrefs();
-             Globals.myDB.getMe();
+             var now = parseInt(new Date().getTime() / 1000);
+             Globals.data.myself.updatePrefs(now);
+             $(window).trigger('Global.User.ready');
              myObject.hide();   
         });    
     

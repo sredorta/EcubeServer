@@ -215,56 +215,7 @@ User.prototype.reload = function(myObject) {
     if (myObject.timestamp!=="") this.timestamp = myObject.timestamp;
 };
 
-/*
-//Save user to localStorage
-User.prototype.save = function(jsonObject) {
-    if (jsonObject.firstName !== "") localStorage.setItem("user.firstName", jsonObject.firstName);
-    if (jsonObject.lastName  !== "") localStorage.setItem("user.lastName", jsonObject.lastName);
-    if (jsonObject.email     !== "") localStorage.setItem("user.email", jsonObject.email);
-    if (jsonObject.phone     !== "") localStorage.setItem("user.phone", jsonObject.phone);
-    if (jsonObject.language  !== "") localStorage.setItem("user.language", jsonObject.language);
-    if (jsonObject.country   !== "") localStorage.setItem("user.country", jsonObject.country);
-    if (jsonObject.creation_timestamp !== "") localStorage.setItem("user.creation_timestamp", jsonObject.creation_timestamp);
-    if (jsonObject.validated_email !== "") localStorage.setItem("user.validated_email", jsonObject.validated_email);
-    if (jsonObject.validated_phone !== "") localStorage.setItem("user.validated_phone", jsonObject.validated_phone);
-    if (jsonObject.avatar !== "") localStorage.setItem("user.avatar", jsonObject.avatar);
-    if (jsonObject.avatar_timestamp !== "") localStorage.setItem("user.avatar_timestamp", jsonObject.avatar_timestamp);    
-    if (jsonObject.latitude !== "") localStorage.setItem("user.latitude", jsonObject.latitude);
-    if (jsonObject.longitude !== "") localStorage.setItem("user.longitude", jsonObject.longitude);
-};
-User.prototype.clear = function() {
-    localStorage.removeItem("user.firstName");
-    localStorage.removeItem("user.lastName");
-    localStorage.removeItem("user.email");
-    localStorage.removeItem("user.phone");
-    localStorage.removeItem("user.language");
-    localStorage.removeItem("user.country");
-    localStorage.removeItem("user.creation_timestamp");
-    localStorage.removeItem("user.validated_email");
-    localStorage.removeItem("user.validated_phone");
-    localStorage.removeItem("user.avatar");
-    localStorage.removeItem("user.avatar_timestamp");    
-    localStorage.removeItem("user.latitude");
-    localStorage.removeItem("user.longitude");       
-};
 
-//Gets the user from localStorage
-User.prototype.get = function() {
-    this.firstName = localStorage.getItem("user.firstName");
-    this.lastName = localStorage.getItem("user.lastName");
-    this.email = localStorage.getItem("user.email");
-    this.phone = localStorage.getItem("user.phone");
-    this.language= localStorage.getItem("user.language");
-    this.country = localStorage.getItem("user.country");
-    this.creation_timestamp = localStorage.getItem("user.creation_timestamp");
-    this.validated_email = localStorage.getItem("user.validated_email");
-    this.validated_phone = localStorage.getItem("user.validated_phone");
-    this.avatar = localStorage.getItem("user.avatar");
-    this.avatar_timestamp = localStorage.getItem("user.avatar_timestamp");
-    this.latitude = localStorage.getItem("user.latitude");
-    this.longitude = localStorage.getItem("user.longitude");
-};
-*/
 User.prototype.ajaxCall = function(serializedData, url, eventName) {
         var request;
         var myObject = this.callingObject;
@@ -400,16 +351,15 @@ User.prototype.removeAccount = function() {
 
 
 //Update one field
-User.prototype.update = function(field,value) {
-        eval("var myObject = \{" + field + ":\"" + value +"\"\}");
+User.prototype.update = function(field,value,now) {
+        eval("var myObject = \{timestamp:" + now + "," + field + ":\"" + value +"\"\}");
         var serializedData = jQuery.param(myObject);
         this.ajaxCall(serializedData,ProjectSettings.serverUrl + "/api/user.update.php", "update");
 };
 
 //Update one field
-User.prototype.updatePrefs = function() {
-       
-        var myObject = {Pref_useHome:this.Pref_useHome, Pref_sendNotifEmail:this.Pref_sendNotifEmail, Pref_zoomValue:this.Pref_zoomValue};
+User.prototype.updatePrefs = function(now) {
+        var myObject = {Pref_useHome:this.Pref_useHome, Pref_sendNotifEmail:this.Pref_sendNotifEmail, Pref_zoomValue:this.Pref_zoomValue ,timestamp:now};
         console.log("updating prefs");
         console.log(myObject);
         var serializedData = jQuery.param(myObject);
@@ -418,8 +368,8 @@ User.prototype.updatePrefs = function() {
 
 
 //Update one field
-User.prototype.updateHomeLocation = function(latitude,longitude) {
-        var myObject = {latitude:latitude, longitude:longitude};
+User.prototype.updateHomeLocation = function(latitude,longitude, now) {
+        var myObject = {latitude:latitude, longitude:longitude, timestamp:now};
         var serializedData = jQuery.param(myObject);
         this.ajaxCall(serializedData,ProjectSettings.serverUrl + "/api/user.update.php", "update");
 };

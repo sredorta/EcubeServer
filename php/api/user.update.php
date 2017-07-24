@@ -39,6 +39,12 @@ if (!$myCurrentUser->dB_exists()) {
 $myCurrentUser->dB_get();
 
 
+//Update the timestamp
+//Update non empty fields of the current user with the inputs
+if ($myUser->timestamp!= "") {
+    $myCurrentUser->dB_updateField("timestamp", $myUser->timestamp);
+}
+
 //Update non empty fields of the current user with the inputs
 if ($myUser->firstName!= "") {
     $myCurrentUser->dB_updateField("firstName", $myUser->firstName);
@@ -150,5 +156,5 @@ if ($passwordToUpdate != "") {
 }
 //If we reach this point nothing has been updated
 $json = new JsonResponse();
-$json->result = KEY_CODE_SUCCESS;     
+$json->result = KEY_CODE_SUCCESS;  
 $json->output();

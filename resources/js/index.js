@@ -29,6 +29,29 @@ $(document).ready(function(){
 
 
     //----------------------------------------------------------------------
+    // Do the correct things depending on if we are logged or not
+    // At this point we only know if user is loggedIn or not
+    //----------------------------------------------------------------------
+    $(window).on('Global.User.isLoggedIn', function(event) {
+         if (Globals.data.isLoggedIn == true) {
+            $("#id-header-navbar-profile-plugin").pluginProfilePicture("setDefaultImage");
+            $("#id-header-navbar-profile-plugin").pluginProfilePicture("setLoggedIn");
+            $("#id-header-navbar-button-login").css({visibility:"hidden"});
+            $("#id-header-navbar-button-signup").css({visibility:"hidden"});
+            $("#id-header-navbar-button-user").css({visibility:"visible"});
+            $("#id-header-navbar-profile-plugin").css({visibility:"visible"});
+         } else {
+            $(".plugin-profile-picture").pluginProfilePicture("setDefaultImage");
+            $(".plugin-profile-picture").pluginProfilePicture("setLoggedOut");
+            $("#id-header-navbar-button-login").css({visibility:"visible"});
+            $("#id-header-navbar-button-signup").css({visibility:"visible"});
+            $("#id-header-navbar-profile-plugin").css({visibility:"visible"});
+            $("#id-header-navbar-button-user").css({visibility:"hidden"});
+            $("#id-login-validated-email").pluginModalFormValidateEmail("hide");             
+         }
+    });
+    
+    //----------------------------------------------------------------------
     // Localize user and setup map
     //----------------------------------------------------------------------
     //When location is available update cookies
@@ -72,12 +95,8 @@ $(document).ready(function(){
       console.log("Got event Global.User.ready !");
       console.log(Globals.data);
       if (Globals.data.isLoggedIn) {  
-        $("#id-header-navbar-profile-plugin").pluginProfilePicture("setImage", Globals.data.avatar);
-        $("#id-header-navbar-profile-plugin").pluginProfilePicture("setLoggedIn");
-        $("#id-header-navbar-button-login").css({visibility:"hidden"});
-        $("#id-header-navbar-button-signup").css({visibility:"hidden"});
-        $("#id-header-navbar-button-user").css({visibility:"visible"});
-        $("#id-header-navbar-profile-plugin").css({visibility:"visible"});
+        //Update avatar  
+        $("#id-header-navbar-profile-plugin").pluginProfilePicture("setImage", Globals.data.myself.avatar);
         //Show email not validated if required
         if (Globals.data.myself.validated_email === "0") {
             $("#id-login-validated-email").pluginModalFormValidateEmail();
@@ -89,15 +108,8 @@ $(document).ready(function(){
         } else {
             $("#id-header-navbar-edit-home").css({visibility:"visible"});
         }
-        
-      } else {
-        $(".plugin-profile-picture").pluginProfilePicture("setDefaultImage");
-        $(".plugin-profile-picture").pluginProfilePicture("setLoggedOut");
-        $("#id-header-navbar-button-login").css({visibility:"visible"});
-        $("#id-header-navbar-button-signup").css({visibility:"visible"});
-        $("#id-header-navbar-button-user").css({visibility:"hidden"});
-        $("#id-login-validated-email").pluginModalFormValidateEmail("hide");
-      }    
+      } 
+      
       if (Globals.data.isLoggedIn) {
         //Add marker with home location
         if (Globals.data.myself.Pref_useHome == 1) {
@@ -169,8 +181,9 @@ $(document).ready(function(){
     //Act on loggedIn event
     $(window).on('Global.User.loggedIn', function() {
         console.log("Got event user loggedIn");
-        Globals.isLoggedIn = true;
-        Globals.myDB.clone_user();            
+        Globals.data.isLoggedIn = true;
+        $(window).trigger('Global.User.isLoggedIn');
+        Globals.data.restore();                    
     });
                
     //----------------------------------------------------------------------
@@ -182,10 +195,8 @@ $(document).ready(function(){
         myUser.logOut(); //Remove the session
         $(document).on("User.logout.ajaxRequestAlways", function () {
             console.log("logged out request completed !!!!!!!!!!");
-            Globals.isLoggedIn = false; //Cookie has expired
-            $.eraseCookie("PHPSESSID");
-            Globals.myDB.syncStop();
-            Globals.myDB.close();
+            Globals.data.isLoggedIn = false; //Cookie has expired
+            $.eraseCookie("PHPSESSID");            
             location.reload();
         });
     });
@@ -235,7 +246,7 @@ $(document).ready(function(){
     //----------------------------------------------------------------------  
     $("#id-header-navbar-edit-home").on('click', function() {        
         //Zoom map to home location marker
-        mapMainGlobal.setZoom(parseInt(Globals.myUser.Pref_zoomValue));
+        mapMainGlobal.setZoom(parseInt(Globals.data.myself.Pref_zoomValue));
         mapMainGlobal.panTo(mapMarkerHomePosition.getPosition());
         
         //Emable the marker to be draggable and set bounce anymation
@@ -268,15 +279,11 @@ $(document).ready(function(){
           var latitude = mapMarkerHomePosition.getPosition().lat();
           var longitude = mapMarkerHomePosition.getPosition().lng();
           var myUser = new User();
-          myUser.updateHomeLocation(latitude,longitude);
-          Globals.myUser.latitude = latitude;
-          Globals.myUser.longitude = longitude;
-          Globals.myUser.timestamp = parseInt(new Date().getTime() / 1000); //Update timestamp so that sync updates server
-          Globals.myDB.save_user();
-          /*
-          Globals.myDB.saveMe();
-          console.log(latitude);
-          console.log(longitude);    */     
+          var now = parseInt(new Date().getTime() / 1000);
+          myUser.updateHomeLocation(latitude,longitude,now);
+          Globals.data.myself.latitude = latitude;
+          Globals.data.myself.longitude = longitude;
+          Globals.data.myself.timestamp = now; //Update timestamp so that sync updates server   
         });        
     });
 
@@ -288,7 +295,6 @@ $(document).ready(function(){
         $("#id-profile-preferences-modal").pluginModalFormPreferences();
         $("#id-profile-preferences-modal").pluginModalFormPreferences("show");
     });
-
 
 
 

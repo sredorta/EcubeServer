@@ -77,6 +77,9 @@ class User {
        if (isset($_POST['Pref_zoomValue'])) {
            $this->Pref_zoomValue = $_POST['Pref_zoomValue'];
        }       
+       if (isset($_POST['timestamp'])) {
+           $this->timestamp = $_POST['timestamp'];
+       }   
     }
 
     

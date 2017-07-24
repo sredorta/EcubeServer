@@ -11,6 +11,7 @@ var Globals = {};
 //Globals.myDB = new IndexedDB();     //Global variable containing IndexedDB access
 Globals.isLoggedIn = false;         //Global variable that indicates if user is loggedIn or not
 Globals.data = new Data();
+Globals.shadow = new Data();
 
 function Data() {
     this.isLoggedIn = false;            //Used to check if user is loggedIn
@@ -54,8 +55,6 @@ Data.prototype.init = function() {
         //Pop-up session expired
         if (response.result === "error.session.invalid") {
             myObject.isLoggedIn = false;
-   
-            //jQuery(window).trigger("Global.User.sessionExpired");
         } else {
             myObject.isLoggedIn = true;
         }
@@ -68,7 +67,8 @@ Data.prototype.init = function() {
         console.log("I´m in the user and triggering fail with message : " + new AjaxHelper().getStatusMessage(errorThrown, jqXHR.status));
     });
     request.always(function() {
-
+        console.log("Triggering : Global.User.isLoggedIn");
+        $(window).trigger('Global.User.isLoggedIn');
         //Restore all data later required by the app
         myObject.restore();
     });
@@ -84,15 +84,41 @@ Data.prototype.restore = function() {
         var myUser = new User();
         myUser.callingObject = $(document);
         myUser.restore();
+        myUser.notificationsGet();
     }
     $(document).on('User.restore.ajaxRequestSuccess', function(event,response) {
         console.log("Restored user succesfully ");
         var myResponse = JSON.parse(response.account);
         myObject.myself.reload(myResponse);
         console.log("Triggering : Global.User.ready");
+        Globals.shadow.myself = jQuery.extend(true, {}, Globals.data.myself); //Copy the object without copying reference !!!!!!!!
         $(window).trigger('Global.User.ready');
     });
+    $(document).on('User.notifications_get.ajaxRequestSuccess', function(event,response) {
+        myObject.notifications = JSON.parse(response.notifications); //'['+response.notifications.join(',')+']');
+        Globals.shadow.notifications = Globals.data.notifications; //Modify with jQuery copy !!!!
+        console.log("Triggering : Global.User.notifications_ready");
+        $(window).trigger('Global.User.notifications_ready');
+        console.log(Globals.data);
+        
+    });
+    //Here we need to restore stations close to user location or homeLocation
+    //We need to start downloading products...
 };
+
+
+//Saves to server any new data
+Data.prototype.save = function() {
+    var myObject = this;
+    if (myObject.isLoggedIn) {
+        console.log("data:");
+        console.log(myObject.myself);
+        console.log("shadow:");
+        console.log(Globals.shadow.myself);
+    }
+};
+
+
 
 
 
