@@ -126,65 +126,26 @@ IndexedDB.prototype.clone_user = function () {
   var myObject = this;
   var db = myObject.db;
   var myUser = new User();  
-  //Get the user from the server into the iDB
-  myObject._log("Clonning user..:::::::::::::::.");
-    console.log("PHPSESSID not null");
-    //Restore the user
-    var serializedData = "";
-    var url = ProjectSettings.serverUrl + "/api/user.restore.php";
-    console.log("Running ajax with request: " + url );
-    var request = $.ajax({
-            url: url,
-            type: "POST",
-            data: serializedData
-        });
-    console.log(request);    
-    // Callback handler that will be called on success
-    request.done(function (response, textStatus, jqXHR){
-        console.log("done, sending success event !");
-        console.log("-------------------------");
-        console.log(response);
-        console.log("-------------------------");
-        //Now check if the answer is success and if not provide the error message from the server
-        if (response.result === "success") {
-            var myResponse = JSON.parse(response.account);
-            Globals.myUser.reload(myResponse);
-            localStorage.setItem("avatar_0", myResponse.avatar);
-            var tx = db.transaction(['myself'], "readwrite");
-            var store = tx.objectStore('myself');
-            myUser.reload(Globals.myUser);
-            myUser.avatar = "avatar_0";
-            console.log(myResponse);
-            store.put(myResponse); 
-        } else {
-            console.log(new AjaxHelper().getServerMessage(response.result));
-        }
-        //Pop-up session expired
-        if (response.result === "error.session.invalid") {
-            jQuery(window).trigger("Global.User.sessionExpired");
-        }
-    });
+  myUser.callingObject = $(document);
+  
+  myUser.restore();
+  
+  $(document).on("User.restore.ajaxRequestSuccess", function(event,response) {
+    console.log("Restored user succesfully");
+    var myResponse = JSON.parse(response.account);
+    Globals.myUser.reload(myResponse);
+    localStorage.setItem("avatar_0", myResponse.avatar);
+    Globals.myUser.avatar = "avatar_0";
+    var tx = db.transaction(['myself'], "readwrite");
+    var store = tx.objectStore('myself');
+    myUser.reload(Globals.myUser);
+    myUser.avatar = "avatar_0";
+    store.put(myResponse); 
+    console.log("Triggering : Global.iDB.user_ready");
+    $(window).trigger('Global.iDB.user_ready');
+    $(window).trigger('iDB.user.ready'); 
+  });
 
-    // Callback handler that will be called on failure
-    request.fail(function (jqXHR, textStatus, errorThrown){
-        console.log(jqXHR);
-        //Triger the event to do the necessary things at the caller with the formated answer
-        console.log("I´m in the user and triggering fail with message : " + new AjaxHelper().getStatusMessage(errorThrown, jqXHR.status));
-    });
-
-    // Callback handler that will be called regardless
-    // if the request failed or succeeded
-    request.always(function () {
-        
-        console.log("User restored in dB:");
-        console.log(Globals.myUser);
-        console.log("Triggering : Global.iDB.user.ready");
-        console.log(Globals.myUser);
-        console.log("Latitude: " + Globals.myUser.latitude);
-        console.log("Longitude: " + Globals.myUser.longitude);
-        $(window).trigger('Global.iDB.user.ready');
-        $(window).trigger('iDB.user.ready'); 
-    });      
 };
 
 IndexedDB.prototype.clone_notifications = function () {
@@ -194,7 +155,7 @@ IndexedDB.prototype.clone_notifications = function () {
   
     console.log("Clonning notifications...");  
     //Notifications clonning
-    if ($.readCookie("PHPSESSID")!== null) {
+    if (Globals.isLoggedIn) {
         var serverNotifications = [];
         var iDBNotifications = [];
         var myUser = Globals.myUser;
@@ -218,7 +179,7 @@ IndexedDB.prototype.clone_notifications = function () {
                     store.put(serverNotifications[i]);
                     console.log("Added into iDB : " + serverNotifications[i].notification_id);
             }
-            $(window).trigger('Global.iDB.user.notifications.ready');
+            $(window).trigger('Global.iDB.user.notifications_ready');
 
         });    
     }
@@ -257,7 +218,7 @@ IndexedDB.prototype.syncStop = function() {
 IndexedDB.prototype.sync = function() {
   var myObject = this;  
   this._log("IndexedDB sync...");
-  if ($.readCookie("PHPSESSID") !== null) {
+  if (Globals.isLoggedIn) {
       myObject.sync_user();
       myObject.sync_notifications();
   }

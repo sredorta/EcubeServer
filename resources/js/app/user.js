@@ -8,7 +8,7 @@
 var Globals = {};
 Globals.myUser = new User();        //Global variable that contains current loggedIn user
 Globals.myDB = new IndexedDB();     //Global variable containing IndexedDB access
-
+Globals.isLoggedIn = false;         //Global variable that indicates if user is loggedIn or not
 
 var ProjectSettings = {};
 ProjectSettings.defaultCountry = "ES";

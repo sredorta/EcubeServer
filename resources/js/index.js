@@ -15,23 +15,65 @@ $(document).ready(function(){
     var mapMainGlobal;
     var mapMarkerCurrentPosition;
     var mapMarkerHomePosition = null;
+    
+    
+                $.createCookie("presence", true,ProjectSettings.sessionDurationMinutes);            //We are present
+            $("#id-header-navbar-profile-plugin").pluginProfilePicture({inputDisabled:true});
+            $("#id-header-navbar-profile-plugin").pluginProfilePicture("setLoggedOut");        
+            $("#id-header-navbar-button-user").css({visibility:"hidden"});
+            $("#id-login-modal").pluginModalFormLogin();
+            $("#id-signup-modal").pluginModalFormSignup();
+            $("#id-forgot-password-modal").pluginModalFormForgotPassword(); 
+    
+    //Check if we have valid session and if not remove
+    var serializedData = "";
+    var url = ProjectSettings.serverUrl + "/api/user.hassession.php";
+    console.log("Running ajax with request: " + url );
+    var request = $.ajax({
+            url: url,
+            type: "POST",
+            data: serializedData
+        });
+    console.log(request);    
+    // Callback handler that will be called on success
+    request.done(function (response, textStatus, jqXHR){
+        console.log("done, sending success event !");
+        console.log("-------------------------");
+        console.log(response);
+        console.log("-------------------------");
+        //Pop-up session expired
+        if (response.result === "error.session.invalid") {
+            Globals.isLoggedIn = false;
+   
+            //jQuery(window).trigger("Global.User.sessionExpired");
+        } else {
+            Globals.isLoggedIn = true;
+        }
+    });
+
+    // Callback handler that will be called on failure
+    request.fail(function (jqXHR, textStatus, errorThrown){
+        console.log(jqXHR);
+        //Triger the event to do the necessary things at the caller with the formated answer
+        console.log("I´m in the user and triggering fail with message : " + new AjaxHelper().getStatusMessage(errorThrown, jqXHR.status));
+    });
+    request.always(function() {
+        Globals.myUser.callingObject = this;
+        User.getLocation();   //Start the localization
+    });
+    
+    
+    
+    
+    
         
-    Globals.myUser.callingObject = this;
         
-        
-    $.createCookie("presence", true,ProjectSettings.sessionDurationMinutes);            //We are present
-    $("#id-header-navbar-profile-plugin").pluginProfilePicture({inputDisabled:true});
-    $("#id-header-navbar-profile-plugin").pluginProfilePicture("setLoggedOut");        
-    $("#id-header-navbar-button-user").css({visibility:"hidden"});
-    $("#id-login-modal").pluginModalFormLogin();
-    $("#id-signup-modal").pluginModalFormSignup();
-    $("#id-forgot-password-modal").pluginModalFormForgotPassword();    
     
     
     //----------------------------------------------------------------------
     // Localize user and setup map and then init the iDB with user data if logged-in
     //----------------------------------------------------------------------
-    User.getLocation();   //Start the localization
+
     //When location is available update cookies
     $(window).on('Global.User.localized', function(event,location,type) {
         console.log("Got event Global.User.localized ! : " + type);
@@ -73,7 +115,7 @@ $(document).ready(function(){
     // iDB syncronization
     //----------------------------------------------------------------------
     $(window).on('Global.iDB.ready', function () {
-        if ($.readCookie("PHPSESSID")== null) {
+        if (!Globals.isLoggedIn) {
             $("#id-header-navbar-button-login").css({visibility:"visible"});
             $("#id-header-navbar-button-signup").css({visibility:"visible"});
             $("#id-header-navbar-profile-plugin").css({visibility:"visible"});
@@ -87,12 +129,13 @@ $(document).ready(function(){
     
     //----------------------------------------------------------------------
     //When user is available or has been updated we update all related objects
-    $(window).on('Global.iDB.user.ready', function () {
+    $(window).on('Global.iDB.user_ready', function (e) {
+        console.log(e);
       console.log("Got event : Global.iDB.user.ready");
       console.log(Globals.myUser);
       console.log("Latitude: " + Globals.myUser.latitude);
       console.log("Longitude: " + Globals.myUser.longitude);
-      if ($.readCookie("PHPSESSID") !== null) {  
+      if (Globals.isLoggedIn) {  
         $("#id-header-navbar-profile-plugin").pluginProfilePicture("setImage", localStorage.getItem("avatar_0"));
         $("#id-header-navbar-profile-plugin").pluginProfilePicture("setLoggedIn");
         $("#id-header-navbar-button-login").css({visibility:"hidden"});
@@ -119,7 +162,7 @@ $(document).ready(function(){
         $("#id-header-navbar-button-user").css({visibility:"hidden"});
         $("#id-login-validated-email").pluginModalFormValidateEmail("hide");
       }
-      if ($.readCookie("PHPSESSID") !== null ) {
+      if (Globals.isLoggedIn) {
         //Add marker with home location
         if (Globals.myUser.Pref_useHome == 1) {
             var uluru = {lat: parseFloat(Globals.myUser.latitude), lng: parseFloat(Globals.myUser.longitude)};
@@ -172,6 +215,7 @@ $(document).ready(function(){
     //Act on loggedIn event
     $(window).on('Global.User.loggedIn', function() {
         console.log("Got event user loggedIn");
+        Globals.isLoggedIn = true;
         Globals.myDB.clone_user();            
     });
                
@@ -184,7 +228,8 @@ $(document).ready(function(){
         myUser.logOut(); //Remove the session
         $(document).on("User.logout.ajaxRequestAlways", function () {
             console.log("logged out request completed !!!!!!!!!!");
-            $.eraseCookie("PHPSESSID"); //Erase the cookie and restart the iDB
+            Globals.isLoggedIn = false; //Cookie has expired
+            $.eraseCookie("PHPSESSID");
             Globals.myDB.syncStop();
             Globals.myDB.close();
             location.reload();
@@ -304,7 +349,11 @@ $(document).ready(function(){
         }, ProjectSettings.sessionDurationMinutes * 60000); //Check every x minutes if we still have the cookie*/
         //If we get a session expired in one of the ajax Calls we come here
         $(window).on('Global.User.sessionExpired', function() {
+            if (Globals.isLoggedIn) {
                 $("#id-session-expired-modal").pluginModalFormSessionExpired("show");
+                $.eraseCookie("PHPSESSID");
+                $.eraseCookie("presence");
+            }
         });    
         
         //----------------------------------------------------------------------

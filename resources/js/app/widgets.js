@@ -1989,13 +1989,8 @@ $(document).ready(function(){
             }
         });    
         $(this.element).on('User.signup.ajaxRequestSuccess', function(event, response) {
-            myObject._log("SUCCESS : user.signup");           
-            Globals.myUser.reload(myUser);
+            myObject._log("SUCCESS : user.signup");  
             
-            Globals.myDB.saveMe();  //Save downloaded user into db for later usage
-            Globals.myDB.getMe();  // This will trigger global event Global.User.available
-            console.log("Here is the user restored :");
-            console.log(Globals.myUser);
             //Now trigger the window
             jQuery(window).trigger("Global.User.loggedIn");    
 
