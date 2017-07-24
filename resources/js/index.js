@@ -1,4 +1,4 @@
-/* global ProjectSettings, User, Globals */
+/* global ProjectSettings, User, Globals, google */
 
 
 $(document).ready(function(){
@@ -16,139 +16,75 @@ $(document).ready(function(){
     var mapMarkerCurrentPosition;
     var mapMarkerHomePosition = null;
     
+    Globals.data.print();
+    Globals.data.init();
     
-                $.createCookie("presence", true,ProjectSettings.sessionDurationMinutes);            //We are present
-            $("#id-header-navbar-profile-plugin").pluginProfilePicture({inputDisabled:true});
-            $("#id-header-navbar-profile-plugin").pluginProfilePicture("setLoggedOut");        
-            $("#id-header-navbar-button-user").css({visibility:"hidden"});
-            $("#id-login-modal").pluginModalFormLogin();
-            $("#id-signup-modal").pluginModalFormSignup();
-            $("#id-forgot-password-modal").pluginModalFormForgotPassword(); 
-    
-    //Check if we have valid session and if not remove
-    var serializedData = "";
-    var url = ProjectSettings.serverUrl + "/api/user.hassession.php";
-    console.log("Running ajax with request: " + url );
-    var request = $.ajax({
-            url: url,
-            type: "POST",
-            data: serializedData
-        });
-    console.log(request);    
-    // Callback handler that will be called on success
-    request.done(function (response, textStatus, jqXHR){
-        console.log("done, sending success event !");
-        console.log("-------------------------");
-        console.log(response);
-        console.log("-------------------------");
-        //Pop-up session expired
-        if (response.result === "error.session.invalid") {
-            Globals.isLoggedIn = false;
-   
-            //jQuery(window).trigger("Global.User.sessionExpired");
-        } else {
-            Globals.isLoggedIn = true;
-        }
-    });
+    $.createCookie("presence", true,ProjectSettings.sessionDurationMinutes);            //We are present
+    $("#id-header-navbar-profile-plugin").pluginProfilePicture({inputDisabled:true});
+    $("#id-header-navbar-profile-plugin").pluginProfilePicture("setLoggedOut");        
+    $("#id-header-navbar-button-user").css({visibility:"hidden"});
+    $("#id-login-modal").pluginModalFormLogin();
+    $("#id-signup-modal").pluginModalFormSignup();
+    $("#id-forgot-password-modal").pluginModalFormForgotPassword(); 
 
-    // Callback handler that will be called on failure
-    request.fail(function (jqXHR, textStatus, errorThrown){
-        console.log(jqXHR);
-        //Triger the event to do the necessary things at the caller with the formated answer
-        console.log("I´m in the user and triggering fail with message : " + new AjaxHelper().getStatusMessage(errorThrown, jqXHR.status));
-    });
-    request.always(function() {
-        Globals.myUser.callingObject = this;
-        User.getLocation();   //Start the localization
-    });
-    
-    
-    
-    
-    
-        
-        
-    
-    
-    //----------------------------------------------------------------------
-    // Localize user and setup map and then init the iDB with user data if logged-in
-    //----------------------------------------------------------------------
 
+    //----------------------------------------------------------------------
+    // Localize user and setup map
+    //----------------------------------------------------------------------
     //When location is available update cookies
-    $(window).on('Global.User.localized', function(event,location,type) {
-        console.log("Got event Global.User.localized ! : " + type);
-        //When it's coarse we zoom the map and wait for the fine event           
-        if (type === "coarse") {
-            var uluru = {lat: location.latitude, lng: location.longitude};
-            mapMainGlobal = new google.maps.Map(document.getElementById('main-map-canvas'), {
-                zoom: 12,
-                center: uluru
-            });
-        } else {
-            //We get here with fine coordinates or coarse if the user has denied fine
-            //Unbind the event as we only want to get here once
-            jQuery(window).unbind('Global.User.localized');
-            //Create location cookies
-            $.createCookie("country", location.country, ProjectSettings.sessionDurationMinutes);
-            $.createCookie("latitude", location.latitude, ProjectSettings.sessionDurationMinutes);
-            $.createCookie("longitude", location.longitude, ProjectSettings.sessionDurationMinutes);
-            //Expand all plugins with country as we have now located user
-            $("#id-login-modal").pluginModalFormLogin();
-            $("#id-signup-modal").pluginModalFormSignup();
-            $("#id-forgot-password-modal").pluginModalFormForgotPassword();
-            //Zoom map to new coords and add a marker with our position
-            var uluru = {lat: location.latitude, lng: location.longitude};
+    $(window).on('Global.User.localized', function(event) {
+        console.log("Got event Global.User.localized ! : ");
+        Globals.data.print();
+        var uluru = {lat: Globals.data.latitude, lng: Globals.data.longitude};
+        if (mapMainGlobal == null) {
+                mapMainGlobal = new google.maps.Map(document.getElementById('main-map-canvas'), {
+                    zoom: 12,
+                    center: uluru
+                });
+        }
+        //Unbind the event as we only want to get here once
+        jQuery(window).unbind('Global.User.localized');
+        //Create location cookies
+        $.createCookie("country", Globals.data.country, ProjectSettings.sessionDurationMinutes);
+        $.createCookie("latitude", Globals.data.latitude, ProjectSettings.sessionDurationMinutes);
+        $.createCookie("longitude", Globals.data.longitude, ProjectSettings.sessionDurationMinutes);
+        //Expand all plugins with country as we have now located user
+        $("#id-login-modal").pluginModalFormLogin();
+        $("#id-signup-modal").pluginModalFormSignup();
+        $("#id-forgot-password-modal").pluginModalFormForgotPassword();
+        //Zoom map to new coords and add a marker with our position
+        var uluru = {lat: Globals.data.latitude, lng: Globals.data.longitude};
+        if (Globals.data.isLoggedIn == false) {
             mapMainGlobal.panTo(uluru);
-            mapMarkerCurrentPosition = new google.maps.Marker({
-                position: uluru,
-                animation: google.maps.Animation.DROP,
-                map: mapMainGlobal
-            });
-            
-            //------------------- iDB initialization
-           
-            Globals.myDB.init(); //Reset the database
         }
+        mapMarkerCurrentPosition = new google.maps.Marker({
+            position: uluru,
+            animation: google.maps.Animation.DROP,
+            map: mapMainGlobal
+        });
     });
     
     //----------------------------------------------------------------------
-    // iDB syncronization
+    // When user has been downloaded
     //----------------------------------------------------------------------
-    $(window).on('Global.iDB.ready', function () {
-        if (!Globals.isLoggedIn) {
-            $("#id-header-navbar-button-login").css({visibility:"visible"});
-            $("#id-header-navbar-button-signup").css({visibility:"visible"});
-            $("#id-header-navbar-profile-plugin").css({visibility:"visible"});
-        }
-        console.log("Clonning db...");
-        Globals.myDB.clone();    
-    });
-    $(window).on('Global.iDB.clone.completed', function () {
-        Globals.myDB.syncStart();
-    });   
-    
-    //----------------------------------------------------------------------
-    //When user is available or has been updated we update all related objects
-    $(window).on('Global.iDB.user_ready', function (e) {
-        console.log(e);
-      console.log("Got event : Global.iDB.user.ready");
-      console.log(Globals.myUser);
-      console.log("Latitude: " + Globals.myUser.latitude);
-      console.log("Longitude: " + Globals.myUser.longitude);
-      if (Globals.isLoggedIn) {  
-        $("#id-header-navbar-profile-plugin").pluginProfilePicture("setImage", localStorage.getItem("avatar_0"));
+    //We need to show home location and zoom to it depending on prefs...
+    $(window).on('Global.User.ready', function(event) {  
+      console.log("Got event Global.User.ready !");
+      console.log(Globals.data);
+      if (Globals.data.isLoggedIn) {  
+        $("#id-header-navbar-profile-plugin").pluginProfilePicture("setImage", Globals.data.avatar);
         $("#id-header-navbar-profile-plugin").pluginProfilePicture("setLoggedIn");
         $("#id-header-navbar-button-login").css({visibility:"hidden"});
         $("#id-header-navbar-button-signup").css({visibility:"hidden"});
         $("#id-header-navbar-button-user").css({visibility:"visible"});
         $("#id-header-navbar-profile-plugin").css({visibility:"visible"});
         //Show email not validated if required
-        if (Globals.myUser.validated_email === "0") {
+        if (Globals.data.myself.validated_email === "0") {
             $("#id-login-validated-email").pluginModalFormValidateEmail();
             $("#id-login-validated-email").pluginModalFormValidateEmail("show");
         }
         //Enable disable home displacement depending on Pref_useHome
-        if (Globals.myUser.Pref_useHome == 0) {
+        if (Globals.data.myself.Pref_useHome == 0) {
             $("#id-header-navbar-edit-home").css({visibility:"hidden"});
         } else {
             $("#id-header-navbar-edit-home").css({visibility:"visible"});
@@ -161,28 +97,46 @@ $(document).ready(function(){
         $("#id-header-navbar-button-signup").css({visibility:"visible"});
         $("#id-header-navbar-button-user").css({visibility:"hidden"});
         $("#id-login-validated-email").pluginModalFormValidateEmail("hide");
-      }
-      if (Globals.isLoggedIn) {
+      }    
+      if (Globals.data.isLoggedIn) {
         //Add marker with home location
-        if (Globals.myUser.Pref_useHome == 1) {
-            var uluru = {lat: parseFloat(Globals.myUser.latitude), lng: parseFloat(Globals.myUser.longitude)};
+        if (Globals.data.myself.Pref_useHome == 1) {
+            var uluru = {lat: parseFloat(Globals.data.myself.latitude), lng: parseFloat(Globals.data.myself.longitude)};
             console.log(uluru);
-            mapMainGlobal.setZoom(parseInt(Globals.myUser.Pref_zoomValue));
-            mapMainGlobal.panTo(uluru);
             //We only create the marker once !
             if (mapMarkerHomePosition !== null) mapMarkerHomePosition.setMap(null);
-                mapMarkerHomePosition = null;
-                mapMarkerHomePosition = new google.maps.Marker({
-                    position: uluru,
-                    animation: google.maps.Animation.DROP,
-                    icon: "./resources/img/icon-marker-home.png",
-                    map: mapMainGlobal
+            mapMarkerHomePosition = null;
+            if (mapMainGlobal == null) {
+                mapMainGlobal = new google.maps.Map(document.getElementById('main-map-canvas'), {
+                zoom: 12,
+                center: uluru
                 });
+            }
+            mapMainGlobal.setZoom(parseInt(Globals.data.myself.Pref_zoomValue));
+            mapMainGlobal.panTo(uluru);
+ 
+            mapMarkerHomePosition = new google.maps.Marker({
+                position: uluru,
+                animation: google.maps.Animation.DROP,
+                icon: "./resources/img/icon-marker-home.png",
+                map: mapMainGlobal
+            });
         } else {
+            //We are not using home location...           
             if (mapMarkerHomePosition !== null) mapMarkerHomePosition.setMap(null);
-                mapMarkerHomePosition = null;
-                mapMainGlobal.setZoom(parseInt(Globals.myUser.Pref_zoomValue));
-                mapMainGlobal.panTo(mapMarkerCurrentPosition.getPosition());
+            var uluru = {lat: Globals.data.latitude, lng: Globals.data.longitude};
+            if (Globals.data.latitude && Globals.data.longitude) {
+            console.log(uluru);
+            if (mapMainGlobal == null) {
+                mapMainGlobal = new google.maps.Map(document.getElementById('main-map-canvas'), {
+                    zoom: 12,
+                    center: uluru
+                });
+            }
+            mapMarkerHomePosition = null;
+            mapMainGlobal.setZoom(parseInt(Globals.data.myself.Pref_zoomValue));
+            mapMainGlobal.panTo(mapMarkerCurrentPosition.getPosition());
+            }
         }
       } else {
         //Pan back to user location
@@ -190,18 +144,18 @@ $(document).ready(function(){
             mapMarkerHomePosition.setMap(null);        //Remove home position marker
             mapMarkerHomePosition = null;
         }
+        var uluru = {lat: Globals.data.latitude, lng: Globals.data.longitude};
+        if (mapMainGlobal == null) {
+                mapMainGlobal = new google.maps.Map(document.getElementById('main-map-canvas'), {
+                    zoom: 12,
+                    center: uluru
+                });
+        }
         mapMainGlobal.setZoom(12);
         mapMainGlobal.panTo(mapMarkerCurrentPosition.getPosition());
       }
     });
-
     
-    
-    
- 
-              
-      
-      
       
       
       
@@ -317,9 +271,12 @@ $(document).ready(function(){
           myUser.updateHomeLocation(latitude,longitude);
           Globals.myUser.latitude = latitude;
           Globals.myUser.longitude = longitude;
+          Globals.myUser.timestamp = parseInt(new Date().getTime() / 1000); //Update timestamp so that sync updates server
+          Globals.myDB.save_user();
+          /*
           Globals.myDB.saveMe();
           console.log(latitude);
-          console.log(longitude);         
+          console.log(longitude);    */     
         });        
     });
 

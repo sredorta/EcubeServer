@@ -5,10 +5,7 @@
  */
 
 //To be moved to global settings!
-var Globals = {};
-Globals.myUser = new User();        //Global variable that contains current loggedIn user
-Globals.myDB = new IndexedDB();     //Global variable containing IndexedDB access
-Globals.isLoggedIn = false;         //Global variable that indicates if user is loggedIn or not
+
 
 var ProjectSettings = {};
 ProjectSettings.defaultCountry = "ES";
@@ -78,6 +75,7 @@ function AjaxHelper() {
 console.log("Loaded user.js");
 function User(object) {
     this.callingObject = object; //Used to trigger
+    this.id ="";
     this.firstName = "";
     this.lastName = "";
     this.email = "";
@@ -98,6 +96,7 @@ function User(object) {
     this.Pref_useHome=true;
     this.Pref_sendNotifEmail=true;
     this.Pref_zoomValue=12;
+    this.timestamp;
 }
 
 //For debug
@@ -196,6 +195,7 @@ User.getLocation = function() {
 
 //Reloads object containing user into current object
 User.prototype.reload = function(myObject) {
+    if (myObject.id!== "") this.id = myObject.id;
     if (myObject.firstName!== "") this.firstName = myObject.firstName;
     if (myObject.lastName!== "") this.lastName = myObject.lastName;
     if (myObject.email!== "") this.email = myObject.email;
@@ -212,8 +212,10 @@ User.prototype.reload = function(myObject) {
     if (myObject.Pref_useHome!=="") this.Pref_useHome = myObject.Pref_useHome;
     if (myObject.Pref_sendNotifEmail!=="") this.Pref_sendNotifEmail = myObject.Pref_sendNotifEmail;
     if (myObject.Pref_zoomValue!=="") this.Pref_zoomValue = myObject.Pref_zoomValue;
+    if (myObject.timestamp!=="") this.timestamp = myObject.timestamp;
 };
 
+/*
 //Save user to localStorage
 User.prototype.save = function(jsonObject) {
     if (jsonObject.firstName !== "") localStorage.setItem("user.firstName", jsonObject.firstName);
@@ -262,7 +264,7 @@ User.prototype.get = function() {
     this.latitude = localStorage.getItem("user.latitude");
     this.longitude = localStorage.getItem("user.longitude");
 };
-
+*/
 User.prototype.ajaxCall = function(serializedData, url, eventName) {
         var request;
         var myObject = this.callingObject;

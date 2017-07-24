@@ -35,7 +35,6 @@ if ($myUser->avatar!= "default") {
 
 
 //Now we just need to hide the elements that we don't want to give to client
-$myUser->id="";
 $myUser->password="";
 $myUser->session_id="";
 $json = $myUser->getJson();

@@ -27,6 +27,7 @@ class User {
     public $Pref_useHome;
     public $Pref_sendNotifEmail;
     public $Pref_zoomValue;
+    public $timestamp;
     				
     function __construct() {}
     

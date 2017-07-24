@@ -92,19 +92,7 @@ IndexedDB.prototype.close = function() {
 }
 
 
-IndexedDB.prototype.saveMe = function() {
-    var myObject = this;
-    var db = myObject.db;
-    myObject._log("saveMe");
-    var myUser = Globals.myUser;
-    myUser.callingObject = "";
-    localStorage.setItem("avatar_0", myUser.avatar);
-    myUser.avatar= "";
-    myUser.id = 0;
-    var tx = db.transaction(['myself'], "readwrite");
-    var store = tx.objectStore('myself');
-    store.put(myUser);  //We only have one entry in this table
-};
+
 
 IndexedDB.prototype.getMe = function() {
     var myObject = this;
@@ -120,6 +108,18 @@ IndexedDB.prototype.getMe = function() {
     };  
 };
 
+//Save Globals.myUser into dB
+IndexedDB.prototype.save_user = function() {
+    var myObject = this;
+    var db = myObject.db;
+    myObject._log("save_user");
+    var myUser = Globals.myUser;
+    myUser.callingObject = "";
+    myUser.avatar= "avatar_" + Globals.myUser.id;
+    var tx = db.transaction(['myself'], "readwrite");
+    var store = tx.objectStore('myself');
+    store.put(myUser);  //We only have one entry in this table
+};
 
 IndexedDB.prototype.clone_user = function () {
   this._log("Clonning IndexedDB for user...");
@@ -134,13 +134,10 @@ IndexedDB.prototype.clone_user = function () {
     console.log("Restored user succesfully");
     var myResponse = JSON.parse(response.account);
     Globals.myUser.reload(myResponse);
-    localStorage.setItem("avatar_0", myResponse.avatar);
-    Globals.myUser.avatar = "avatar_0";
-    var tx = db.transaction(['myself'], "readwrite");
-    var store = tx.objectStore('myself');
-    myUser.reload(Globals.myUser);
-    myUser.avatar = "avatar_0";
-    store.put(myResponse); 
+    localStorage.setItem("avatar_" + myResponse.id, myResponse.avatar);
+    console.log("saving avatar to : avatar_" + myResponse.id );
+    Globals.myUser.avatar = "avatar_" + myResponse.id;
+    myObject.save_user();
     console.log("Triggering : Global.iDB.user_ready");
     $(window).trigger('Global.iDB.user_ready');
     $(window).trigger('iDB.user.ready'); 
@@ -194,8 +191,8 @@ IndexedDB.prototype.clone = function() {
   $(window).on('iDB.user.ready', function() {
     myObject.clone_notifications();
   });
-  $(window).on('Global.iDB.user.notifications.ready', function() {
-     $(window).trigger('Global.iDB.clone.completed'); 
+  $(window).on('Global.iDB.user.notifications_ready', function() {
+     $(window).trigger('Global.iDB.clone_completed'); 
   });
   
 };
@@ -206,7 +203,7 @@ IndexedDB.prototype.syncStart = function() {
   myObject._log("Called syncStart");
   this.interval = setInterval(function() {
       myObject.sync();
-  },60000);  
+  },20000);  
 };
 //Starts the sync process
 IndexedDB.prototype.syncStop = function() {
@@ -237,8 +234,10 @@ IndexedDB.prototype.sync_user = function() {
     var store = tx.objectStore('myself');
     var getUser = store.get(0);
     getUser.onsuccess = function() {
+        console.log(getUser.result);
         iDBUser.reload(getUser.result);  //Reload the user
-        iDBUser.avatar = localStorage.getItem("avatar_0");
+        iDBUser.avatar = localStorage.getItem(getUser.result.avatar);
+        console.log(iDBUser.avatar);
         //Get SQL user
         serverUser.callingObject = $(document);
         serverUser.restore();
