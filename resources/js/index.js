@@ -182,25 +182,31 @@ $(document).ready(function(){
            $("#id-header-navbar-button-notification-list").html('<li><a href="#">No notifications</a></li>').css({textAlign:"center"});
        } else {
            $("#id-header-navbar-button-notification span").css({visibility:"visible"});
+           $.playSound('./resources/sounds/notification.mp3');
+           console.log("PLAYING SOUND !!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
            var myHtml = "";
            var visited = '<i class="notification-visited mdi mdi-18px mdi-email-open"></i> ';
            var not_visited =  '<i class="notification-visited mdi mdi-18px mdi-email"></i> ';
            for (var i= 0; i< Globals.data.notifications.length; i++) {
                if (Globals.data.notifications[i].visited == 0) {
-                    myHtml = myHtml + '<li class="notification-element-display" data-index=' + i + '><a style="color:black">' + not_visited  + Globals.data.notifications[i].message + '<i class="notification-remove mdi mdi-18px mdi-close" style="float:right"></i></a></li>';
+                    myHtml = myHtml + '<li class="notification-element-display" data-index=' + i + '><a style="color:black">' + '<div class="div-need-wrap">' + not_visited  + Globals.data.notifications[i].message + '<i class="notification-remove mdi mdi-18px mdi-close" style="float:right"></i></div></a></li>';
                } else {
-                    myHtml = myHtml + '<li class="notification-element-display" data-index=' + i + '><a style="color:grey">' + visited  + Globals.data.notifications[i].message + '<i class="notification-remove mdi mdi-18px mdi-close" style="float:right"></i></a></li>';
+                    myHtml = myHtml + '<li class="notification-element-display" data-index=' + i + '><a style="color:grey">' + '<div class="div-need-wrap">' + visited  + Globals.data.notifications[i].message + '<i class="notification-remove mdi mdi-18px mdi-close" style="float:right"></i></div></a></li>';
                }
            }
            $("#id-header-navbar-button-notification-list").html(myHtml).css({textAlign:"left"});
            $("#id-header-navbar-button-notification-list").find(".mdi-email").parent().find(".notification-remove").css({visibility:"hidden"});
+            //$("#id-header-navbar-button-notification-list").find("span").css({wrap)
+           $(".div-need-wrap").css({wordWrap:"break-word", whiteSpace:"normal"}); //Allow text wrapping
            //Handle read notification
+           $(".notification-visited").on("mouseenter", function() { $(this).css({cursor:"pointer"});});
+           $(".notification-remove").on("mouseenter", function() { $(this).css({cursor:"pointer"});});
            $(".notification-visited").on('click', function() {
-               var index = $(this).parent().parent().data("index");
+               var index = $(this).parent().parent().parent().data("index");
               console.log("Clicked element " + index); 
               if ($(this).hasClass("mdi-email")) {
                   $(this).removeClass("mdi-email").addClass("mdi-email-open");
-                  $(this).parent().css({color:"grey"}).find(".notification-remove").css({visibility:"hidden");
+                  $(this).parent().css({color:"grey"}).find(".notification-remove").css({visibility:"visible"});
                   
                   Globals.data.notifications[index].visited = 1;
                   Globals.data.notifications[index].timestamp = parseInt(new Date().getTime() / 1000);
@@ -209,8 +215,8 @@ $(document).ready(function(){
            });
            //Handle remove notification
            $(".notification-remove").on('click', function() {
-                var index =  $(this).parent().parent().data("index");
-                console.log("Clicked element " + $(this).parent().parent().data("index")); 
+                var index =  $(this).parent().parent().parent().data("index");
+                console.log("Clicked element " + $(this).parent().parent().parent().data("index")); 
                 Globals.data.notifications.splice(index,1);
                 Globals.data.sync_notifications();
            });

@@ -101,17 +101,24 @@ body, html {
     background-color: red;
     width:18px;
     height:18px;
-    text-height: font-size;
     text-align: center;
+    line-height: 14px;
     border-radius:50%;
     font-size:11px;
     font-weight: bold;
     color:white;
-    top:10px;
+    top:-30px;
     left:25px;
-    position:absolute;
+    position:relative;
     display:block;
+    visibility:hidden;
 }
+#id-header-navbar {
+    height:50px;
+}
+
+
+
 /*TOGGLE --------------------------------------------------------------------------*/
 .ui-slider .ui-slider-handle {
     background: #c1e2b3;
