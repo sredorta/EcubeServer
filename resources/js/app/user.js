@@ -296,6 +296,7 @@ User.prototype.restore = function() {
         this.ajaxCall(serializedData,ProjectSettings.serverUrl + "/api/user.restore.php", "restore");
 };
 
+
 //Re-send validation email
 User.prototype.resendValidationEmail = function() {
         var serializedData = "";

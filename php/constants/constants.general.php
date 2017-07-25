@@ -19,7 +19,7 @@ if(DATABASE_ENVIRONMENT == "localhost") {
 //Defines the name of the cookie containing the session_id
 ini_set('session.name', "PHPSESSID");
 //Defines duration of session
-define('SESSION_DURATION_SHORT', 600); //Set to 1hr   //In debug set to 10min 600, otherwise should be 3600 1hr
+define('SESSION_DURATION_SHORT', 60); //Set to 1hr   //In debug set to 10min 600, otherwise should be 3600 1hr
 define('SESSION_DURATION_LONG', 600*24*365); //Set to 1yr
 
 

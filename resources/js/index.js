@@ -1,4 +1,4 @@
-/* global ProjectSettings, User, Globals, google */
+/* global ProjectSettings, User, Globals, google, Data */
 
 
 $(document).ready(function(){
@@ -179,13 +179,49 @@ $(document).ready(function(){
        console.log("Found a total of notifications : " + Globals.data.notifications.length );
        if (Globals.data.notifications.length == 0) {
            $("#id-header-navbar-button-notification span").css({visibility:"hidden"});
+           $("#id-header-navbar-button-notification-list").html('<li><a href="#">No notifications</a></li>').css({textAlign:"center"});
        } else {
            $("#id-header-navbar-button-notification span").css({visibility:"visible"});
+           var myHtml = "";
+           var visited = '<i class="notification-visited mdi mdi-18px mdi-email-open"></i> ';
+           var not_visited =  '<i class="notification-visited mdi mdi-18px mdi-email"></i> ';
+           for (var i= 0; i< Globals.data.notifications.length; i++) {
+               if (Globals.data.notifications[i].visited == 0) {
+                    myHtml = myHtml + '<li class="notification-element-display" data-index=' + i + '><a style="color:black">' + not_visited  + Globals.data.notifications[i].message + '<i class="notification-remove mdi mdi-18px mdi-close" style="float:right"></i></a></li>';
+               } else {
+                    myHtml = myHtml + '<li class="notification-element-display" data-index=' + i + '><a style="color:grey">' + visited  + Globals.data.notifications[i].message + '<i class="notification-remove mdi mdi-18px mdi-close" style="float:right"></i></a></li>';
+               }
+           }
+           $("#id-header-navbar-button-notification-list").html(myHtml).css({textAlign:"left"});
+           $("#id-header-navbar-button-notification-list").find(".mdi-email").parent().find(".notification-remove").css({visibility:"hidden"});
+           //Handle read notification
+           $(".notification-visited").on('click', function() {
+               var index = $(this).parent().parent().data("index");
+              console.log("Clicked element " + index); 
+              if ($(this).hasClass("mdi-email")) {
+                  $(this).removeClass("mdi-email").addClass("mdi-email-open");
+                  $(this).parent().css({color:"grey"}).find(".notification-remove").css({visibility:"hidden");
+                  
+                  Globals.data.notifications[index].visited = 1;
+                  Globals.data.notifications[index].timestamp = parseInt(new Date().getTime() / 1000);
+                  Globals.data.sync_notifications();
+              }
+           });
+           //Handle remove notification
+           $(".notification-remove").on('click', function() {
+                var index =  $(this).parent().parent().data("index");
+                console.log("Clicked element " + $(this).parent().parent().data("index")); 
+                Globals.data.notifications.splice(index,1);
+                Globals.data.sync_notifications();
+           });
        }
        $("#id-header-navbar-button-notification span").html(Globals.data.notifications.length);
     });
 
-      
+    //Avoid closing dropdown on click
+    $(document).on('click', '.notifications-dropdown-menu', function (e) {
+        e.stopPropagation();
+    });
       
     //----------------------------------------------------------------------
     //LOGIN

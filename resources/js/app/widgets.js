@@ -3045,6 +3045,7 @@ $(document).ready(function(){
              //Save the updated preferences
              var now = parseInt(new Date().getTime() / 1000);
              Globals.data.myself.updatePrefs(now);
+             Globals.data.myself.timestamp = now;
              $(window).trigger('Global.User.ready');
              myObject.hide();   
         });    

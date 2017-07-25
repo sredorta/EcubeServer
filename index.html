@@ -53,6 +53,7 @@ and open the template in the editor.
     <!-- Collect the nav links, forms, and other content for toggling -->
     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
       <ul class="nav navbar-nav">
+        <!--  
         <li class="active"><a href="#">Link <span class="sr-only">(current)</span></a></li>
         <li><a href="#">Link</a></li>
         <li class="dropdown">
@@ -74,6 +75,7 @@ and open the template in the editor.
                 <span class="input-group-addon" id="basic-addon1"><i class="mdi mdi-18px mdi-magnify"></i></span>
         </div> 
       </form>
+        -->
       <ul class="nav navbar-nav navbar-right">
         <li><a href="#">Link</a></li>
         <li>
@@ -86,10 +88,10 @@ and open the template in the editor.
                     <a id="id-header-navbar-button-login" href="#" class="ui-button ui-widget ui-corner-all">Log In</a>
             </p>
         </li>
-        <li>
-            <p class="navbar-btn">
-                <a id="id-header-navbar-button-notification" href="#"><i class="navbar-icon mdi mdi-24px mdi-bell"></i><span class="navbar-icon-counter">2</span></a>
-            </p>
+        <li class="dropdown notifications-dropdown-menu">
+                <a id="id-header-navbar-button-notification" href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i class="navbar-icon mdi mdi-24px mdi-bell"></i><span class="navbar-icon-counter">2</span></a>
+                <ul id="id-header-navbar-button-notification-list" class="dropdown-menu" style="overflow:scroll;height:200px;width:400px;overflow:auto">
+                </ul>
         </li>
         <li>
             <p class="navbar-btn">
