@@ -59,21 +59,6 @@ Map.prototype.init = function() {
     };
     console.log(this._element);
     this.map = new google.maps.Map(this._element,mapOptions );
-
-        var allowedBounds = new google.maps.LatLngBounds(
-	new google.maps.LatLng(85, -180),	// top left corner of map
-	new google.maps.LatLng(-85, 180)	// bottom right corner
-    );
-
-    var k = 5.0; 
-    var n = allowedBounds .getNorthEast().lat() - k;
-    var e = allowedBounds .getNorthEast().lng() - k;
-    var s = allowedBounds .getSouthWest().lat() + k;
-    var w = allowedBounds .getSouthWest().lng() + k;
-    var neNew = new google.maps.LatLng( n, e );
-    var swNew = new google.maps.LatLng( s, w );
-    var boundsNew = new google.maps.LatLngBounds( swNew, neNew );
-    this.map.fitBounds(boundsNew);   
 };  
 
 //Adds user location marker

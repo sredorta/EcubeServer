@@ -169,7 +169,7 @@ Data.prototype.syncStart = function() {
   console.log("Called syncStart");
   this.interval = setInterval(function() {
       myObject.sync();
-  },ProjectSettings.syncIntervalMinutes * 20000);  //This should be 60000
+  },ProjectSettings.syncIntervalMinutes * 60000);  //This should be 60000
 };
 //Starts the sync process
 Data.prototype.syncStop = function() {

@@ -8,8 +8,11 @@ $(document).ready(function(){
   //----------------------------------------------------------------------
   //Set the correct height of the map
   var myHeight = $(".body-container-default").outerHeight();
+  console.log(myHeight);
   $("main-map-canvas").css({
-        height:myHeight
+        //height:myHeight
+        maxWidth:"500px",
+        maxHeight:"500px"
   });
         
   Globals.mainMap = new Map(document.getElementById('main-map-canvas'));    
