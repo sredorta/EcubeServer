@@ -182,8 +182,6 @@ $(document).ready(function(){
            $("#id-header-navbar-button-notification-list").html('<li><a href="#">No notifications</a></li>').css({textAlign:"center"});
        } else {
            $("#id-header-navbar-button-notification span").css({visibility:"visible"});
-           $.playSound('./resources/sounds/notification.mp3');
-           console.log("PLAYING SOUND !!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
            var myHtml = "";
            var visited = '<i class="notification-visited mdi mdi-18px mdi-email-open"></i> ';
            var not_visited =  '<i class="notification-visited mdi mdi-18px mdi-email"></i> ';
@@ -221,7 +219,22 @@ $(document).ready(function(){
                 Globals.data.sync_notifications();
            });
        }
+                  
+         
+       var oldCount = parseInt($("#id-header-navbar-button-notification span").html());
        $("#id-header-navbar-button-notification span").html(Globals.data.notifications.length);
+       if (Globals.data.notifications.length > oldCount) {
+           console.log("SERGI !!!!!!!!!!!!!!!!!!!!!!!!!: " + Globals.data.myself.Pref_soundOnNotif);
+           if (Globals.data.myself.Pref_soundOnNotif == 1) $.playSound('./resources/sounds/notification.mp3'); //Make notification sound
+           
+           /*$("#id-header-navbar-button-notification span").animate(
+                    {transform:scale(2)},
+                    {duration:500,
+                     complete: function() {
+                           $("#id-header-navbar-button-notification span").animate({transform:scale(1)},200);
+                     }
+                    });*/
+       }
     });
 
     //Avoid closing dropdown on click

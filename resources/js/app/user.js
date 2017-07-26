@@ -95,6 +95,7 @@ function User(object) {
     this.keep=false;
     this.Pref_useHome=true;
     this.Pref_sendNotifEmail=true;
+    this.Pref_soundOnNotif = true;
     this.Pref_zoomValue=12;
     this.timestamp;
 }
@@ -211,6 +212,7 @@ User.prototype.reload = function(myObject) {
     if (myObject.longitude!== "") this.longitude = myObject.longitude;
     if (myObject.Pref_useHome!=="") this.Pref_useHome = myObject.Pref_useHome;
     if (myObject.Pref_sendNotifEmail!=="") this.Pref_sendNotifEmail = myObject.Pref_sendNotifEmail;
+    if (myObject.Pref_soundOnNotif!=="") this.Pref_soundOnNotif = myObject.Pref_soundOnNotif;
     if (myObject.Pref_zoomValue!=="") this.Pref_zoomValue = myObject.Pref_zoomValue;
     if (myObject.timestamp!=="") this.timestamp = myObject.timestamp;
 };
@@ -360,7 +362,7 @@ User.prototype.update = function(field,value,now) {
 
 //Update one field
 User.prototype.updatePrefs = function(now) {
-        var myObject = {Pref_useHome:this.Pref_useHome, Pref_sendNotifEmail:this.Pref_sendNotifEmail, Pref_zoomValue:this.Pref_zoomValue ,timestamp:now};
+        var myObject = {Pref_useHome:this.Pref_useHome, Pref_sendNotifEmail:this.Pref_sendNotifEmail, Pref_soundOnNotif:this.Pref_soundOnNotif, Pref_zoomValue:this.Pref_zoomValue ,timestamp:now};
         console.log("updating prefs");
         console.log(myObject);
         var serializedData = jQuery.param(myObject);

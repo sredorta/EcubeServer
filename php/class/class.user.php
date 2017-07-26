@@ -26,6 +26,7 @@ class User {
     public $login_timestamp;
     public $Pref_useHome;
     public $Pref_sendNotifEmail;
+    public $Pref_soundOnNotif;
     public $Pref_zoomValue;
     public $timestamp;
     				
@@ -73,6 +74,9 @@ class User {
        }
        if (isset($_POST['Pref_sendNotifEmail'])) {
            $this->Pref_sendNotifEmail = $_POST['Pref_sendNotifEmail'];
+       }
+       if (isset($_POST['Pref_soundOnNotif'])) {
+           $this->Pref_soundOnNotif = $_POST['Pref_soundOnNotif'];
        }
        if (isset($_POST['Pref_zoomValue'])) {
            $this->Pref_zoomValue = $_POST['Pref_zoomValue'];

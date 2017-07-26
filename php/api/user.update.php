@@ -131,7 +131,11 @@ if ($myUser->Pref_sendNotifEmail!= "") {
 if ($myUser->Pref_zoomValue!= "") {
     $myCurrentUser->dB_updateField("Pref_zoomValue", $myUser->Pref_zoomValue);
 }
-if ($myUser->Pref_sendNotifEmail != "" || $myUser->Pref_useHome != "" || $myUser->Pref_zoomValue != "") {
+
+if ($myUser->Pref_soundOnNotif!= "") {
+    $myCurrentUser->dB_updateField("Pref_soundOnNotif", $myUser->Pref_soundOnNotif);
+}
+if ($myUser->Pref_sendNotifEmail != "" || $myUser->Pref_useHome != "" || $myUser->Pref_zoomValue != "" || $myUser->Pref_soundOnNotif != "") {
     $json = new JsonResponse();
     $json->result = KEY_CODE_SUCCESS;     
     $json->output();

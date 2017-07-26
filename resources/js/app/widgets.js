@@ -2955,14 +2955,14 @@ $(document).ready(function(){
                         <div id="id-preferences-modal-text">\
                             <p>Use home location as my location</p>\
                             <p>Send email on notifications</p>\
-                            <p>Third text</p>\
+                            <p>Enable sound on notifications</p>\
                             <p>Fourth text</p>\
                             <p>Default zoom :  <span id="id-preferences-slider-zoom-value">value</span></p>\
                         </div>\
                         <div id="id-preferences-modal-toggles">\
                             <div id="id-preferences-slider-home" class="slider-on-off"></div> \
                             <div id="id-preferences-slider-notifications-email" class="slider-on-off"></div> \
-                            <div id="id-preferences-slider-home2" class="slider-on-off"></div> \
+                            <div id="id-preferences-slider-notifications-sound" class="slider-on-off"></div> \
                             <div id="id-preferences-slider-home3" class="slider-on-off"></div> \
                             <div id="id-preferences-slider-zoom"></div> \
                         </div> \
@@ -3009,6 +3009,7 @@ $(document).ready(function(){
                 console.log(myObj.attr('id'));
                 if (myObj.attr('id') === "id-preferences-slider-home") Globals.data.myself.Pref_useHome = ui.value;
                 if (myObj.attr('id') === "id-preferences-slider-notifications-email") Globals.data.myself.Pref_sendNotifEmail = ui.value; 
+                if (myObj.attr('id') === "id-preferences-slider-notifications-sound") Globals.data.myself.Pref_soundOnNotif = ui.value;
 		return 'Current value: ' + ui.value;
             }
           });              
@@ -3029,6 +3030,7 @@ $(document).ready(function(){
         $(this.element).find("#id-preferences-slider-zoom").slider('value',parseInt(Globals.data.myself.Pref_zoomValue)); //Set default zooming
         $(this.element).find("#id-preferences-slider-home").slider('value',Globals.data.myself.Pref_useHome);
         $(this.element).find("#id-preferences-slider-notifications-email").slider('value',Globals.data.myself.Pref_sendNotifEmail);
+        $(this.element).find("#id-preferences-slider-notifications-sound").slider('value',Globals.data.myself.Pref_soundOnNotif);
         
         $(this.element).find("#id-preferences-modal-card").css({zIndex:10000});
         $(this.element).find("#id-preferences-modal-button-apply").css({
