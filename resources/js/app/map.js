@@ -148,11 +148,20 @@ Map.prototype.addStationMarkers = function() {
 Map.prototype.addStationMarker = function(station) {
     var myObject = this;
     var coords = {lat: parseFloat(station.latitude), lng: parseFloat(station.longitude)}; 
+    //Determine if station is active or not
+    var timeThreshold = parseInt(new Date().getTime() / 1000) - ProjectSettings.syncIntervalMinutes*60000;
+    var icon = "./resources/img/cube-blue.png";
+    var clickable = true;
+    if (station.timestamp < timeThreshold ){
+        icon = "./resources/img/cube-grey.png";
+        clickable = false;
+    }
     myObject.markerStations.push(new google.maps.Marker({
                 position: coords,
-                icon: "./resources/img/cube-grey.png",
+                icon: icon,
                 labelContent:station.station_id,           //We use the labelContent in order to identify the markers with the stations
                 map: myObject.map,
+                clickable:clickable,
                 animation: google.maps.Animation.DROP
     }));                 
 };
@@ -169,18 +178,6 @@ Map.prototype.getMarkerFromStation = function(station_id) {
     }
     return null;
 };
-//We provide a station_id and get the corresponding station
-/*Map.prototype.getStationFromMarker = function(marker) {
-    this._log("getMarkerStation : finding station for marker " + marker.labelContent);
-    var i;
-    for (i=0; i<Globals.data.stations.length; i++) { 
-        console.log("checking station id: " + Globals.data.stations[i].station_id);
-        if (parseInt(Globals.data.stations[i].station_id) === parseInt(marker.labelContent)) {
-            return Globals.data.stations[i];
-        }
-    }
-    return null;    
-}*/
 
 
 //We provide a station and a color and set the color
@@ -195,6 +192,9 @@ Map.prototype.setStationMarkerColor = function(station_id,color) {
             break;         
         case "grey" :
             myMarker.setIcon("./resources/img/cube-grey.png");
+            break;  
+        case "blue" :
+            myMarker.setIcon("./resources/img/cube-blue.png");
             break;  
         default :
             myMarker.setIcon("./resources/img/cube-grey.png");
@@ -219,10 +219,21 @@ Map.prototype.updateStationMarkers = function() {
     }
     //Check if a station exists but no marker and if so recreate marker
     for(i=0; i<Globals.data.stations.length; i++) {
+        var timeThreshold = parseInt(new Date().getTime() / 1000) - ProjectSettings.syncIntervalMinutes*60000;
+        var icon = "./resources/img/cube-blue.png";
+        var clickable = true;
+        if (Globals.data.stations[i].timestamp < timeThreshold ) {
+            icon = "./resources/img/cube-grey.png";
+            clickable = false;
+        }
+        
         var found = false;
         for (j=0; j<this.markerStations.length; j++) {
             if (myObject.markerStations[j].labelContent === Globals.data.stations[i].station_id) {
                 found = true;
+                //Update icon color and clickable
+                myObject.markerStations[j].setIcon(icon);
+                myObject.markerStations[j].setClickable(clickable);
             }
         }
         if (!found) {
