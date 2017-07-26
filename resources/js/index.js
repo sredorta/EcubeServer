@@ -1,20 +1,28 @@
 /* global ProjectSettings, User, Globals, google, Data */
 
 
+
 $(document).ready(function(){
-    //----------------------------------------------------------------------
-    // INIT
-    //----------------------------------------------------------------------
-    //Set the correct height of the map
-    var myHeight = $(".body-container-default").outerHeight();
-    $("main-map-canvas").css({
+  //----------------------------------------------------------------------
+  // INIT
+  //----------------------------------------------------------------------
+  //Set the correct height of the map
+  var myHeight = $(".body-container-default").outerHeight();
+  $("main-map-canvas").css({
         height:myHeight
-    });
+  });
         
+  Globals.mainMap = new Map(document.getElementById('main-map-canvas'));    
+  Globals.mainMap.wait();  //Wait that API is ready and trigger Global.Maps.api_ready  
+    
+  $(window).on('Global.Maps.api_ready', function() {
+    Globals.mainMap.init();  
+    
+       
     //Global variables !
-    var mapMainGlobal;
-    var mapMarkerCurrentPosition;
-    var mapMarkerHomePosition = null;
+//    var mapMainGlobal;
+//    var mapMarkerCurrentPosition;
+//    var mapMarkerHomePosition = null;
     
     Globals.data.print();
     Globals.data.init();
@@ -28,6 +36,7 @@ $(document).ready(function(){
     $("#id-forgot-password-modal").pluginModalFormForgotPassword(); 
     $("#id-header-navbar-button-notification span").css({visibility:"hidden"});
 
+ 
     //----------------------------------------------------------------------
     // Do the correct things depending on if we are logged or not
     // At this point we only know if user is loggedIn or not
@@ -53,7 +62,7 @@ $(document).ready(function(){
             
          }
     });
-    
+
     //----------------------------------------------------------------------
     // Localize user and setup map
     //----------------------------------------------------------------------
@@ -61,13 +70,8 @@ $(document).ready(function(){
     $(window).on('Global.User.localized', function(event) {
         console.log("Got event Global.User.localized ! : ");
         Globals.data.print();
-        var uluru = {lat: Globals.data.latitude, lng: Globals.data.longitude};
-        if (mapMainGlobal == null) {
-                mapMainGlobal = new google.maps.Map(document.getElementById('main-map-canvas'), {
-                    zoom: 12,
-                    center: uluru
-                });
-        }
+        Globals.mainMap.addUserLocationMarker();
+        
         //Unbind the event as we only want to get here once
         jQuery(window).unbind('Global.User.localized');
         //Create location cookies
@@ -79,15 +83,9 @@ $(document).ready(function(){
         $("#id-signup-modal").pluginModalFormSignup();
         $("#id-forgot-password-modal").pluginModalFormForgotPassword();
         //Zoom map to new coords and add a marker with our position
-        var uluru = {lat: Globals.data.latitude, lng: Globals.data.longitude};
         if (Globals.data.isLoggedIn == false) {
-            mapMainGlobal.panTo(uluru);
+            Globals.mainMap.zoomToUserLocationMarker();
         }
-        mapMarkerCurrentPosition = new google.maps.Marker({
-            position: uluru,
-            animation: google.maps.Animation.DROP,
-            map: mapMainGlobal
-        });
     });
     
     //----------------------------------------------------------------------
@@ -116,58 +114,14 @@ $(document).ready(function(){
       if (Globals.data.isLoggedIn) {
         //Add marker with home location
         if (Globals.data.myself.Pref_useHome == 1) {
-            var uluru = {lat: parseFloat(Globals.data.myself.latitude), lng: parseFloat(Globals.data.myself.longitude)};
-            console.log(uluru);
-            //We only create the marker once !
-            if (mapMarkerHomePosition !== null) mapMarkerHomePosition.setMap(null);
-            mapMarkerHomePosition = null;
-            if (mapMainGlobal == null) {
-                mapMainGlobal = new google.maps.Map(document.getElementById('main-map-canvas'), {
-                zoom: 12,
-                center: uluru
-                });
-            }
-            mapMainGlobal.setZoom(parseInt(Globals.data.myself.Pref_zoomValue));
-            mapMainGlobal.panTo(uluru);
- 
-            mapMarkerHomePosition = new google.maps.Marker({
-                position: uluru,
-                animation: google.maps.Animation.DROP,
-                icon: "./resources/img/icon-marker-home.png",
-                map: mapMainGlobal
-            });
+            Globals.mainMap.addUserHomeLocationMarker();
+            Globals.mainMap.zoomToUserHomeLocationMarker();           
         } else {
-            //We are not using home location...           
-            if (mapMarkerHomePosition !== null) mapMarkerHomePosition.setMap(null);
-            var uluru = {lat: Globals.data.latitude, lng: Globals.data.longitude};
-            if (Globals.data.latitude && Globals.data.longitude) {
-            console.log(uluru);
-            if (mapMainGlobal == null) {
-                mapMainGlobal = new google.maps.Map(document.getElementById('main-map-canvas'), {
-                    zoom: 12,
-                    center: uluru
-                });
-            }
-            mapMarkerHomePosition = null;
-            mapMainGlobal.setZoom(parseInt(Globals.data.myself.Pref_zoomValue));
-            mapMainGlobal.panTo(mapMarkerCurrentPosition.getPosition());
-            }
+            //We are not using home location...   
+            Globals.mainMap.removeUserHomeLocationMarker();
         }
       } else {
-        //Pan back to user location
-        if (mapMarkerHomePosition!== null) {
-            mapMarkerHomePosition.setMap(null);        //Remove home position marker
-            mapMarkerHomePosition = null;
-        }
-        var uluru = {lat: Globals.data.latitude, lng: Globals.data.longitude};
-        if (mapMainGlobal == null) {
-                mapMainGlobal = new google.maps.Map(document.getElementById('main-map-canvas'), {
-                    zoom: 12,
-                    center: uluru
-                });
-        }
-        mapMainGlobal.setZoom(12);
-        mapMainGlobal.panTo(mapMarkerCurrentPosition.getPosition());
+        Globals.mainMap.removeUserHomeLocationMarker();
       }
     });
     
@@ -177,11 +131,18 @@ $(document).ready(function(){
     $(window).on('Global.User.notifications_ready', function() {
        console.log("Got event : Global.User.notifications_ready");
        console.log("Found a total of notifications : " + Globals.data.notifications.length );
+       //Get unread notifications count
+       var unreadNotif = 0;
+       for (var i= 0; i< Globals.data.notifications.length; i++) {
+           if (Globals.data.notifications[i].visited == 0) unreadNotif = unreadNotif + 1;
+       }
+       
+       
        if (Globals.data.notifications.length == 0) {
            $("#id-header-navbar-button-notification span").css({visibility:"hidden"});
            $("#id-header-navbar-button-notification-list").html('<li><a href="#">No notifications</a></li>').css({textAlign:"center"});
        } else {
-           $("#id-header-navbar-button-notification span").css({visibility:"visible"});
+           if (unreadNotif > 0) $("#id-header-navbar-button-notification span").css({visibility:"visible"});
            var myHtml = "";
            var visited = '<i class="notification-visited mdi mdi-18px mdi-email-open"></i> ';
            var not_visited =  '<i class="notification-visited mdi mdi-18px mdi-email"></i> ';
@@ -200,12 +161,13 @@ $(document).ready(function(){
            $(".notification-visited").on("mouseenter", function() { $(this).css({cursor:"pointer"});});
            $(".notification-remove").on("mouseenter", function() { $(this).css({cursor:"pointer"});});
            $(".notification-visited").on('click', function() {
-               var index = $(this).parent().parent().parent().data("index");
-              console.log("Clicked element " + index); 
+              var index = $(this).parent().parent().parent().data("index");
               if ($(this).hasClass("mdi-email")) {
                   $(this).removeClass("mdi-email").addClass("mdi-email-open");
                   $(this).parent().css({color:"grey"}).find(".notification-remove").css({visibility:"visible"});
-                  
+                  unreadNotif = unreadNotif - 1;
+                  $("#id-header-navbar-button-notification span").html(unreadNotif);
+                  if (unreadNotif == 0) $("#id-header-navbar-button-notification span").css({visibility:"hidden"});
                   Globals.data.notifications[index].visited = 1;
                   Globals.data.notifications[index].timestamp = parseInt(new Date().getTime() / 1000);
                   Globals.data.sync_notifications();
@@ -214,7 +176,6 @@ $(document).ready(function(){
            //Handle remove notification
            $(".notification-remove").on('click', function() {
                 var index =  $(this).parent().parent().parent().data("index");
-                console.log("Clicked element " + $(this).parent().parent().parent().data("index")); 
                 Globals.data.notifications.splice(index,1);
                 Globals.data.sync_notifications();
            });
@@ -222,18 +183,16 @@ $(document).ready(function(){
                   
          
        var oldCount = parseInt($("#id-header-navbar-button-notification span").html());
-       $("#id-header-navbar-button-notification span").html(Globals.data.notifications.length);
-       if (Globals.data.notifications.length > oldCount) {
-           console.log("SERGI !!!!!!!!!!!!!!!!!!!!!!!!!: " + Globals.data.myself.Pref_soundOnNotif);
-           if (Globals.data.myself.Pref_soundOnNotif == 1) $.playSound('./resources/sounds/notification.mp3'); //Make notification sound
-           
-           /*$("#id-header-navbar-button-notification span").animate(
-                    {transform:scale(2)},
-                    {duration:500,
+       $("#id-header-navbar-button-notification span").html(unreadNotif);
+       if (unreadNotif > oldCount) {
+           if (Globals.data.myself.Pref_soundOnNotif == 1) $.playSound('./resources/sounds/notification.mp3'); //Make notification sound          
+           $("#id-header-navbar-button-notification span").animate(
+                    {fontSize:"22px", lineHeight:"28px"},
+                    {duration:300,
                      complete: function() {
-                           $("#id-header-navbar-button-notification span").animate({transform:scale(1)},200);
+                           $("#id-header-navbar-button-notification span").animate({fontSize:"11px",lineHeight:"14px"},200);
                      }
-                    });*/
+                    });
        }
     });
 
@@ -241,6 +200,38 @@ $(document).ready(function(){
     $(document).on('click', '.notifications-dropdown-menu', function (e) {
         e.stopPropagation();
     });
+      
+      
+    //----------------------------------------------------------------------
+    // When stations are downloaded
+    //----------------------------------------------------------------------
+      $(window).on('Global.Stations.ready', function () {
+         console.log("Stations downloaded !");
+         console.log(Globals.data.stations);
+         Globals.mainMap.addStationMarkers();
+         /*
+         var marker,i;
+         var markersStations = new Array();
+         for (i=0; i<Globals.data.stations.length; i++) {
+            var coords = {lat: parseFloat(Globals.data.stations[i].latitude), lng: parseFloat(Globals.data.stations[i].longitude)}; 
+            console.log(coords);
+            marker = new google.maps.Marker({
+                position: coords,
+                animation: google.maps.Animation.DROP,
+                icon: "./resources/img/cube-green.png",
+                map: mapMainGlobal
+            });
+            markersStations.push(marker);
+ 
+         }*/
+      });
+      
+      
+      
+      
+      
+      
+      
       
     //----------------------------------------------------------------------
     //LOGIN
@@ -403,4 +394,5 @@ $(document).ready(function(){
             myRoot.find("button").css({cursor:"pointer"});
         });
 
-    });
+    }); //End of Global.Maps.api_ready
+}); //End of document load

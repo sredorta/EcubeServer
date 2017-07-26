@@ -12,7 +12,8 @@ ProjectSettings.defaultCountry = "ES";
 ProjectSettings.defaultLanguage = "en";
 ProjectSettings.useLocalServer = true;
 
-ProjectSettings.sessionDurationMinutes = 20; //This should be set to 60 but for debug 10, server is set to 60
+ProjectSettings.sessionDurationMinutes = 10;    //This should be set to 60 but for debug 10, server is set to 60
+ProjectSettings.syncIntervalMinutes = 1;        //Interval of sync data
 
 if (ProjectSettings.useLocalServer) {
     ProjectSettings.domain = "http://127.0.0.1/eCubeServer";

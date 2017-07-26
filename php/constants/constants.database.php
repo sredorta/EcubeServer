@@ -30,6 +30,7 @@ if(DATABASE_ENVIRONMENT == "localhost") {
 //Table names
 define('DB_TABLE_USERS', "users");
 define('DB_TABLE_NOTIFICATIONS', "notifications");
+define('DB_TABLE_STATIONS', "stations");
 
 //TODO to be moved in a separated file
 //Return key codes in the json message

@@ -2784,6 +2784,7 @@ $(document).ready(function(){
                     value = $("#id-profile-edit-modal-text-input-layout").find(".widget-text-input-layout").pluginTextInputLayout("getInput");
                 } else {
                     value = $("#id-profile-edit-modal-text-input-layout").find(".widget-profile-picture").pluginProfilePicture("getImageString");
+                    $("#id-header-navbar-profile-plugin").pluginProfilePicture("setImage", value);
                 }
                 var now = parseInt(new Date().getTime() / 1000);
                 myUser.update(field,value,now);

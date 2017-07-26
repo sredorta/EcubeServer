@@ -5,12 +5,15 @@
  */
 
 /* global ProjectSettings, User */
-
+console.log("Loaded data.js");
 var Globals = {};
 //Globals.myUser = new User();        //Global variable that contains current loggedIn user
 //Globals.myDB = new IndexedDB();     //Global variable containing IndexedDB access
 Globals.isLoggedIn = false;         //Global variable that indicates if user is loggedIn or not
 Globals.data = new Data();
+Globals.mainMap;
+
+
 
 function Data() {
     this.isLoggedIn = false;            //Used to check if user is loggedIn
@@ -22,6 +25,7 @@ function Data() {
     this._name="DATA";
     this.myself = new User();           //Used to store current user
     this.notifications = new Array();   //Used to store user notifications
+    this.stations = new Array();        //Used to store stations
     this.users = new Array();           //Used to store users downloaded
 }
 //Prints logging if debug enabled
@@ -116,6 +120,26 @@ Data.prototype.restore_notifications = function () {
                     myObject.notifications = JSON.parse(response.notifications); //'['+response.notifications.join(',')+']');
                     myObject._log("Triggering : Global.User.notifications_ready");
                     $(window).trigger('Global.User.notifications_ready');     
+                }
+            }
+        });
+};
+
+//Restores all stations
+Data.prototype.restore_stations = function () {
+        var myObject = this;
+        var url = ProjectSettings.serverUrl + "/api/stations.get.php";
+        serializedData = "";
+        $.ajax({
+            url: url,
+            type: "POST",
+            data: serializedData,
+            success: function(response) {
+                if (response.result === "success") {
+                    myObject._log("Restored user notifications succesfully ");
+                    myObject.stations = JSON.parse(response.stations); //'['+response.notifications.join(',')+']');
+                    myObject._log("Triggering : Global.Stations.ready");
+                    $(window).trigger('Global.Stations.ready');     
                     $(window).trigger('Global.Sync.start'); //This needs to be done at the end of all restore
                 }
             }
@@ -132,6 +156,7 @@ Data.prototype.restore = function() {
         myObject.restore_user();
         myObject.restore_notifications();
     }
+    myObject.restore_stations();
 
     //Here we need to restore stations close to user location or homeLocation
     //We need to start downloading products...
@@ -143,7 +168,7 @@ Data.prototype.syncStart = function() {
   console.log("Called syncStart");
   this.interval = setInterval(function() {
       myObject.sync();
-  },10000);  
+  },ProjectSettings.syncIntervalMinutes * 60000);  
 };
 //Starts the sync process
 Data.prototype.syncStop = function() {

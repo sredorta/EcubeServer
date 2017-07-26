@@ -19,8 +19,8 @@ if(DATABASE_ENVIRONMENT == "localhost") {
 //Defines the name of the cookie containing the session_id
 ini_set('session.name', "PHPSESSID");
 //Defines duration of session
-define('SESSION_DURATION_SHORT', 60); //Set to 1hr   //In debug set to 10min 600, otherwise should be 3600 1hr
-define('SESSION_DURATION_LONG', 600*24*365); //Set to 1yr
+define('SESSION_DURATION_SHORT', 600); //Set to 1hr   //In debug set to 10min 600, otherwise should be 3600 1hr
+define('SESSION_DURATION_LONG', 3600*24*365); //Set to 1yr
 
 
 //Include all the required files
@@ -33,5 +33,6 @@ include ("../class/class.singleton.php");           //Singleton class
 include ("../class/class.database.php");            //Database access class
 include ("../class/class.user.php");                //user class
 include ("../class/class.notification.php");                //user class
+include ("../class/class.station.php");                //user class
 include ("../class/class.email.php");               //Email send helper
 Log::i("", "------- End of loading --------"); //Show that we have loaded the file
