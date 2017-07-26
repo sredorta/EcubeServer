@@ -209,21 +209,6 @@ $(document).ready(function(){
          console.log("Stations downloaded !");
          console.log(Globals.data.stations);
          Globals.mainMap.addStationMarkers();
-         /*
-         var marker,i;
-         var markersStations = new Array();
-         for (i=0; i<Globals.data.stations.length; i++) {
-            var coords = {lat: parseFloat(Globals.data.stations[i].latitude), lng: parseFloat(Globals.data.stations[i].longitude)}; 
-            console.log(coords);
-            marker = new google.maps.Marker({
-                position: coords,
-                animation: google.maps.Animation.DROP,
-                icon: "./resources/img/cube-green.png",
-                map: mapMainGlobal
-            });
-            markersStations.push(marker);
- 
-         }*/
       });
       
       
@@ -283,8 +268,9 @@ $(document).ready(function(){
     // CHANGE PASSWORD
     //----------------------------------------------------------------------
     $("#id-header-navbar-change-password").on('click', function() {
-        $("#id-change-password-modal").pluginModalFormChangePassword();
-        $("#id-change-password-modal").pluginModalFormChangePassword("show");
+        Globals.mainMap.getLabel();
+ //       $("#id-change-password-modal").pluginModalFormChangePassword();
+ //       $("#id-change-password-modal").pluginModalFormChangePassword("show");
     });
     
     //----------------------------------------------------------------------

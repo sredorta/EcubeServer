@@ -127,6 +127,7 @@ Data.prototype.restore_notifications = function () {
 
 //Restores all stations
 Data.prototype.restore_stations = function () {
+        this._log("restore_stations");
         var myObject = this;
         var url = ProjectSettings.serverUrl + "/api/stations.get.php";
         serializedData = "";
@@ -168,7 +169,7 @@ Data.prototype.syncStart = function() {
   console.log("Called syncStart");
   this.interval = setInterval(function() {
       myObject.sync();
-  },ProjectSettings.syncIntervalMinutes * 60000);  
+  },ProjectSettings.syncIntervalMinutes * 20000);  //This should be 60000
 };
 //Starts the sync process
 Data.prototype.syncStop = function() {
@@ -204,20 +205,9 @@ Data.prototype.sync = function() {
         });
         //STEP2: Check if notifications needs update
         myObject.sync_notifications();
-        /*myObject._log("Checking if user notifications needs update...");
-        var url = ProjectSettings.serverUrl + "/api/user.notifications.get.php";
-        serializedData = "";
-        $.ajax({
-            url: url,
-            type: "POST",
-            data: serializedData,
-            success: function(response) {
-                if (response.result === "success") {
-                    var serverNotifications = JSON.parse(response.notifications);
-                    Data.syncNotifications(serverNotifications, myObject.notifications);                  
-                }
-            }
-        });  */      
+
+        //STEP3: Get again stations
+        myObject.restore_stations();
         
     }
 };

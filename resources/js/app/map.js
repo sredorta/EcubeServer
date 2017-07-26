@@ -127,21 +127,137 @@ Map.prototype.removeUserHomeLocationMarker = function() {
     this.map.setZoom(parseInt(Globals.data.myself.Pref_zoomValue));
 };
 
+//Add all station markers during initialization
 Map.prototype.addStationMarkers = function() {
     var myObject = this;
-    this.markerStations = new Array();
-    var marker,i;
-    for (i=0; i<Globals.data.stations.length; i++) {
-        var coords = {lat: parseFloat(Globals.data.stations[i].latitude), lng: parseFloat(Globals.data.stations[i].longitude)}; 
-        marker = new google.maps.Marker({
-            position: coords,
-            animation: google.maps.Animation.DROP,
-            icon: "./resources/img/cube-green.png",
-            map: myObject.map
-        });
-        this.markerStations.push(marker);
- 
+    if (this.markerStations === null) {    //Only do this first time
+        this.markerStations = new Array();
+        var i;
+        window.setTimeout(function() {
+          for (i=0; i<Globals.data.stations.length; i++) {     
+            myObject.addStationMarker(Globals.data.stations[i]);               
+          }
+        },1000);
+    } else {
+        this._log("Updating stations...");
+        this.updateStationMarkers();    //We have already markers, so we check for diffs and act
     }
-    
-    
 };
+
+//Add marker to corresponding station
+Map.prototype.addStationMarker = function(station) {
+    var myObject = this;
+    var coords = {lat: parseFloat(station.latitude), lng: parseFloat(station.longitude)}; 
+    myObject.markerStations.push(new google.maps.Marker({
+                position: coords,
+                icon: "./resources/img/cube-grey.png",
+                labelContent:station.station_id,           //We use the labelContent in order to identify the markers with the stations
+                map: myObject.map,
+                animation: google.maps.Animation.DROP
+    }));                 
+};
+
+
+
+//We provide one station_id and return the marker that corresponds
+Map.prototype.getMarkerFromStation = function(station_id) {
+    var i;
+    for (i=0; i<this.markerStations.length; i++) { 
+        if (this.markerStations[i].labelContent === station_id) {
+            return this.markerStations[i];
+        }
+    }
+    return null;
+};
+//We provide a station_id and get the corresponding station
+/*Map.prototype.getStationFromMarker = function(marker) {
+    this._log("getMarkerStation : finding station for marker " + marker.labelContent);
+    var i;
+    for (i=0; i<Globals.data.stations.length; i++) { 
+        console.log("checking station id: " + Globals.data.stations[i].station_id);
+        if (parseInt(Globals.data.stations[i].station_id) === parseInt(marker.labelContent)) {
+            return Globals.data.stations[i];
+        }
+    }
+    return null;    
+}*/
+
+
+//We provide a station and a color and set the color
+Map.prototype.setStationMarkerColor = function(station_id,color) {
+    var myMarker = this.getMarkerFromStation(station_id);
+    switch (color) {
+        case "yellow" :
+            myMarker.setIcon("./resources/img/cube-yellow.png");
+            break; 
+        case "green" :
+            myMarker.setIcon("./resources/img/cube-green.png");
+            break;         
+        case "grey" :
+            myMarker.setIcon("./resources/img/cube-grey.png");
+            break;  
+        default :
+            myMarker.setIcon("./resources/img/cube-grey.png");
+    }   
+};
+
+Map.prototype.updateStationMarkers = function() {
+    var myObject = this;
+    //Check if a marker exists but station doesn't exist anymore
+    var i;
+    for (i=0; i<this.markerStations.length; i++) { 
+        var found = false;
+        for(j=0; j<Globals.data.stations.length; j++) {
+            if (myObject.markerStations[i].labelContent === Globals.data.stations[j].station_id) {
+                found = true;
+            }
+        }
+        if (!found) {
+            myObject._log("Marker for station " + myObject.markerStations[i].labelContent + " will be removed !");
+            myObject.removeStationMarker(parseInt(myObject.markerStations[i].labelContent));
+        }
+    }
+    //Check if a station exists but no marker and if so recreate marker
+    for(i=0; i<Globals.data.stations.length; i++) {
+        var found = false;
+        for (j=0; j<this.markerStations.length; j++) {
+            if (myObject.markerStations[j].labelContent === Globals.data.stations[i].station_id) {
+                found = true;
+            }
+        }
+        if (!found) {
+            myObject._log("Marker for station " + Globals.data.stations[i].station_id + " will be created !");
+            myObject.addStationMarker(Globals.data.stations[i]);
+        }
+    }
+};
+
+
+//Removes  marker of the station_id specified
+Map.prototype.removeStationMarker = function(station_id) {
+    this._log("removeStationMarker");
+    var i;
+    for (i=0; i<this.markerStations.length; i++) { 
+        if (parseInt(this.markerStations[i].labelContent) === parseInt(station_id)) {
+            console.log("Removing marker !");
+            if (this.markerStations[i] !== null) this.markerStations[i].setMap(null);
+            this.markerStations.splice(i,1);
+            break
+        }
+    }
+};
+
+
+
+Map.prototype.getLabel = function() {
+   // Globals.data.stations.splice(1,1);
+
+    //this.removeStationMarker(2);
+    //myStation.station_id = 2;
+    this.updateStationMarkers();
+    
+
+};
+
+
+
