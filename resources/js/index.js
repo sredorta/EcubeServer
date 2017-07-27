@@ -295,12 +295,14 @@ $(document).ready(function(){
     //----------------------------------------------------------------------
     // CHANGE HOME LOCATION
     //----------------------------------------------------------------------  
-    $("#id-header-navbar-edit-home").on('click', function() {        
+    $("#id-header-navbar-edit-home").on('click', function() { 
+        var dragged = false;
         //Zoom map to home location marker
         Globals.mainMap.zoomToUserHomeLocationMarker();
                
         //Emable the marker to be draggable and set bounce anymation
         Globals.mainMap.markerHomePosition.setDraggable(true);
+        Globals.mainMap.markerHomePosition.setClickable(true);
         if (Globals.mainMap.markerHomePosition.getAnimation() !== null) {
           Globals.mainMap.markerHomePosition.setAnimation(null);
         } else {
@@ -320,20 +322,24 @@ $(document).ready(function(){
         var infowindow = new google.maps.InfoWindow({content: contentString});
         google.maps.event.addListener(Globals.mainMap.markerHomePosition, 'dragend', function() {
             infowindow.open(Globals.mainMap.map, Globals.mainMap.markerHomePosition);
+            dragged = true;
         });
         
         google.maps.event.addListener(Globals.mainMap.markerHomePosition, 'click', function() {
-          infowindow.close();  //Close the infoWindow
-          Globals.mainMap.markerHomePosition.setDraggable(false);
-          //Do the ajax call to update new coordinates
-          var latitude = Globals.mainMap.markerHomePosition.getPosition().lat();
-          var longitude = Globals.mainMap.markerHomePosition.getPosition().lng();
-          var myUser = new User();
-          var now = parseInt(new Date().getTime() / 1000);
-          myUser.updateHomeLocation(latitude,longitude,now);
-          Globals.data.myself.latitude = latitude;
-          Globals.data.myself.longitude = longitude;
-          Globals.data.myself.timestamp = now; //Update timestamp so that sync updates server   
+          if (dragged) {
+            infowindow.close();  //Close the infoWindow
+            Globals.mainMap.markerHomePosition.setDraggable(false);
+            Globals.mainMap.markerHomePosition.setClickable(false);
+            //Do the ajax call to update new coordinates
+            var latitude = Globals.mainMap.markerHomePosition.getPosition().lat();
+            var longitude = Globals.mainMap.markerHomePosition.getPosition().lng();
+            var myUser = new User();
+            var now = parseInt(new Date().getTime() / 1000);
+            myUser.updateHomeLocation(latitude,longitude,now);
+            Globals.data.myself.latitude = latitude;
+            Globals.data.myself.longitude = longitude;
+            Globals.data.myself.timestamp = now; //Update timestamp so that sync updates server   
+          }
         });        
     });
 
