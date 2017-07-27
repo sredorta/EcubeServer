@@ -3168,7 +3168,89 @@ $(document).ready(function(){
         this._debug = true;
         this.init();
     }
+    /*
+   Plugin.prototype.init = function () {
+        var myWidget = $(this.element);
+        // You can use this.element and this.options
+        var myHtml = '\
+            <img class="widget-profile-picture-image" alt="profile picture" src="./resources/img/profile_user_default.png"/> \
+            <span></span> \
+            <input class="widget-profile-picture-input" type="file"></input>';
+        $(this.element).html(myHtml);
+        $(this.element).find("input").prop('disabled', this.options.inputDisabled);
+        $(this.element).find('img').css({
+                    width: "100%",
+                    height: "100%",
+                    backgroundSize: "100%",
+                    backgroundPosition: "center",
+                    display: "block",
+                    position: "relative",
+                    borderRadius: "50%",
+                    border: "2px solid white",
+                    boxShadow: "0 4px 16px 0 rgba(0,0,0,0.8)",
+                    boxSizing: "border-box"
+        });
+        if(this.options.inputDisabled) {
+            $(this.element).find('input').css({width:0,height:0});
+        } else {
+            $(this.element).find('input').css({
+                    width:"80%",
+                    height:"80%",
+                    display:"block",
+                    position:"relative",
+                    top:"-100%", 
+                    border:"none",
+                    outline:"none",
+                    color:"white",
+                    background: "white",
+                    opacity:"0"
+            });
+        }
+        var myImg = $(this.element).find('img');
+        var imgSize = this._imageSize;
+        $(this.element).find('input').change(function(e) {
+            var myFiles = e.target.files;
+            var myFile = myFiles[0];
+            var url = $(this).val();
+            var ext = url.substring(url.lastIndexOf('.') + 1).toLowerCase();
+            var img = document.createElement("img"); //Create a image element for resize
+            if (myFiles && myFile && (ext == "gif" || ext == "png" || ext == "jpeg" || ext == "jpg")) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    img.src = e.target.result; 
+                };
+                reader.onloadend = function(e) {
+                    var canvas = document.createElement('canvas'),
+                    ctx = canvas.getContext('2d');
+                    var destSize = imgSize;
 
+                    var sourceSize;
+                    var sourceWidth = img.width;
+                    var sourceHeight = img.height;
+                    var ratio;
+                    if (sourceWidth>=sourceHeight) {
+                        var sourceX = (sourceWidth - sourceHeight)/2;
+                        var sourceY = 0;
+                        sourceSize=sourceHeight;
+                    } else {
+                        var sourceX = 0;
+                        var sourceY = (sourceHeight - sourceWidth)/2;
+                        sourceSize=sourceWidth;
+                    }
+                    canvas.width = destSize;
+                    canvas.height= destSize;
+                    ctx.clearRect(0,0,canvas.width, canvas.heigth);
+                    ctx.drawImage(img, sourceX,sourceY, sourceSize, sourceSize, 0, 0, destSize,destSize);
+                    var myStr = canvas.toDataURL();
+                    myImg.attr('src', canvas.toDataURL());           
+                };
+                reader.readAsDataURL(myFile);
+            } else {
+                myImg.attr('src',"./resources/img/profile_user_default.png");
+            }          
+        });
+    };
+    */
     //Main function for the pluggin
     Plugin.prototype.init = function () {
         var myWidget = $(this.element);
@@ -3179,49 +3261,164 @@ $(document).ready(function(){
                 <i class="modal-close mdi mdi-24px mdi-close-circle-outline"></i> \
                 <h1>Create a new product</h1> \
                 <div id="id-product-add-modal-form"> \
+                    <p class="product-add-title">Product description:</p> \
+                    <p class="product-add-small-text">This is what users will be seen. Please be detailed on what the product is</p> \
                     <div id="id-product-add-picture-description"> \
-                        <div id="id-product-add-picture"><img alt="product picture" src="./resources/img/product-no-image.jpg"/></div> \
-                        <div id="id-product-add-description"></div> \
-                    <\div> \
+                            <div id="id-product-add-picture"> \
+                            <img alt="product picture" src="./resources/img/product-no-image.jpg"/> \
+                            <span></span> \
+                            <input id="id-product-add-input-img" class="widget-profile-picture-input" type="file"></input> \
+                            </div> \
+                            <div id="id-product-add-description"><textarea id="id-product-add-description-textarea" rows="4" cols="40">this is a test</textarea></div> \
+                            <div id="id-product-add-picture-description-end"></div> \
+                    </div> \
+                    <div id="id-product-add-bottom">\
+                    <div id="id-product-add-keywords">\
+                        <p class="product-add-title">Key words:</p> \
+                        <p class="product-add-small-text">Enter some keywords so that your product can be found, insert words with a space. As an example: food fruit apple</p> \
+                        <input id="id-product-add-input-keywords"type="text"></input> \
+                    </div> \
+                    <div id="id-product-add-price">\n\
+                        <p class="product-add-title">Price:</p> \
+                        <p class="product-add-small-text">Enter unit price in euros</p> \
+                        <input id="id-product-add-input-price" type="text"></input> \
+                    </div> \
                     <p id="id-product-add-modal-error" class="widget-ajax-error-text">Error connecting to the server</p> \
-                    <button id="id-product-add-modal-button-apply" class="ui-button ui-widget ui-corner-all"><i class="widget-ajax-error-spin mdi mdi-18px mdi-spin mdi-loading"></i>Log In<i class="widget-ajax-error-spin-shadow mdi mdi-18px mdi-spin mdi-loading"></i></button> \
-                    <p class="text-clickable-default">Forgot password ?</p> \
+                    <button id="id-product-add-modal-button-apply" class="ui-button ui-widget ui-corner-all"><i class="widget-ajax-error-spin mdi mdi-18px mdi-spin mdi-loading"></i>Add product<i class="widget-ajax-error-spin-shadow mdi mdi-18px mdi-spin mdi-loading"></i></button> \
+                    </div> \
                 </div> \
             </div>';
         $(this.element).html(widgetHTML);
         $(this.element).find("#id-product-add-modal-card").css({
-           minWidth:"350px" 
+           minWidth:"600px", 
+           minHeight:"350px"
         });
         $(this.element).find("#id-product-add-modal-form").css({
            width:"80%",
            margin:"0 auto",
            textAlign:"center"
         });
-        $(this.element).find("#id-product-add-picture-description").css({display:"flex"}).find("div").css({flex:1});
-        
-        
+        $(this.element).find(".product-add-title").css({marginBottom:"0px",marginTop:"10px",fontWeight:"bold",color:"#3071a9",textAlign:"left",borderBottom:"1px solid"});
+        $(this.element).find(".product-add-small-text").css({marginBottom:"5px",marginTop:"0px",fontSize:"12px",color:"#3071a9",textAlign:"left"});
+        $(this.element).find("#id-product-add-picture-description").css({display:"block",textAlign:"center",height:"100px"});
+        $(this.element).find("#id-product-add-picture").css({float:"left"});
+        $(this.element).find("#id-product-add-picture").find("img").css({width:"100px",height:"100px"});
+        $(this.element).find("#id-product-add-picture").css({width:"100px",height:"100px"});
+        $(this.element).find("#id-product-add-description").css({float:"left",height:"100px"});
+        $(this.element).find("#id-product-add-description-textarea").css({resize:"none",height:"100px",marginLeft:"20px"});
+        $(this.element).find("#id-product-add-picture-description-end").css({clear:"both"});
+        $(this.element).find("#id-product-add-bottom").css({display:"block"});
+        var width = $(this.element).find("#id-product-add-picture").find("img").outerWidth();
+        var height = $(this.element).find("#id-product-add-picture").find("img").outerHeight();
+        var top = $(this.element).find("#id-product-add-picture").find("img").offset().top;
+        var left = $(this.element).find("#id-product-add-picture").find("img").offset().left;
+        $(this.element).find("#id-product-add-picture").find('.widget-profile-picture-input').css({
+                    width:width,
+                    height:height,
+                    position:"relative",
+                    left:0,
+                    top:'-=100px',
+                    border:-height,
+                    outline:"none",
+                    color:"white",
+                    background: "black",
+                    opacity:"0"
+        });
+        $(this.element).find("#id-product-add-keywords").find("input").css({width:"90%"});
+        //Handle image selection
+        var myImg = $(this.element).find("#id-product-add-picture").find('img');
+        var imgSize = 200;
+        $(this.element).find('#id-product-add-input-img').change(function(e) {
+            var myFiles = e.target.files;
+            var myFile = myFiles[0];
+            var url = $(this).val();
+            var ext = url.substring(url.lastIndexOf('.') + 1).toLowerCase();
+            var img = document.createElement("img"); //Create a image element for resize
+            if (myFiles && myFile && (ext == "gif" || ext == "png" || ext == "jpeg" || ext == "jpg")) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    img.src = e.target.result; 
+                };
+                reader.onloadend = function(e) {
+                    var canvas = document.createElement('canvas'),
+                    ctx = canvas.getContext('2d');
+                    var destSize = imgSize;
 
-        
+                    var sourceSize;
+                    var sourceWidth = img.width;
+                    var sourceHeight = img.height;
+                    var ratio;
+                    if (sourceWidth>=sourceHeight) {
+                        var sourceX = (sourceWidth - sourceHeight)/2;
+                        var sourceY = 0;
+                        sourceSize=sourceHeight;
+                    } else {
+                        var sourceX = 0;
+                        var sourceY = (sourceHeight - sourceWidth)/2;
+                        sourceSize=sourceWidth;
+                    }
+                    canvas.width = destSize;
+                    canvas.height= destSize;
+                    ctx.clearRect(0,0,canvas.width, canvas.heigth);
+                    ctx.drawImage(img, sourceX,sourceY, sourceSize, sourceSize, 0, 0, destSize,destSize);
+                    var myStr = canvas.toDataURL();
+                    myImg.attr('src', canvas.toDataURL());           
+                };
+                reader.readAsDataURL(myFile);
+            } else {
+                myImg.attr('src',"./resources/img/product-no-image.jpg");
+            }          
+        });
+
         $(this.element).find("#id-product-add-modal-button-apply").css({
            marginTop:"10px",
            marginBottom:"10px"
         });        
+        var myElement = $(this.element);
+        $(this.element).find('input').click(function() {
+            $(this).css({backgroundColor:"white"});
+            myElement.find(".widget-ajax-error-text").css({opacity:0});
+        });
+        $(this.element).find('textarea').click(function() {
+            $(this).css({backgroundColor:"white"});
+            myElement.find(".widget-ajax-error-text").css({opacity:0});
+        });
         
-        $(this.element).find(".widget-text-input-layout").pluginTextInputLayout();
         //Handle the modal login    
-        var myUser = new User();       
-        $("#id-login-modal-button-apply").on('click', function() {   
-            $("#id-login-modal-keep-checkbox").data("isValidInput", true); //Set input as isValid for validation 
-            $("#id-login-modal-form").pluginFormValidator({ajaxEvent:"User.login"});
-            myUser.callingObject = $("#id-login-modal-form");
-        
-            if ($("#id-login-modal-form").pluginFormValidator("isValid")) {
-                myObject._log("Form is valid");
-                myUser.email = $("#id-login-modal-email").pluginTextInputLayout("getInput");
-                myUser.password = $("#id-login-modal-password").pluginTextInputLayout("getInput");
-                myUser.keep = $("#id-login-modal-keep-checkbox").prop('checked');
-                myWidget.find(".widget-ajax-error-spin").css({opacity:1});
-                myUser.logIn();
+        var myUser = new User();   
+
+        $("#id-product-add-modal-button-apply").on('click', function() {
+            myElement.find(".widget-ajax-error-text").css({opacity:0});
+            var formValid = true;
+            //Check that the form is valid
+            if (myElement.find("#id-product-add-description-textarea").val().length < 50) {
+                    formValid = false;
+                    myElement.find(".widget-ajax-error-text").html("Description is not long enough, please be more precise").animate({opacity:1},500);  
+                    myElement.find("#id-product-add-description-textarea").css({backgroundColor:"#FFCDD2"});
+            }
+            if (!/^[a-z ]+$/.test(myElement.find("#id-product-add-input-keywords").val())) {
+                formValid = false;
+                myElement.find(".widget-ajax-error-text").html("Keywords are wrong, please provide a list of words with spaces").animate({opacity:1},500);
+                myElement.find("#id-product-add-input-keywords").css({backgroundColor:"#FFCDD2"});
+            }
+            if (parseInt(myElement.find("#id-product-add-input-price").val()) != myElement.find("#id-product-add-input-price").val() &&
+                   parseFloat(myElement.find("#id-product-add-input-price").val()) != myElement.find("#id-product-add-input-price").val() ) {
+                formValid = false;
+                myElement.find(".widget-ajax-error-text").html("Invalid price").animate({opacity:1},500);
+                myElement.find("#id-product-add-input-price").css({backgroundColor:"#FFCDD2"});              
+            }               
+            if (formValid) {
+                var myProduct = {
+                    description: myElement.find("#id-product-add-description-textarea").val(),
+                    picture: myElement.find("#id-product-add-picture").find('img').attr('src'),
+                    price:   myElement.find("#id-product-add-input-price").val(),
+                    keywords: myElement.find("#id-product-add-input-keywords").val()
+                };
+                console.log(myProduct);
+                //Now do ajax call and create the product !!!!
+                
+                
+                
             }
         });    
         $(this.element).on('User.login.ajaxRequestSuccess', function(event, response) {
@@ -3247,7 +3444,7 @@ $(document).ready(function(){
              jQuery(window).trigger("Global.User.forgotPassword");
         });
         
-    //End of modal login   
+    //End of modal productAdd   
     };
     
     //Shows the modal
@@ -3266,9 +3463,11 @@ $(document).ready(function(){
     //Hides the modal
     Plugin.prototype.reset = function() {
         this._log("Reset form !");
-        $(this.element).find(".widget-text-input-layout").pluginTextInputLayout("reset");
+        $(this.element).find("#id-product-add-picture").find('img').attr('src',"./resources/img/product-no-image.jpg");
+        $(this.element).find("#id-product-add-input-keywords").val("");
+        $(this.element).find("#id-product-add-input-price").val("");
+        $(this.element).find("#id-product-add-description-textarea").val("");
         $(this.element).find(".widget-ajax-error-text").css({opacity:0}); 
-        $("#id-login-modal-keep-checkbox").prop('checked',false);
         
     };        
     //Prints logging if debug enabled
