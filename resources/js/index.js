@@ -21,6 +21,10 @@ $(document).ready(function(){
         height:myHeight,
         width:myWidth
     });
+    $("#main-products").css({
+        height:myHeight,
+        width:myWidth
+    });
     if (Globals.mainMap != null) {
         if (Globals.mainMap.map!= null) {
         var center = Globals.mainMap.map.getCenter();
@@ -288,9 +292,8 @@ $(document).ready(function(){
     // CHANGE PASSWORD
     //----------------------------------------------------------------------
     $("#id-header-navbar-change-password").on('click', function() {
-        Globals.mainMap.getLabel();
- //       $("#id-change-password-modal").pluginModalFormChangePassword();
- //       $("#id-change-password-modal").pluginModalFormChangePassword("show");
+        $("#id-change-password-modal").pluginModalFormChangePassword();
+        $("#id-change-password-modal").pluginModalFormChangePassword("show");
     });
     
     //----------------------------------------------------------------------
@@ -369,7 +372,11 @@ $(document).ready(function(){
         $("#id-profile-preferences-modal").pluginModalFormPreferences("show");
     });
 
-
+    $("#id-header-navbar-product-add").on('click',function() {
+        console.log("Adding new product");
+        $("#id-premium-product-add-modal").pluginModalFormAddProduct();
+        $("#id-premium-product-add-modal").pluginModalFormAddProduct("show");
+    });
 
 
         //----------------------------------------------------------------------

@@ -3152,6 +3152,200 @@ $(document).ready(function(){
         myColor:"yellow"
     };
 })( jQuery, window, document );
+
+
+//------------------------------------------------------------------------------
+//  pluginModalFormLogin: Modal form for login
+//------------------------------------------------------------------------------
+;(function ( $, window, document, undefined ) {
+    var pluginName = 'pluginModalFormAddProduct';
+
+    // The actual plugin constructor
+    function Plugin( element, options ) {
+        this.element = element;
+        this.options = $.extend( {}, $.fn[pluginName].defaults, options) ;        
+        this._name = pluginName;
+        this._debug = true;
+        this.init();
+    }
+
+    //Main function for the pluggin
+    Plugin.prototype.init = function () {
+        var myWidget = $(this.element);
+        var myObject = this;
+        // You can use this.element and this.options
+        var widgetHTML = '\
+            <div id="id-product-add-modal-card" class="modal-card modal-card-center"> \
+                <i class="modal-close mdi mdi-24px mdi-close-circle-outline"></i> \
+                <h1>Create a new product</h1> \
+                <div id="id-product-add-modal-form"> \
+                    <div id="id-product-add-picture-description"> \
+                        <div id="id-product-add-picture"><img alt="product picture" src="./resources/img/product-no-image.jpg"/></div> \
+                        <div id="id-product-add-description"></div> \
+                    <\div> \
+                    <p id="id-product-add-modal-error" class="widget-ajax-error-text">Error connecting to the server</p> \
+                    <button id="id-product-add-modal-button-apply" class="ui-button ui-widget ui-corner-all"><i class="widget-ajax-error-spin mdi mdi-18px mdi-spin mdi-loading"></i>Log In<i class="widget-ajax-error-spin-shadow mdi mdi-18px mdi-spin mdi-loading"></i></button> \
+                    <p class="text-clickable-default">Forgot password ?</p> \
+                </div> \
+            </div>';
+        $(this.element).html(widgetHTML);
+        $(this.element).find("#id-product-add-modal-card").css({
+           minWidth:"350px" 
+        });
+        $(this.element).find("#id-product-add-modal-form").css({
+           width:"80%",
+           margin:"0 auto",
+           textAlign:"center"
+        });
+        $(this.element).find("#id-product-add-picture-description").css({display:"flex"}).find("div").css({flex:1});
+        
+        
+
+        
+        $(this.element).find("#id-product-add-modal-button-apply").css({
+           marginTop:"10px",
+           marginBottom:"10px"
+        });        
+        
+        $(this.element).find(".widget-text-input-layout").pluginTextInputLayout();
+        //Handle the modal login    
+        var myUser = new User();       
+        $("#id-login-modal-button-apply").on('click', function() {   
+            $("#id-login-modal-keep-checkbox").data("isValidInput", true); //Set input as isValid for validation 
+            $("#id-login-modal-form").pluginFormValidator({ajaxEvent:"User.login"});
+            myUser.callingObject = $("#id-login-modal-form");
+        
+            if ($("#id-login-modal-form").pluginFormValidator("isValid")) {
+                myObject._log("Form is valid");
+                myUser.email = $("#id-login-modal-email").pluginTextInputLayout("getInput");
+                myUser.password = $("#id-login-modal-password").pluginTextInputLayout("getInput");
+                myUser.keep = $("#id-login-modal-keep-checkbox").prop('checked');
+                myWidget.find(".widget-ajax-error-spin").css({opacity:1});
+                myUser.logIn();
+            }
+        });    
+        $(this.element).on('User.login.ajaxRequestSuccess', function(event, response) {
+            console.log("We are here and success on login, so now we need to restore");
+            myObject._log("SUCCESS : user.login");
+            
+            jQuery(window).trigger("Global.User.loggedIn");    
+
+            myObject.hide();
+            myObject.reset();
+        });
+ 
+        //Close modal on click
+        $(this.element).find(".modal-close").on('click', function () {
+            console.log("removing");
+            myObject.hide();
+            myObject.reset();
+        });
+        
+        $(this.element).find(".text-clickable-default").on('click', function () {
+             console.log("clicked forgot !");
+             myObject.hide();
+             jQuery(window).trigger("Global.User.forgotPassword");
+        });
+        
+    //End of modal login   
+    };
+    
+    //Shows the modal
+    Plugin.prototype.show = function() {
+        this._log("Showing modal !");
+        //$(this.element).find(".modal-card").css({width: '-=100%'});
+        $(this.element).css({visibility:"visible",display:"block"});
+    };  
+    //Hides the modal
+    Plugin.prototype.hide = function() {
+        this._log("Hiding modal !");
+        var myWidget = $(this.element);
+        $(this.element).css({visibility:"hidden"});
+        
+    };    
+    //Hides the modal
+    Plugin.prototype.reset = function() {
+        this._log("Reset form !");
+        $(this.element).find(".widget-text-input-layout").pluginTextInputLayout("reset");
+        $(this.element).find(".widget-ajax-error-text").css({opacity:0}); 
+        $("#id-login-modal-keep-checkbox").prop('checked',false);
+        
+    };        
+    //Prints logging if debug enabled
+    Plugin.prototype._log = function(txt) {
+        if (this._debug) console.log(this._name + ":: " + txt);
+    };
+    //Enables debug
+    Plugin.prototype.enableDebug = function () {
+        this._debug = true;
+        this._log("Debug enabled !");
+    };
+    //Disables debug
+    Plugin.prototype.disableDebug = function () {
+        this._log("Debug enabled !");
+        this._debug = false;
+    };
+    //Removes any associated data
+    Plugin.prototype.destroy = function () {
+         //this.element.removeData();
+    };
+    
+    //Example of Getter 
+    Plugin.prototype.getData = function () {
+       this._log("In getData !");
+       return this._debug;
+    }; 
+   
+     
+
+    // A really lightweight plugin wrapper around the constructor, 
+    // preventing against multiple instantiations
+    $.fn[pluginName] = function ( options, myData ) {
+        var args = arguments;
+        
+         if (options === undefined || typeof options === 'object') {
+            // Creates a new plugin instance, for each selected element, and
+            // stores a reference withint the element's data
+            return this.each(function() {
+                if (!$.data(this, 'plugin_' + pluginName)) {
+                    $.data(this, 'plugin_' + pluginName, new Plugin(this, options));
+                }
+            });
+        } else if (typeof options === 'string' && options[0] !== '_' && options !== 'init') {
+            // Call a public pluguin method (not starting with an underscore) for each 
+            // selected element.
+            if (Array.prototype.slice.call(args, 1).length == 0 && $.inArray(options, $.fn[pluginName].getters) != -1) {
+                // If the user does not pass any arguments and the method allows to
+                // work as a getter then break the chainability so we can return a value
+                // instead the element reference.
+                var instance = $.data(this[0], 'plugin_' + pluginName);
+                return instance[options].apply(instance, Array.prototype.slice.call(args, 1));
+            } else {
+                // Invoke the speficied method on each selected element
+                return this.each(function() {
+                    var instance = $.data(this, 'plugin_' + pluginName);
+                    if (instance instanceof Plugin && typeof instance[options] === 'function') {
+                        instance[options].apply(instance, Array.prototype.slice.call(args, 1));
+                    } else {
+                        console.warn("Function " + options + " is not defined !");
+                    }
+                });
+            }
+        }
+    };       
+        
+    
+    //Declare here all the getters here !
+    $.fn[pluginName].getters = ['getData'];
+    //Declare the defaults here
+    $.fn[pluginName].defaults = {
+        propertyName: "value",
+        myColor:"yellow"
+    };
+})( jQuery, window, document );
+
+
+
 // -----------------------------------------------------------------------------
 // Session helper 
 // -----------------------------------------------------------------------------
