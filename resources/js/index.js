@@ -297,19 +297,18 @@ $(document).ready(function(){
     //----------------------------------------------------------------------  
     $("#id-header-navbar-edit-home").on('click', function() {        
         //Zoom map to home location marker
-        mapMainGlobal.setZoom(parseInt(Globals.data.myself.Pref_zoomValue));
-        mapMainGlobal.panTo(mapMarkerHomePosition.getPosition());
-        
+        Globals.mainMap.zoomToUserHomeLocationMarker();
+               
         //Emable the marker to be draggable and set bounce anymation
-        mapMarkerHomePosition.setDraggable(true);
-        if (mapMarkerHomePosition.getAnimation() !== null) {
-          mapMarkerHomePosition.setAnimation(null);
+        Globals.mainMap.markerHomePosition.setDraggable(true);
+        if (Globals.mainMap.markerHomePosition.getAnimation() !== null) {
+          Globals.mainMap.markerHomePosition.setAnimation(null);
         } else {
-          mapMarkerHomePosition.setAnimation(google.maps.Animation.BOUNCE);
+          Globals.mainMap.markerHomePosition.setAnimation(google.maps.Animation.BOUNCE);
         }
         //Remove bounce animation on drag start
-        google.maps.event.addListener(mapMarkerHomePosition, 'drag', function() {
-             mapMarkerHomePosition.setAnimation(null);
+        google.maps.event.addListener(Globals.mainMap.markerHomePosition, 'drag', function() {
+             Globals.mainMap.markerHomePosition.setAnimation(null);
         });
         
         //Show infoWindow on dragEnd
@@ -319,16 +318,16 @@ $(document).ready(function(){
             '<p>as your home position</p>' + 
             '</div>';
         var infowindow = new google.maps.InfoWindow({content: contentString});
-        google.maps.event.addListener(mapMarkerHomePosition, 'dragend', function() {
-            infowindow.open(mapMainGlobal, mapMarkerHomePosition);
+        google.maps.event.addListener(Globals.mainMap.markerHomePosition, 'dragend', function() {
+            infowindow.open(Globals.mainMap.map, Globals.mainMap.markerHomePosition);
         });
         
-        google.maps.event.addListener(mapMarkerHomePosition, 'click', function() {
+        google.maps.event.addListener(Globals.mainMap.markerHomePosition, 'click', function() {
           infowindow.close();  //Close the infoWindow
-          mapMarkerHomePosition.setDraggable(false);
+          Globals.mainMap.markerHomePosition.setDraggable(false);
           //Do the ajax call to update new coordinates
-          var latitude = mapMarkerHomePosition.getPosition().lat();
-          var longitude = mapMarkerHomePosition.getPosition().lng();
+          var latitude = Globals.mainMap.markerHomePosition.getPosition().lat();
+          var longitude = Globals.mainMap.markerHomePosition.getPosition().lng();
           var myUser = new User();
           var now = parseInt(new Date().getTime() / 1000);
           myUser.updateHomeLocation(latitude,longitude,now);

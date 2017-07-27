@@ -71,6 +71,7 @@ Map.prototype.addUserLocationMarker = function() {
     this.markerCurrentPosition = new google.maps.Marker({
             position: coords,
             animation: google.maps.Animation.DROP,
+            clickable:false,
             map: myObject.map
         });
 };
@@ -93,6 +94,7 @@ Map.prototype.addUserHomeLocationMarker = function() {
             position: coords,
             animation: google.maps.Animation.DROP,
             icon: "./resources/img/icon-marker-home.png",
+            clickable:false,
             map: myObject.map
         });
 };
