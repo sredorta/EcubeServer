@@ -6,19 +6,36 @@ $(document).ready(function(){
   //----------------------------------------------------------------------
   // INIT
   //----------------------------------------------------------------------
-  //Set the correct height of the map
-  var myHeight = $(".body-container-default").outerHeight();
-  console.log(myHeight);
-  $("main-map-canvas").css({
-        //height:myHeight
-        maxWidth:"500px",
-        maxHeight:"500px"
-  });
+  //Set the correct height of the map and make it responsive
+  function responsiveMap() {
+    
+    //Check for horizontal scroll bar
+    if (Globals.mainMap == null) {
+        var scroll = 17;    //This is the height of the scrollBar
+    } else { 
+        scroll = 0; 
+    }
+    var myHeight = $(".main-container-default").outerHeight() - scroll;
+    var myWidth = $(".main-container-default").outerWidth()/2;
+    $("#main-map-canvas").css({
+        height:myHeight,
+        width:myWidth
+    });
+    if (Globals.mainMap != null) {
+        if (Globals.mainMap.map!= null) {
+        var center = Globals.mainMap.map.getCenter();
+        google.maps.event.trigger(Globals.mainMap.map, "resize");
+        }
+    }
+  }
+  responsiveMap();
+  //setTimeout(function() {responsiveMap();},500); //Make sure that right size is taken
+  $(window).resize( function() {responsiveMap();});
         
   Globals.mainMap = new Map(document.getElementById('main-map-canvas'));    
   Globals.mainMap.wait();  //Wait that API is ready and trigger Global.Maps.api_ready  
     
-  $(window).on('Global.Maps.api_ready', function() {
+  $(window).on('Global.Maps.api_ready', function() {     
     Globals.mainMap.init();  
     
        
