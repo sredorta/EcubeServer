@@ -3519,19 +3519,7 @@ $(document).ready(function(){
         var myWidget = $(this.element);
         var myObject = this;
         // You can use this.element and this.options
-        var widgetHTML = '\
-                        <div class="product-item"> \
-                            <img class="product-image-small" alt="product picture" src="./resources/img/product-no-image.jpg"/> \
-                            <div class="product-description">Fraises de carros, les meilleures 500g la barquette</div> \
-                            <div class="product-price"><span>50</span> &euro;</div> \
-                            <div class="product-select"> \
-                                <span> \
-                                <button type="button" class="btn btn-default btn-xs"><i class="mdi mdi-18px mdi-minus"></i></button> \
-                                <span>10</span> \
-                                <button type="button" class="btn btn-default btn-xs"><i class="mdi mdi-18px mdi-plus"></i></button> \
-                                </span> \
-                            </div> \
-                        </div>';
+        var widgetHTML = '<p>Select stations to see the products</p>';
 
         $(this.element).html(widgetHTML);
 
@@ -3540,9 +3528,27 @@ $(document).ready(function(){
     };
     
     //Shows the modal
-    Plugin.prototype.addItems = function(itemObject) {
+    Plugin.prototype.addItem = function(itemObject) {
         this._log("addItem !");
-        console.log(itemObject);
+        //console.log(itemObject);
+         var widgetHTML = '\
+                        <div class="product-item"> \
+                            <img class="product-image-small" alt="product picture" /> \
+                            <div class="product-description">Fraises de carros, les meilleures 500g la barquette</div> \
+                            <div class="product-price"><span>50</span> &euro;</div> \
+                            <div class="product-select"> \
+                                <span> \
+                                <button type="button" class="btn btn-default btn-xs"><i class="mdi mdi-18px mdi-minus"></i></button> \
+                                <span>0</span> \
+                                <button type="button" class="btn btn-default btn-xs"><i class="mdi mdi-18px mdi-plus"></i></button> \
+                                </span> \
+                            </div> \
+                        </div>';
+        $(this.element).append(widgetHTML);
+        $(this.element).find('.product-image-small').last().attr("src", itemObject.picture);
+        $(this.element).find('.product-description').last().html(itemObject.description);
+        $(this.element).find('.product-price').last().find("span").html(itemObject.price);
+
         //$(this.element).find(".modal-card").css({width: '-=100%'});
         $(this.element).css({visibility:"visible",display:"block"});
     };      
@@ -3564,11 +3570,7 @@ $(document).ready(function(){
     //Hides the modal
     Plugin.prototype.reset = function() {
         this._log("Reset form !");
-        $(this.element).find("#id-product-add-picture").find('img').attr('src',"./resources/img/product-no-image.jpg");
-        $(this.element).find("#id-product-add-input-keywords").val("");
-        $(this.element).find("#id-product-add-input-price").val("");
-        $(this.element).find("#id-product-add-description-textarea").val("");
-        $(this.element).find(".widget-ajax-error-text").css({opacity:0}); 
+        $(this.element).html("<p>Select stations to see the products</p>");
         
     };        
     //Prints logging if debug enabled

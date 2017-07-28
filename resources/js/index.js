@@ -373,10 +373,10 @@ $(document).ready(function(){
         console.log(Globals.mainMap.markerStationsSelected);
         //Download all the products with the stations selected
         if (Globals.mainMap.markerStationsSelected == null) {
-            $("#id-product-list").html('<p>Select at least one station to see the products</p>');
+            $("#id-product-list").pluginProductList("reset");
         } else {
             if (Globals.mainMap.markerStationsSelected.length == 0) {
-                $("#id-product-list").html('<p>Select at least one station to see the products</p>');
+                $("#id-product-list").pluginProductList("reset");
             } else {
                 var i;
                 var myStations = null;
@@ -400,11 +400,13 @@ $(document).ready(function(){
                     data: serializedData,
                     success: function(response) {
                         if (response.result === "success") {
-                            console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Products downloaded !!!!");
-                            console.log(response);
+                            console.log("Products downloaded !!!!");
                             Globals.data.products = JSON.parse(response.products);
-                            console.log(Globals.data.products);
-                            $("#id-product-list").pluginProductList("addItems", response.products);
+                            $("#id-product-list").pluginProductList("reset");
+                            var i;
+                            for(i=0; i<Globals.data.products.length; i++) {
+                                $("#id-product-list").pluginProductList("addItem", Globals.data.products[i]);
+                            }
                             //Now just need to add a product item
                         }
                     },
