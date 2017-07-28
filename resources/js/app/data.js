@@ -27,6 +27,7 @@ function Data() {
     this.notifications = new Array();   //Used to store user notifications
     this.stations = new Array();        //Used to store stations
     this.users = new Array();           //Used to store users downloaded
+    this.products = new Array();        //Used to store products downloaded
 }
 //Prints logging if debug enabled
 Data.prototype._log = function(txt) {
@@ -171,7 +172,7 @@ Data.prototype.syncStart = function() {
     console.log("Called syncStart");
     this.interval = setInterval(function() {
         myObject.sync();
-    },ProjectSettings.syncIntervalMinutes * 30000);  //This should be 60000
+    },ProjectSettings.syncIntervalMinutes * 60000);  //This should be 60000
   }
 };
 //Starts the sync process

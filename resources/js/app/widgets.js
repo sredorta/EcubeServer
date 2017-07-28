@@ -3168,89 +3168,6 @@ $(document).ready(function(){
         this._debug = true;
         this.init();
     }
-    /*
-   Plugin.prototype.init = function () {
-        var myWidget = $(this.element);
-        // You can use this.element and this.options
-        var myHtml = '\
-            <img class="widget-profile-picture-image" alt="profile picture" src="./resources/img/profile_user_default.png"/> \
-            <span></span> \
-            <input class="widget-profile-picture-input" type="file"></input>';
-        $(this.element).html(myHtml);
-        $(this.element).find("input").prop('disabled', this.options.inputDisabled);
-        $(this.element).find('img').css({
-                    width: "100%",
-                    height: "100%",
-                    backgroundSize: "100%",
-                    backgroundPosition: "center",
-                    display: "block",
-                    position: "relative",
-                    borderRadius: "50%",
-                    border: "2px solid white",
-                    boxShadow: "0 4px 16px 0 rgba(0,0,0,0.8)",
-                    boxSizing: "border-box"
-        });
-        if(this.options.inputDisabled) {
-            $(this.element).find('input').css({width:0,height:0});
-        } else {
-            $(this.element).find('input').css({
-                    width:"80%",
-                    height:"80%",
-                    display:"block",
-                    position:"relative",
-                    top:"-100%", 
-                    border:"none",
-                    outline:"none",
-                    color:"white",
-                    background: "white",
-                    opacity:"0"
-            });
-        }
-        var myImg = $(this.element).find('img');
-        var imgSize = this._imageSize;
-        $(this.element).find('input').change(function(e) {
-            var myFiles = e.target.files;
-            var myFile = myFiles[0];
-            var url = $(this).val();
-            var ext = url.substring(url.lastIndexOf('.') + 1).toLowerCase();
-            var img = document.createElement("img"); //Create a image element for resize
-            if (myFiles && myFile && (ext == "gif" || ext == "png" || ext == "jpeg" || ext == "jpg")) {
-                var reader = new FileReader();
-                reader.onload = function(e) {
-                    img.src = e.target.result; 
-                };
-                reader.onloadend = function(e) {
-                    var canvas = document.createElement('canvas'),
-                    ctx = canvas.getContext('2d');
-                    var destSize = imgSize;
-
-                    var sourceSize;
-                    var sourceWidth = img.width;
-                    var sourceHeight = img.height;
-                    var ratio;
-                    if (sourceWidth>=sourceHeight) {
-                        var sourceX = (sourceWidth - sourceHeight)/2;
-                        var sourceY = 0;
-                        sourceSize=sourceHeight;
-                    } else {
-                        var sourceX = 0;
-                        var sourceY = (sourceHeight - sourceWidth)/2;
-                        sourceSize=sourceWidth;
-                    }
-                    canvas.width = destSize;
-                    canvas.height= destSize;
-                    ctx.clearRect(0,0,canvas.width, canvas.heigth);
-                    ctx.drawImage(img, sourceX,sourceY, sourceSize, sourceSize, 0, 0, destSize,destSize);
-                    var myStr = canvas.toDataURL();
-                    myImg.attr('src', canvas.toDataURL());           
-                };
-                reader.readAsDataURL(myFile);
-            } else {
-                myImg.attr('src',"./resources/img/profile_user_default.png");
-            }          
-        });
-    };
-    */
     //Main function for the pluggin
     Plugin.prototype.init = function () {
         var myWidget = $(this.element);
@@ -3583,6 +3500,149 @@ $(document).ready(function(){
 })( jQuery, window, document );
 
 
+//------------------------------------------------------------------------------
+//  pluginProductList: ProductList handling
+//------------------------------------------------------------------------------
+;(function ( $, window, document, undefined ) {
+    var pluginName = 'pluginProductList';
+
+    // The actual plugin constructor
+    function Plugin( element, options ) {
+        this.element = element;
+        this.options = $.extend( {}, $.fn[pluginName].defaults, options) ;        
+        this._name = pluginName;
+        this._debug = true;
+        this.init();
+    }
+    //Main function for the pluggin
+    Plugin.prototype.init = function () {
+        var myWidget = $(this.element);
+        var myObject = this;
+        // You can use this.element and this.options
+        var widgetHTML = '\
+                        <div class="product-item"> \
+                            <img class="product-image-small" alt="product picture" src="./resources/img/product-no-image.jpg"/> \
+                            <div class="product-description">Fraises de carros, les meilleures 500g la barquette</div> \
+                            <div class="product-price"><span>50</span> &euro;</div> \
+                            <div class="product-select"> \
+                                <span> \
+                                <button type="button" class="btn btn-default btn-xs"><i class="mdi mdi-18px mdi-minus"></i></button> \
+                                <span>10</span> \
+                                <button type="button" class="btn btn-default btn-xs"><i class="mdi mdi-18px mdi-plus"></i></button> \
+                                </span> \
+                            </div> \
+                        </div>';
+
+        $(this.element).html(widgetHTML);
+
+        
+    //End of modal productList   
+    };
+    
+    //Shows the modal
+    Plugin.prototype.addItems = function(itemObject) {
+        this._log("addItem !");
+        console.log(itemObject);
+        //$(this.element).find(".modal-card").css({width: '-=100%'});
+        $(this.element).css({visibility:"visible",display:"block"});
+    };      
+    
+    
+    //Shows the modal
+    Plugin.prototype.show = function() {
+        this._log("Showing modal !");
+        //$(this.element).find(".modal-card").css({width: '-=100%'});
+        $(this.element).css({visibility:"visible",display:"block"});
+    };  
+    //Hides the modal
+    Plugin.prototype.hide = function() {
+        this._log("Hiding modal !");
+        var myWidget = $(this.element);
+        $(this.element).css({visibility:"hidden"});
+        
+    };    
+    //Hides the modal
+    Plugin.prototype.reset = function() {
+        this._log("Reset form !");
+        $(this.element).find("#id-product-add-picture").find('img').attr('src',"./resources/img/product-no-image.jpg");
+        $(this.element).find("#id-product-add-input-keywords").val("");
+        $(this.element).find("#id-product-add-input-price").val("");
+        $(this.element).find("#id-product-add-description-textarea").val("");
+        $(this.element).find(".widget-ajax-error-text").css({opacity:0}); 
+        
+    };        
+    //Prints logging if debug enabled
+    Plugin.prototype._log = function(txt) {
+        if (this._debug) console.log(this._name + ":: " + txt);
+    };
+    //Enables debug
+    Plugin.prototype.enableDebug = function () {
+        this._debug = true;
+        this._log("Debug enabled !");
+    };
+    //Disables debug
+    Plugin.prototype.disableDebug = function () {
+        this._log("Debug enabled !");
+        this._debug = false;
+    };
+    //Removes any associated data
+    Plugin.prototype.destroy = function () {
+         //this.element.removeData();
+    };
+    
+    //Example of Getter 
+    Plugin.prototype.getData = function () {
+       this._log("In getData !");
+       return this._debug;
+    }; 
+   
+     
+
+    // A really lightweight plugin wrapper around the constructor, 
+    // preventing against multiple instantiations
+    $.fn[pluginName] = function ( options, myData ) {
+        var args = arguments;
+        
+         if (options === undefined || typeof options === 'object') {
+            // Creates a new plugin instance, for each selected element, and
+            // stores a reference withint the element's data
+            return this.each(function() {
+                if (!$.data(this, 'plugin_' + pluginName)) {
+                    $.data(this, 'plugin_' + pluginName, new Plugin(this, options));
+                }
+            });
+        } else if (typeof options === 'string' && options[0] !== '_' && options !== 'init') {
+            // Call a public pluguin method (not starting with an underscore) for each 
+            // selected element.
+            if (Array.prototype.slice.call(args, 1).length == 0 && $.inArray(options, $.fn[pluginName].getters) != -1) {
+                // If the user does not pass any arguments and the method allows to
+                // work as a getter then break the chainability so we can return a value
+                // instead the element reference.
+                var instance = $.data(this[0], 'plugin_' + pluginName);
+                return instance[options].apply(instance, Array.prototype.slice.call(args, 1));
+            } else {
+                // Invoke the speficied method on each selected element
+                return this.each(function() {
+                    var instance = $.data(this, 'plugin_' + pluginName);
+                    if (instance instanceof Plugin && typeof instance[options] === 'function') {
+                        instance[options].apply(instance, Array.prototype.slice.call(args, 1));
+                    } else {
+                        console.warn("Function " + options + " is not defined !");
+                    }
+                });
+            }
+        }
+    };       
+        
+    
+    //Declare here all the getters here !
+    $.fn[pluginName].getters = ['getData'];
+    //Declare the defaults here
+    $.fn[pluginName].defaults = {
+        propertyName: "value",
+        myColor:"yellow"
+    };
+})( jQuery, window, document );
 
 // -----------------------------------------------------------------------------
 // Session helper 

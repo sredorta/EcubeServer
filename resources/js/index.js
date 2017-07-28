@@ -364,6 +364,7 @@ $(document).ready(function(){
         });        
     });
 
+    $("#id-product-list").pluginProductList();
     //----------------------------------------------------------------------
     // On stationMarker Click handling
     //----------------------------------------------------------------------   
@@ -399,12 +400,16 @@ $(document).ready(function(){
                     data: serializedData,
                     success: function(response) {
                         if (response.result === "success") {
-                            console.log("Products downloaded !!!!");
+                            console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Products downloaded !!!!");
                             console.log(response);
+                            Globals.data.products = JSON.parse(response.products);
+                            console.log(Globals.data.products);
+                            $("#id-product-list").pluginProductList("addItems", response.products);
+                            //Now just need to add a product item
                         }
                     },
                     fail: function() {
-                        console.log("Got fail !");
+                        console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Got fail !");
                     }
                 });    
             }

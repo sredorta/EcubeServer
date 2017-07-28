@@ -3,14 +3,18 @@ include ("../constants/constants.general.php");
 
 if (isset($_POST['selectedStations'])) {
    $selectedStations = $_POST['selectedStations'];
-} 
+} else {
+    $selectedStations = "";
+}
 if (isset($_POST['keywords'])) {
    $keywords = $_POST['keywords'];
-} 
+}  else {
+    $keywords = "";
+}
 
 //Debug
-//$selectedStations = "2 8";
-//$keywords = "";
+//$selectedStations = "2";
+//$keywords = "kk";
 
 
 $myProduct = new Product(); 
@@ -31,7 +35,7 @@ foreach( $myStations as $key => $value ) {
         $where = $where . " OR station_id=". $value;
      }
 }  
-echo $where;
+
 if ($where == " station_id=") {
     $where = "1";
 } else {
@@ -65,7 +69,7 @@ $json = new JsonResponseProducts();
 $myJsonString = json_encode($myProductsList,JSON_UNESCAPED_UNICODE);
 $myJsonString = preg_replace('/,\s*"[^"]+":null|"[^"]+":null,?/', '', $myJsonString);
 $json->products = $myJsonString;
-$json->result = KEY_CODE_SUCCESS; 
+$json->result = KEY_CODE_SUCCESS;
 $json->output();
 
 
