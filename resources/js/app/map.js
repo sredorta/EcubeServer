@@ -17,6 +17,7 @@ function Map(object) {
     this.markerCurrentPosition = null;  //Current user position marker
     this.markerHomePosition = null;     //Marker of home position
     this.markerStations = null;
+    this.markerStationsSelected = null;
 }
 
 //Prints logging if debug enabled
@@ -74,6 +75,7 @@ Map.prototype.addUserLocationMarker = function() {
             clickable:false,
             map: myObject.map
         });
+    this.zoomToUserLocationMarker();  
 };
 //Adds user location marker
 Map.prototype.zoomToUserLocationMarker = function() {
@@ -165,7 +167,10 @@ Map.prototype.getMarkerFromStation = function(station_id) {
     }
     return null;
 };
-
+//We provide one station_id and return the marker that corresponds
+Map.prototype.getStationIdFromMarker = function(marker) {
+    return marker.labelContent;
+};
 
 //We provide a station and a color and set the color
 Map.prototype.setStationMarkerColor = function(station_id,color) {

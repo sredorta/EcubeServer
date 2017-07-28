@@ -36,7 +36,7 @@ Data.prototype._log = function(txt) {
 //For debug
 Data.prototype.print = function() {
     this._log("Content of data:");
-    this._log(this);
+    if (this._debug) console.log(this);
 };    
 
 //Will go to the server and download all required info and init the table
@@ -57,6 +57,7 @@ Data.prototype.init = function() {
         });   
     // Callback handler that will be called on success
     request.done(function (response, textStatus, jqXHR){
+         console.log(response);
         //Pop-up session expired
         if (response.result === "error.session.invalid") {
             myObject.isLoggedIn = false;

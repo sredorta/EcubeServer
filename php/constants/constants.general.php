@@ -34,5 +34,6 @@ include ("../class/class.database.php");            //Database access class
 include ("../class/class.user.php");                //user class
 include ("../class/class.notification.php");                //user class
 include ("../class/class.station.php");                //user class
+include ("../class/class.product.php");                //user class
 include ("../class/class.email.php");               //Email send helper
 Log::i("", "------- End of loading --------"); //Show that we have loaded the file

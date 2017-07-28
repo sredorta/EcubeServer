@@ -3261,6 +3261,7 @@ $(document).ready(function(){
                 <i class="modal-close mdi mdi-24px mdi-close-circle-outline"></i> \
                 <h1>Create a new product</h1> \
                 <div id="id-product-add-modal-form"> \
+                  <div id="id-product-add-data"> \
                     <p class="product-add-title">Product description:</p> \
                     <p class="product-add-small-text">This is what users will be seen. Please be detailed on what the product is</p> \
                     <div id="id-product-add-picture-description"> \
@@ -3273,28 +3274,36 @@ $(document).ready(function(){
                             <div id="id-product-add-picture-description-end"></div> \
                     </div> \
                     <div id="id-product-add-bottom">\
-                    <div id="id-product-add-keywords">\
-                        <p class="product-add-title">Key words:</p> \
-                        <p class="product-add-small-text">Enter some keywords so that your product can be found, insert words with a space. As an example: food fruit apple</p> \
-                        <input id="id-product-add-input-keywords"type="text"></input> \
-                    </div> \
-                    <div id="id-product-add-price">\n\
-                        <p class="product-add-title">Price:</p> \
-                        <p class="product-add-small-text">Enter unit price in euros</p> \
-                        <input id="id-product-add-input-price" type="text"></input> \
-                    </div> \
-                    <p id="id-product-add-modal-error" class="widget-ajax-error-text">Error connecting to the server</p> \
-                    <button id="id-product-add-modal-button-apply" class="ui-button ui-widget ui-corner-all"><i class="widget-ajax-error-spin mdi mdi-18px mdi-spin mdi-loading"></i>Add product<i class="widget-ajax-error-spin-shadow mdi mdi-18px mdi-spin mdi-loading"></i></button> \
-                    </div> \
+                        <div id="id-product-add-keywords">\
+                            <p class="product-add-title">Key words:</p> \
+                            <p class="product-add-small-text">Enter some keywords so that your product can be found, insert words with a space. As an example: food fruit apple</p> \
+                            <input id="id-product-add-input-keywords"type="text"></input> \
+                        </div> \
+                        <div id="id-product-add-price">\
+                            <p class="product-add-title">Price:</p> \
+                            <p class="product-add-small-text">Enter unit price in euros</p> \
+                            <input id="id-product-add-input-price" type="text"></input> \
+                        </div> \
+                    </div>  \
+                  </div>  \
+                  <div id="id-product-add-map-area">\
+                         <p class="product-add-title">Stations selection :</p> \
+                         <p class="product-add-small-text">Select stations where product is available</p> \
+                         <div id="id-product-add-map"></div> \
+                  </div> \
+                  <div id="id-product-add-map-end"></div> \
+                  <p id="id-product-add-modal-error" class="widget-ajax-error-text">Error connecting to the server</p> \
+                  <button id="id-product-add-modal-button-apply" class="ui-button ui-widget ui-corner-all"><i class="widget-ajax-error-spin mdi mdi-18px mdi-spin mdi-loading"></i>Add product<i class="widget-ajax-error-spin-shadow mdi mdi-18px mdi-spin mdi-loading"></i></button> \
                 </div> \
             </div>';
         $(this.element).html(widgetHTML);
         $(this.element).find("#id-product-add-modal-card").css({
-           minWidth:"600px", 
+           minWidth:"900px", 
            minHeight:"350px"
         });
         $(this.element).find("#id-product-add-modal-form").css({
-           width:"80%",
+           width:"100%",
+           padding:"10px",
            margin:"0 auto",
            textAlign:"center"
         });
@@ -3308,6 +3317,11 @@ $(document).ready(function(){
         $(this.element).find("#id-product-add-description-textarea").css({resize:"none",height:"100px",marginLeft:"20px"});
         $(this.element).find("#id-product-add-picture-description-end").css({clear:"both"});
         $(this.element).find("#id-product-add-bottom").css({display:"block"});
+        $(this.element).find("#id-product-add-data").css({float:"left",minWidth:"450px",maxWidth:"450px"});
+        //$(this.element).find("#id-product-add-map-area").css({float:"left"
+        $(this.element).find("#id-product-add-map-area").css({float:"left",marginLeft:"20px", width:"350px",height:"250px"});
+        $(this.element).find("#id-product-add-map").css({width:"100%", height:"100%"});
+        $(this.element).find("#id-product-add-map-end").css({clear:"both"});
         var width = $(this.element).find("#id-product-add-picture").find("img").outerWidth();
         var height = $(this.element).find("#id-product-add-picture").find("img").outerHeight();
         var top = $(this.element).find("#id-product-add-picture").find("img").offset().top;
@@ -3327,7 +3341,7 @@ $(document).ready(function(){
         $(this.element).find("#id-product-add-keywords").find("input").css({width:"90%"});
         //Handle image selection
         var myImg = $(this.element).find("#id-product-add-picture").find('img');
-        var imgSize = 200;
+        var imgSize = 50;
         $(this.element).find('#id-product-add-input-img').change(function(e) {
             var myFiles = e.target.files;
             var myFile = myFiles[0];
@@ -3384,6 +3398,38 @@ $(document).ready(function(){
             myElement.find(".widget-ajax-error-text").css({opacity:0});
         });
         
+        //Handle the map
+        var map = new Map(document.getElementById("id-product-add-map"));
+        map.init();
+        map.addUserLocationMarker();
+        map.addStationMarkers();
+        
+
+        //Handle on click of station markers
+        var myInterval = setInterval(function () {
+            if (map.markerStations !== null) {                
+                var i;
+                for(i=0; i<map.markerStations.length; i++) {
+                    console.log("Index is 22!!!!!!!!!!!!!!!!!!!!!: " + i);
+                    map.markerStations[i].addListener('click', (function(i) {
+                        return function () {
+                        markerClickEvent(i);
+                        };
+                })(i));
+                }    
+                clearInterval(myInterval);
+            } 
+        },1000);
+        function markerClickEvent(index) {
+            console.log("clicked marker : " + index); 
+            map.markerStations[index].setIcon("./resources/img/cube-yellow.png");
+            if (map.markerStationsSelected == null) {
+                map.markerStationsSelected = new Array();
+            }
+            map.markerStationsSelected.push(map.markerStations[index]);
+        }
+ 
+    
         //Handle the modal login    
         var myUser = new User();   
 
@@ -3407,18 +3453,45 @@ $(document).ready(function(){
                 myElement.find(".widget-ajax-error-text").html("Invalid price").animate({opacity:1},500);
                 myElement.find("#id-product-add-input-price").css({backgroundColor:"#FFCDD2"});              
             }               
+            if (map.markerStationsSelected == null) {
+                formValid = false;
+                myElement.find(".widget-ajax-error-text").html("At least one station must be selected !").animate({opacity:1},500);         
+            }
+            
             if (formValid) {
+                //Get list of selected stations id
+                var i;
+                var myStations = null;
+                for(i=0; i<map.markerStationsSelected.length; i++) {
+                    console.log("Station selected : " + map.getStationIdFromMarker(map.markerStationsSelected[i]));
+                    if (myStations == null) myStations = map.getStationIdFromMarker(map.markerStationsSelected[i]);
+                    else myStations = myStations + " " + map.getStationIdFromMarker(map.markerStationsSelected[i]);
+                }
+                
                 var myProduct = {
                     description: myElement.find("#id-product-add-description-textarea").val(),
                     picture: myElement.find("#id-product-add-picture").find('img').attr('src'),
                     price:   myElement.find("#id-product-add-input-price").val(),
-                    keywords: myElement.find("#id-product-add-input-keywords").val()
+                    keywords: myElement.find("#id-product-add-input-keywords").val(),
+                    selectedStations: myStations
                 };
                 console.log(myProduct);
                 //Now do ajax call and create the product !!!!
-                
-                
-                
+                var url = ProjectSettings.serverUrl + "/api/product.add.php";
+                var serializedData = jQuery.param(myProduct);
+                console.log(serializedData);
+                $.ajax({
+                    url: url,
+                    type: "POST",
+                    data: serializedData,
+                    success: function(response) {
+                        if (response.result === "success") {
+                            console.log("Product added !!!!");
+                            myObject.hide();
+                            myObject.reset();
+                        }
+                    }
+                });                                        
             }
         });    
         $(this.element).on('User.login.ajaxRequestSuccess', function(event, response) {
@@ -3427,8 +3500,7 @@ $(document).ready(function(){
             
             jQuery(window).trigger("Global.User.loggedIn");    
 
-            myObject.hide();
-            myObject.reset();
+
         });
  
         //Close modal on click

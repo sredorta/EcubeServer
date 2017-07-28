@@ -59,4 +59,9 @@ class JsonResponseStations extends JsonResponse {
     //We add account that is an object with all the fileds of a user class
     public $stations;
 }
+
+class JsonResponseProducts extends JsonResponse {
+    //We add account that is an object with all the fileds of a user class
+    public $products;
+}
 Log::i(basename(__FILE__), "End of loading..."); //Show that we have loaded the file

@@ -31,6 +31,8 @@ if(DATABASE_ENVIRONMENT == "localhost") {
 define('DB_TABLE_USERS', "users");
 define('DB_TABLE_NOTIFICATIONS', "notifications");
 define('DB_TABLE_STATIONS', "stations");
+define('DB_TABLE_PRODUCTS', "products");
+define('DB_TABLE_PRODUCT_STATION_MAP', "product_station_map");
 
 //TODO to be moved in a separated file
 //Return key codes in the json message

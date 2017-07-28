@@ -85,7 +85,11 @@ class Database extends Singleton {
     function addElement($table, $fields, $values) {
         $sql = "INSERT INTO $table $fields VALUES $values";
         Log::i("DATABASE::addElement" , $sql);
-        $result = mysqli_query($this->mConnexion, $sql);
+        if (mysqli_query($this->mConnexion, $sql)) {
+            return mysqli_insert_id($this->mConnexion);
+        } else {
+            return null;
+        }
     }
     
     //Updates a field of a row
