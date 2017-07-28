@@ -124,8 +124,10 @@ Map.prototype.addStationMarkers = function() {
         var i;
         window.setTimeout(function() {
           for (i=0; i<Globals.data.stations.length; i++) {     
-            myObject.addStationMarker(Globals.data.stations[i]);               
+            myObject.addStationMarker(Globals.data.stations[i]); 
           }
+          console.log("Triggering: Global.Stations.markers_available");
+          $(window).trigger("Global.Stations.markers_available");
         },1000);
     } else {
         this._log("Updating stations...");
@@ -145,14 +147,16 @@ Map.prototype.addStationMarker = function(station) {
         icon = "./resources/img/cube-grey.png";
         clickable = false;
     }
-    myObject.markerStations.push(new google.maps.Marker({
+    var marker = new google.maps.Marker({
                 position: coords,
                 icon: icon,
                 labelContent:station.station_id,           //We use the labelContent in order to identify the markers with the stations
                 map: myObject.map,
                 clickable:clickable,
                 animation: google.maps.Animation.DROP
-    }));                 
+    });
+    myObject.markerStations.push(marker);                   //Add on click event
+    myObject.onStationMarkerClick(marker);
 };
 
 
@@ -233,6 +237,9 @@ Map.prototype.updateStationMarkers = function() {
             myObject.addStationMarker(Globals.data.stations[i]);
         }
     }
+    console.log("Triggering: Global.Stations.markers_available");
+    $(window).trigger("Global.Stations.markers_available");
+    
 };
 
 
@@ -249,9 +256,16 @@ Map.prototype.removeStationMarker = function(station_id) {
         }
     }
 };
+Map.prototype.onStationMarkerClick = function(marker) {
+                var station_id = marker.labelContent;
+                marker.addListener('click', (function(station_id) {
+                        return function () {
+                        markerStationClickEvent(station_id);
+                        };
+                })(station_id));
+};    
 
-
-
+ 
 Map.prototype.getLabel = function() {
    // Globals.data.stations.splice(1,1);
 
@@ -262,5 +276,15 @@ Map.prototype.getLabel = function() {
 
 };
 
+function markerStationClickEvent(station_id) {
+    console.log("Selected marker station_id: " + station_id);
+    var myObject = this;
+    if (this.markerStationsSelected== null) {
+        myObject.markerStationsSelected = this.getMarkerFromStation(station_id);
+    } else {
+        
+    }
+    
+}
 
 

@@ -3494,15 +3494,6 @@ $(document).ready(function(){
                 });                                        
             }
         });    
-        $(this.element).on('User.login.ajaxRequestSuccess', function(event, response) {
-            console.log("We are here and success on login, so now we need to restore");
-            myObject._log("SUCCESS : user.login");
-            
-            jQuery(window).trigger("Global.User.loggedIn");    
-
-
-        });
- 
         //Close modal on click
         $(this.element).find(".modal-close").on('click', function () {
             console.log("removing");

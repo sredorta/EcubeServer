@@ -364,6 +364,43 @@ $(document).ready(function(){
     });
 
     //----------------------------------------------------------------------
+    // On stationMarker Click handling
+    //----------------------------------------------------------------------               
+ /*   $(window).on('Global.Stations.markers_available', function() {
+        console.log("Got event : Global.Stations.markers_available")
+        //Wait for markerStations to be available
+        var myInterval = setInterval(function () {
+        if (Globals.mainMap.markerStations !== null) {                
+                var i;
+                for(i=0; i<Globals.mainMap.markerStations.length; i++) {
+                    console.log("Index is 22!!!!!!!!!!!!!!!!!!!!!: " + i);
+                    Globals.mainMap.markerStations[i].addListener('click', (function(i) {
+                        return function () {
+                        markerClickEvent(i);
+                        };
+                })(i));
+                }    
+                clearInterval(myInterval);
+            } 
+        },1000);
+        function markerClickEvent(index) {
+            console.log("clicked marker : " + index); 
+            Globals.mainMap.markerStations[index].setIcon("./resources/img/cube-yellow.png");
+            if (Globals.mainMap.markerStationsSelected == null) {
+                Globals.mainMap.markerStationsSelected = new Array();
+            }
+            Globals.mainMap.markerStationsSelected.push(Globals.mainMap.markerStations[index]);
+        }        
+    });
+*/
+
+
+
+
+
+
+
+    //----------------------------------------------------------------------
     // PREFERENCES EDIT
     //----------------------------------------------------------------------               
     $("#id-header-navbar-edit-preferences").on('click',function() {

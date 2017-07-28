@@ -73,7 +73,7 @@ Data.prototype.init = function() {
         myObject._log("I´m in the user and triggering fail with message : " + new AjaxHelper().getStatusMessage(errorThrown, jqXHR.status));
     });
     request.always(function() {
-        myObject._log("Triggering : Global.User.isLoggedIn");
+        myObject._log("Triggering : Global.User.isLoggedIn : " + myObject.isLoggedIn);
         $(window).trigger('Global.User.isLoggedIn');
         //Restore all data later required by the app
         myObject.restore();
@@ -205,12 +205,11 @@ Data.prototype.sync = function() {
             }
         });
         //STEP2: Check if notifications needs update
-        myObject.sync_notifications();
-
-        //STEP3: Get again stations
-        myObject.restore_stations();
-        
+        myObject.sync_notifications();       
     }
+    
+    //STEP3: Get again stations
+    myObject.restore_stations();
 };
 
 Data.prototype.sync_notifications = function () {
