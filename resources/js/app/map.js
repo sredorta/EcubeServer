@@ -13,6 +13,7 @@ function Map(object) {
     this._name = "googleMap";
     this._debug = true;
     this._element = object; //Element of the map 
+    this.mapType;           //When mapType is main triggers global events if not no
     this.map = null;
     this.markerCurrentPosition = null;  //Current user position marker
     this.markerHomePosition = null;     //Marker of home position
@@ -40,8 +41,10 @@ Map.prototype.wait = function() {
         try {
         if (typeof google === 'object' && typeof google.maps === 'object') {
             clearInterval(myInterval);
-            myObject._log("Triggering : Global.Maps.api_ready");
-            $(window).trigger('Global.Maps.api_ready');
+            if (myObject.mapType == "main") {
+                myObject._log("Triggering : Global.Maps.api_ready");
+                $(window).trigger('Global.Maps.api_ready');
+            }
         }
         } catch(e) {
             console.log(e);
@@ -126,8 +129,10 @@ Map.prototype.addStationMarkers = function() {
           for (i=0; i<Globals.data.stations.length; i++) {     
             myObject.addStationMarker(Globals.data.stations[i]); 
           }
-          console.log("Triggering: Global.Stations.markers_available");
-          $(window).trigger("Global.Stations.markers_available");
+          if (myObject.mapType == "main") {
+            console.log("Triggering: Global.Stations.markers_available");
+            $(window).trigger("Global.Stations.markers_available");
+          }
         },1000);
     } else {
         this._log("Updating stations...");
@@ -171,6 +176,8 @@ Map.prototype.getMarkerFromStation = function(station_id) {
     }
     return null;
 };
+
+
 //We provide one station_id and return the marker that corresponds
 Map.prototype.getStationIdFromMarker = function(marker) {
     return marker.labelContent;
@@ -218,11 +225,26 @@ Map.prototype.updateStationMarkers = function() {
         var timeThreshold = parseInt(new Date().getTime() / 1000) - ProjectSettings.syncIntervalMinutes*60000;
         var icon = "./resources/img/cube-blue.png";
         var clickable = true;
+        if (this.stationIsSelected(Globals.data.stations[i].station_id)) icon = "./resources/img/cube-yellow.png";
         if (Globals.data.stations[i].timestamp < timeThreshold ) {
             icon = "./resources/img/cube-grey.png";
             clickable = false;
+            //Remove from selected if it was selected
+            if (this.stationIsSelected(Globals.data.stations[i].station_id)) {
+                var j;
+                var index;
+                for (j=0; j<this.markerStationsSelected.length; j++) {
+                    if (this.getStationIdFromMarker(this.markerStationsSelected[j]) == Globals.data.stations[i].station_id) {
+                        this.markerStationsSelected.splice(j, 1);
+                        if (this.mapType == "main") {
+                            console.log("Triggering: Global.stations.selection_change");
+                            $(window).trigger("Global.stations.selection_change");
+                        }
+                    }
+                }
+            }
         }
-        
+
         var found = false;
         for (j=0; j<this.markerStations.length; j++) {
             if (myObject.markerStations[j].labelContent === Globals.data.stations[i].station_id) {
@@ -237,8 +259,10 @@ Map.prototype.updateStationMarkers = function() {
             myObject.addStationMarker(Globals.data.stations[i]);
         }
     }
-    console.log("Triggering: Global.Stations.markers_available");
-    $(window).trigger("Global.Stations.markers_available");
+    if (this.mapType == "main") {
+        console.log("Triggering: Global.Stations.markers_available");
+        $(window).trigger("Global.Stations.markers_available");
+    }
     
 };
 
@@ -257,10 +281,11 @@ Map.prototype.removeStationMarker = function(station_id) {
     }
 };
 Map.prototype.onStationMarkerClick = function(marker) {
+                var myObject = this;
                 var station_id = marker.labelContent;
                 marker.addListener('click', (function(station_id) {
                         return function () {
-                        markerStationClickEvent(station_id);
+                        myObject.markerStationOnClick(station_id);
                         };
                 })(station_id));
 };    
@@ -276,15 +301,54 @@ Map.prototype.getLabel = function() {
 
 };
 
-function markerStationClickEvent(station_id) {
-    console.log("Selected marker station_id: " + station_id);
+//Updates the markerStationsSelected array at each click
+Map.prototype.markerStationOnClick = function(station_id) {
+    this._log("Clicked on station : " + station_id);
     var myObject = this;
-    if (this.markerStationsSelected== null) {
-        myObject.markerStationsSelected = this.getMarkerFromStation(station_id);
-    } else {
-        
+    if (this.stationIsSelected(station_id)) {
+        if (this.markerStationsSelected != null) {
+            this.setStationMarkerColor(station_id,"blue");
+            var i,index;
+            var found = false;
+            for (i=0; i<this.markerStationsSelected.length; i++) {
+                if (this.getStationIdFromMarker(this.markerStationsSelected[i])== station_id) found = true; index = i;
+            }           
+            if (found) {
+                this.markerStationsSelected.splice(index,1);                
+            }    
+        }
+    } else {   
+        var myMarker = this.getMarkerFromStation(station_id);
+        if (this.markerStationsSelected == null) {
+            this.markerStationsSelected = new Array();
+            this.markerStationsSelected.push(myMarker);
+        } else {
+            var i;
+            var found = false;
+            for (i=0; i<this.markerStationsSelected.length; i++) {
+                if (this.getStationIdFromMarker(this.markerStationsSelected[i]) == station_id) found = true;
+            }
+            if (!found) {
+                this.markerStationsSelected.push(this.getMarkerFromStation(station_id));
+            }
+        } 
+        this.setStationMarkerColor(station_id,"yellow");
     }
-    
-}
+    if (this.mapType == "main") {
+        console.log("Triggering: Global.stations.selection_change");
+        $(window).trigger("Global.stations.selection_change");
+    }
+};
 
+Map.prototype.stationIsSelected = function(station_id) {
+        var i;
+        var found = false;
+        if (this.markerStationsSelected != null) {
+            for (i=0; i<this.markerStationsSelected.length; i++) {
+                if (this.getStationIdFromMarker(this.markerStationsSelected[i]) == station_id) found = true;
+            }
+        }
+        return found;   
+    
+};
 

@@ -3404,30 +3404,6 @@ $(document).ready(function(){
         map.addUserLocationMarker();
         map.addStationMarkers();
         
-
-        //Handle on click of station markers
-        var myInterval = setInterval(function () {
-            if (map.markerStations !== null) {                
-                var i;
-                for(i=0; i<map.markerStations.length; i++) {
-                    console.log("Index is 22!!!!!!!!!!!!!!!!!!!!!: " + i);
-                    map.markerStations[i].addListener('click', (function(i) {
-                        return function () {
-                        markerClickEvent(i);
-                        };
-                })(i));
-                }    
-                clearInterval(myInterval);
-            } 
-        },1000);
-        function markerClickEvent(index) {
-            console.log("clicked marker : " + index); 
-            map.markerStations[index].setIcon("./resources/img/cube-yellow.png");
-            if (map.markerStationsSelected == null) {
-                map.markerStationsSelected = new Array();
-            }
-            map.markerStationsSelected.push(map.markerStations[index]);
-        }
  
     
         //Handle the modal login    

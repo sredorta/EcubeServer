@@ -36,7 +36,8 @@ $(document).ready(function(){
   //setTimeout(function() {responsiveMap();},500); //Make sure that right size is taken
   $(window).resize( function() {responsiveMap();});
         
-  Globals.mainMap = new Map(document.getElementById('main-map-canvas'));    
+  Globals.mainMap = new Map(document.getElementById('main-map-canvas'));  
+  Globals.mainMap.mapType = "main"; //Specify global map so that Global events are triggered !
   Globals.mainMap.wait();  //Wait that API is ready and trigger Global.Maps.api_ready  
     
   $(window).on('Global.Maps.api_ready', function() {     
@@ -365,34 +366,51 @@ $(document).ready(function(){
 
     //----------------------------------------------------------------------
     // On stationMarker Click handling
-    //----------------------------------------------------------------------               
- /*   $(window).on('Global.Stations.markers_available', function() {
-        console.log("Got event : Global.Stations.markers_available")
-        //Wait for markerStations to be available
-        var myInterval = setInterval(function () {
-        if (Globals.mainMap.markerStations !== null) {                
+    //----------------------------------------------------------------------   
+    $(window).on('Global.stations.selection_change', function() {
+        console.log("Got event: Global.stations.selection_change");
+        console.log(Globals.mainMap.markerStationsSelected);
+        //Download all the products with the stations selected
+        if (Globals.mainMap.markerStationsSelected == null) {
+            $("#id-product-list").html('<p>Select at least one station to see the products</p>');
+        } else {
+            if (Globals.mainMap.markerStationsSelected.length == 0) {
+                $("#id-product-list").html('<p>Select at least one station to see the products</p>');
+            } else {
                 var i;
-                for(i=0; i<Globals.mainMap.markerStations.length; i++) {
-                    console.log("Index is 22!!!!!!!!!!!!!!!!!!!!!: " + i);
-                    Globals.mainMap.markerStations[i].addListener('click', (function(i) {
-                        return function () {
-                        markerClickEvent(i);
-                        };
-                })(i));
-                }    
-                clearInterval(myInterval);
-            } 
-        },1000);
-        function markerClickEvent(index) {
-            console.log("clicked marker : " + index); 
-            Globals.mainMap.markerStations[index].setIcon("./resources/img/cube-yellow.png");
-            if (Globals.mainMap.markerStationsSelected == null) {
-                Globals.mainMap.markerStationsSelected = new Array();
+                var myStations = null;
+                for(i=0; i<Globals.mainMap.markerStationsSelected.length; i++) {
+                    console.log("Station selected : " + Globals.mainMap.getStationIdFromMarker(Globals.mainMap.markerStationsSelected[i]));
+                    if (myStations == null) myStations = Globals.mainMap.getStationIdFromMarker(Globals.mainMap.markerStationsSelected[i]);
+                    else myStations = myStations + " " + Globals.mainMap.getStationIdFromMarker(Globals.mainMap.markerStationsSelected[i]);
+                }
+                var myProductFind = {
+                    keywords: $("#id-products-filter").val(),
+                    selectedStations: myStations
+                };
+                console.log(myProductFind);
+                //Now do ajax call and create the product !!!!
+                var url = ProjectSettings.serverUrl + "/api/product.get.php";
+                var serializedData = jQuery.param(myProductFind);
+                console.log("Asking for products : "+ serializedData);
+                $.ajax({
+                    url: url,
+                    type: "POST",
+                    data: serializedData,
+                    success: function(response) {
+                        if (response.result === "success") {
+                            console.log("Products downloaded !!!!");
+                            console.log(response);
+                        }
+                    },
+                    fail: function() {
+                        console.log("Got fail !");
+                    }
+                });    
             }
-            Globals.mainMap.markerStationsSelected.push(Globals.mainMap.markerStations[index]);
-        }        
+            
+        }
     });
-*/
 
 
 

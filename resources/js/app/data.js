@@ -167,10 +167,12 @@ Data.prototype.restore = function() {
 //Starts the sync process
 Data.prototype.syncStart = function() {
   var myObject = this;
-  console.log("Called syncStart");
-  this.interval = setInterval(function() {
-      myObject.sync();
-  },ProjectSettings.syncIntervalMinutes * 60000);  //This should be 60000
+  if (this.interval == null) {
+    console.log("Called syncStart");
+    this.interval = setInterval(function() {
+        myObject.sync();
+    },ProjectSettings.syncIntervalMinutes * 30000);  //This should be 60000
+  }
 };
 //Starts the sync process
 Data.prototype.syncStop = function() {
