@@ -500,6 +500,14 @@ button.input-group-addon {
 #id-card-products h1 {
     margin-top:5px;
 }
+
+#id-add-to-cart {
+    margin-top:10px;
+    margin-bottom:10px;
+    width:25%;
+    visibility:hidden;
+}
+
 #id-product-list {
     flex:10;
     margin-top: 10px;

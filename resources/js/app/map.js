@@ -305,6 +305,7 @@ Map.prototype.getLabel = function() {
 Map.prototype.markerStationOnClick = function(station_id) {
     this._log("Clicked on station : " + station_id);
     var myObject = this;
+    if (this.mapType != "main") {
     if (this.stationIsSelected(station_id)) {
         if (this.markerStationsSelected != null) {
             this.setStationMarkerColor(station_id,"blue");
@@ -333,6 +334,16 @@ Map.prototype.markerStationOnClick = function(station_id) {
             }
         } 
         this.setStationMarkerColor(station_id,"yellow");
+    }
+    } else {
+        //In the case of the main map we only allow one station selected
+        for (i=0; i<this.markerStations.length; i++) {
+            this.setStationMarkerColor(this.getStationIdFromMarker(this.markerStations[i]), "blue");
+        }
+        this.setStationMarkerColor(station_id, "yellow");
+        var myMarker = this.getMarkerFromStation(station_id);
+        this.markerStationsSelected = new Array();
+        this.markerStationsSelected.push(myMarker);
     }
     if (this.mapType == "main") {
         console.log("Triggering: Global.stations.selection_change");

@@ -370,6 +370,8 @@ $(document).ready(function(){
     //----------------------------------------------------------------------   
     $(window).on('Global.stations.selection_change', function() {
         console.log("Got event: Global.stations.selection_change");
+        //New station selected so all selected items are zero and we hide cart button
+        $("#id-add-to-cart").css({visibility:"hidden"}); 
         console.log(Globals.mainMap.markerStationsSelected);
         //Download all the products with the stations selected
         if (Globals.mainMap.markerStationsSelected == null) {
@@ -425,11 +427,32 @@ $(document).ready(function(){
     $("#id-header-navbar-product-remove").on('click', function() {
         console.log("clicked product remove");
        $('#id-premium-product-remove-modal').pluginProductRemove();
-       $('#id-premium-product-remove-modal').pluginProductRemove("show");
-       
-        
+       $('#id-premium-product-remove-modal').pluginProductRemove("show");        
     });
 
+    //----------------------------------------------------------------------
+    // ADD TO CART BUTTON
+    //----------------------------------------------------------------------               
+    $("#id-add-to-cart").on('click', function() {
+        console.log("IsLoggedIn " + Globals.data.isLoggedIn);
+        if (Globals.data.isLoggedIn == true) {
+            console.log("add to cart");
+            //Now get the order and place order in cart
+            //Identify from which station we have selected for order
+            console.log("Selected station id: " + Globals.mainMap.getStationIdFromMarker(Globals.mainMap.markerStationsSelected[0]));
+            $("#id-product-list").find(".product-item").each(function () {
+                console.log("product_id: " + $(this).data("product_id"));
+                console.log("quantity : " + $(this).find(".list-element-value").html());
+                console.log("station_id : " +  Globals.mainMap.getStationIdFromMarker(Globals.mainMap.markerStationsSelected[0]));
+            });
+        } else {
+            //Expand the plugin of Login modal Form
+            console.log("need login !!!");
+            $("#id-login-modal").pluginModalFormLogin();
+            $("#id-login-modal").pluginModalFormLogin("show");
+        }
+    });
+    
 
 
 

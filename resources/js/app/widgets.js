@@ -3380,6 +3380,8 @@ $(document).ready(function(){
                     success: function(response) {
                         if (response.result === "success") {
                             console.log("Product added !!!!");
+                            console.log("Triggering Global.stations.selection_change");
+                            jQuery(window).trigger('Global.stations.selection_change');
                             myObject.hide();
                             myObject.reset();
                         }
@@ -3522,15 +3524,14 @@ $(document).ready(function(){
         var widgetHTML = '<p>Select stations to see the products</p>';
 
         $(this.element).html(widgetHTML);
-
-        
+       
     //End of modal productList   
     };
     
     //Shows the modal
     Plugin.prototype.addItem = function(itemObject) {
-        this._log("addItem !");
         //console.log(itemObject);
+         var myWidget = $(this.element);
          var widgetHTML = '\
                         <div class="product-item"> \
                             <img class="product-image-small" alt="product picture" /> \
@@ -3538,16 +3539,52 @@ $(document).ready(function(){
                             <div class="product-price"><span>50</span> &euro;</div> \
                             <div class="product-select"> \
                                 <span> \
-                                <button type="button" class="btn btn-default btn-xs"><i class="mdi mdi-18px mdi-minus"></i></button> \
-                                <span>0</span> \
-                                <button type="button" class="btn btn-default btn-xs"><i class="mdi mdi-18px mdi-plus"></i></button> \
+                                <button type="button" class="btn btn-default btn-xs button-minus"><i class="mdi mdi-18px mdi-minus"></i></button> \
+                                <span class="list-element-value">0</span> \
+                                <button type="button" class="btn btn-default btn-xs button-plus"><i class="mdi mdi-18px mdi-plus"></i></button> \
                                 </span> \
                             </div> \
                         </div>';
         $(this.element).append(widgetHTML);
+        console.log(itemObject);
         $(this.element).find('.product-image-small').last().attr("src", itemObject.picture);
         $(this.element).find('.product-description').last().html(itemObject.description);
         $(this.element).find('.product-price').last().find("span").html(itemObject.price);
+        $(this.element).find('.product-item').data('product_id', itemObject.product_id);
+               
+        //Handle plus and minus
+        $(this.element).find('.button-plus').last().on('click', function() {
+            var value = parseInt($(this).parent().find('.list-element-value').html());
+            value = value + 1;
+            $(this).parent().find('.list-element-value').html(value);
+            
+            var productsSelectedCount = 0;
+            myWidget.find('.list-element-value').each(function() {
+                productsSelectedCount = productsSelectedCount + parseInt($(this).html());
+            });
+            if (productsSelectedCount>0) {
+                $("#id-add-to-cart").css({visibility:"visible"});        
+            } else {
+                $("#id-add-to-cart").css({visibility:"hidden"});   
+            }
+            
+            
+        });
+        $(this.element).find('.button-minus').last().on('click', function() {
+            var value = parseInt($(this).parent().find('.list-element-value').html());
+            value = value - 1;
+            if (value <= 0) value = 0;
+            $(this).parent().find('.list-element-value').html(value);
+            var productsSelectedCount = 0;
+            myWidget.find('.list-element-value').each(function() {
+                productsSelectedCount = productsSelectedCount + parseInt($(this).html());
+            });
+            if (productsSelectedCount>0) {
+                $("#id-add-to-cart").css({visibility:"visible"});        
+            } else {
+                $("#id-add-to-cart").css({visibility:"hidden"});   
+            }
+        });        
 
         //$(this.element).find(".modal-card").css({width: '-=100%'});
         $(this.element).css({visibility:"visible",display:"block"});
@@ -3701,6 +3738,8 @@ $(document).ready(function(){
         });           
         //Close modal on click
         $(this.element).find(".modal-close").on('click', function () {
+            console.log("Triggering Global.stations.selection_change");
+            jQuery(window).trigger('Global.stations.selection_change');
             console.log("removing");
             myObject.hide();
             myObject.reset();
