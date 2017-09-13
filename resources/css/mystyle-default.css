@@ -508,8 +508,7 @@ button.input-group-addon {
     background: #ddd;
     padding:3px;
     border-top:2px solid #ddd;
-    border-bottom:2px solid #ddd;
-    
+    border-bottom:2px solid #ddd; 
 }
 
 .product-item {

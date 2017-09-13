@@ -33,9 +33,9 @@ $(document).ready(function(){
     }
   }
   responsiveMap();
-  //setTimeout(function() {responsiveMap();},500); //Make sure that right size is taken
+  setTimeout(function() {responsiveMap();},500); //Make sure that right size is taken
   $(window).resize( function() {responsiveMap();});
-        
+       
   Globals.mainMap = new Map(document.getElementById('main-map-canvas'));  
   Globals.mainMap.mapType = "main"; //Specify global map so that Global events are triggered !
   Globals.mainMap.wait();  //Wait that API is ready and trigger Global.Maps.api_ready  
@@ -419,7 +419,16 @@ $(document).ready(function(){
         }
     });
 
-
+    //----------------------------------------------------------------------
+    // PRODUCT REMOVE
+    //----------------------------------------------------------------------               
+    $("#id-header-navbar-product-remove").on('click', function() {
+        console.log("clicked product remove");
+       $('#id-premium-product-remove-modal').pluginProductRemove();
+       $('#id-premium-product-remove-modal').pluginProductRemove("show");
+       
+        
+    });
 
 
 

@@ -7,7 +7,6 @@
 
 
 
-/* global Globals */
 
 function Map(object) {
     this._name = "googleMap";
@@ -38,8 +37,9 @@ Map.prototype.wait = function() {
     var myObject = this;
     //Wait that google maps API is ready
     var myInterval = setInterval(function() {
-        try {
+        try {    
         if (typeof google === 'object' && typeof google.maps === 'object') {
+            console.log("here");
             clearInterval(myInterval);
             if (myObject.mapType == "main") {
                 myObject._log("Triggering : Global.Maps.api_ready");
@@ -57,7 +57,7 @@ Map.prototype.wait = function() {
 Map.prototype.init = function() {
     this._log("Initializing map:");
     var mapOptions = {
-	center: new google.maps.LatLng(0, 0),
+	center: {lat:0, lng:0},
 	zoom: 1,
 	minZoom: 1
     };
