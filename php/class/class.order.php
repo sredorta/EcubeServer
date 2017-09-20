@@ -28,15 +28,15 @@ class Order {
         
         return $records;
     }
+
     //Dump to array User the elements defined in the class
     public function toArrayAll() {
         $records = array();
         foreach( $this as $key => $value ) {
-                  $records[DB_TABLE_NOTIFICATIONS . '.' . $key] =  $value;
+                  $records[$key] =  $value;
         }        
         return $records;
-    }
-    
+    }    
     //Gets all the values from the array and updates the user with contents
     public function fromArray($row_array) {
         foreach( $row_array as $key => $value ) {

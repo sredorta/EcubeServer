@@ -127,6 +127,9 @@ Data.prototype.restore_notifications = function () {
         });
 };
 
+
+
+
 //Restores all stations
 Data.prototype.restore_stations = function () {
         this._log("restore_stations");

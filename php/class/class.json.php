@@ -54,6 +54,10 @@ class JsonResponseNotifications extends JsonResponse {
     //We add account that is an object with all the fileds of a user class
     public $notifications;
 }
+class JsonResponseOrders extends JsonResponse {
+    //We add account that is an object with all the fileds of a user class
+    public $orders;
+}
 
 class JsonResponseStations extends JsonResponse {
     //We add account that is an object with all the fileds of a user class

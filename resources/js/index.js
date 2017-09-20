@@ -515,8 +515,46 @@ $(document).ready(function(){
         }
     });
     
+    // -------------------------------------------------------------------------
+    //  CART CLICK
+    // -------------------------------------------------------------------------
+    $('#id-header-navbar-button-cart').on('click', function() {
+       console.log('clicked');
+       //Get all orders from server and update list
+       if ($('#id-header-navbar-button-cart-list').css('display') === "none") {
+            console.log("Updating cart...");
+            var myOrders = {
+                user_id : Globals.data.myself.id
+                };
+            var url = ProjectSettings.serverUrl + "/api/order.get.php";
+            var serializedData = jQuery.param(myOrders);
+            $.ajax({
+                url: url,
+                type: "POST",
+                data: serializedData,
+                success: function(response) {
+                    if (response.result === "success") {
+                        console.log("added detail");
+                        var allMyOrders = JSON.parse(response.orders);
+                        var myHtml = "";
+                        for (var i= 0; i< allMyOrders.length; i++) {
+                            console.log(allMyOrders[i]);
 
+                            myHtml = myHtml + '<li class="order-element-display" data-orderid=' + allMyOrders[i].order_id + '><a style="color:black">' + '<div class="div-need-wrap">' + '<p class="text-big"><i class="notification-visited mdi mdi-18px mdi-file-document"></i>  ORDER#'  + allMyOrders[i].order_id +'</p><p class="text-small">Total: ' + allMyOrders[i].total + '&euro;</p><p class="text-small">' + "Status : " + allMyOrders[i].status + '</p></div></a></li>';
 
+                        }
+                        $("#id-header-navbar-button-cart-list").html(myHtml).css({textAlign:"left"});
+                        $("#id-header-navbar-button-cart-list").find(".text-small").css({margin:"0"});
+                        $("#id-header-navbar-button-cart-list").find(".text-big").css({margin:"0",fontWeight:"bold"});
+                        $('.order-element-display').on('click', function() {
+                           console.log("Clicked order : " + $(this).data("orderid")); 
+                        });
+                    }   
+                }
+            });
+       }
+       
+    });
 
 
     //----------------------------------------------------------------------
