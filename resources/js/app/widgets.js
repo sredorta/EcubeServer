@@ -3896,6 +3896,241 @@ $(document).ready(function(){
     };
 })( jQuery, window, document );
 
+//------------------------------------------------------------------------------
+//  pluginModalFormOrderSubmit: Modal form for order submit or cancel
+//------------------------------------------------------------------------------
+;(function ( $, window, document, undefined ) {
+    var pluginName = 'pluginModalFormOrderSubmit';
+
+    // The actual plugin constructor
+    function Plugin( element, options ) {
+        this.element = element;
+        this.options = $.extend( {}, $.fn[pluginName].defaults, options) ;        
+        this._name = pluginName;
+        this._orderId = "";
+        this._total = 0;
+        this._debug = true;
+        this.init();
+    }
+
+    //Main function for the pluggin
+    Plugin.prototype.init = function () {
+        var myWidget = $(this.element);
+        var myObject = this;
+        // You can use this.element and this.options
+        var widgetHTML = '\
+            <div id="id-order-submit-modal-card" class="modal-card modal-card-center"> \
+                <i class="modal-close mdi mdi-24px mdi-close-circle-outline"></i>\
+                <h1 id="id-order-submit-modal-card-header">Order details</h1> \
+                   <div id="id-order-details-text"></div> \
+                   <h2 id="id-order-submit-total-price">Total : <span>100</span> &euro;</h2> \
+                   <div> \
+                   <button id="id-order-modal-button-cancel" class="ui-button ui-widget ui-corner-all">Cancel order</button> \
+                   <button id="id-order-modal-button-pay" class="ui-button ui-widget ui-corner-all">Pay order</button> \
+                   </div> \
+                </div> \
+            </div>';
+        $(this.element).html(widgetHTML);
+        $(this.element).find("#id-order-details-text").css({overflowY:"auto",overflowX:"hidden", height:"300px",width:"410px",padding:"3px"});
+        
+        $(this.element).find("#id-order-submit-total-price").css({margin:"0", textAlign:"center", marginTop:"20px", marginBottom:"20px",fontSize:"25px"});
+        $(this.element).find("#id-order-modal-button-cancel").parent().css({margin:0, textAlign:"center"});
+
+        //Close modal on click
+        $(this.element).find(".modal-close").on('click', function () {
+            myObject.hide();
+            myObject.reset();
+        });
+        //Pay current order
+        $(this.element).find("#id-order-modal-button-pay").on('click', function() {
+            var myOrders = {
+                order_id : myObject._orderId
+            };
+            var url = ProjectSettings.serverUrl + "/api/order.pay.php";
+            var serializedData = jQuery.param(myOrders);
+            $.ajax({
+                url: url,
+                type: "POST",
+                data: serializedData,
+                success: function(response) {
+                    if (response.result === "success") {
+                        console.log("payed order");
+                        myObject.reset();
+                        myObject.hide();
+                    }   
+                }
+            });
+        });        
+        
+        
+        //Remove current order
+        $(this.element).find("#id-order-modal-button-cancel").on('click', function() {
+            var myOrders = {
+                order_id : myObject._orderId
+            };
+            var url = ProjectSettings.serverUrl + "/api/order.remove.php";
+            var serializedData = jQuery.param(myOrders);
+            $.ajax({
+                url: url,
+                type: "POST",
+                data: serializedData,
+                success: function(response) {
+                    if (response.result === "success") {
+                        console.log("removed order");
+                        myObject.reset();
+                        myObject.hide();
+                    }   
+                }
+            });
+        });
+         
+    
+        
+        
+    //End of modal login   
+    };
+
+    //Shows the modal
+    Plugin.prototype.show = function(orderId, totalPrice) {
+        var myWidget = $(this.element);
+        var myObject = this;
+        this._log("Showing modal !");
+        console.log("Order id is: " + orderId);
+        console.log("Order total is: " + totalPrice);
+        this._orderId = orderId;
+        $(this.element).find("#id-order-submit-modal-card-header").html("Order #" + orderId);
+        $(this.element).find("#id-order-submit-total-price").find("span").html(totalPrice);
+        
+        $(this.element).css({visibility:"visible",display:"block"});
+        //Do ajax to get details of the order
+            var myOrders = {
+                order_id : myObject._orderId
+            };
+            var url = ProjectSettings.serverUrl + "/api/order_details.get.php";
+            var serializedData = jQuery.param(myOrders);
+            $.ajax({
+                url: url,
+                type: "POST",
+                data: serializedData,
+                success: function(response) {
+                    if (response.result === "success") {
+                        console.log(response.orderDetails);
+                        var myOrderDetails = JSON.parse(response.orderDetails);
+                        var i;
+                        for(i=0; i<myOrderDetails.length; i++) {
+                            myObject.addItem(myOrderDetails[i]);
+                        }
+                    }   
+                }
+            });     
+        
+        
+    };  
+    //Shows the modal
+    Plugin.prototype.addItem = function(itemObject) {
+        this._log("addItem !");
+        console.log(itemObject);
+        var widgetHTML = '\
+                        <div class="product-item"> \
+                            <img class="product-image-small" alt="product picture" /> \
+                            <div class="product-description">Fraises de carros, les meilleures 500g la barquette</div> \
+                            <div class="product-price"><span>50</span> &euro;</div> \
+                            <div class="product-quantity">x <span></span></div> \
+                        </div>';
+        $(this.element).find("#id-order-details-text").append(widgetHTML);
+        $(this.element).find("#id-order-details-text").css({backgroundColor:"#f1f1f1f1"});
+        $(this.element).find("#id-order-details-text").find('.product-image-small').last().attr("src", itemObject.picture);
+        $(this.element).find("#id-order-details-text").find('.product-description').last().html(itemObject.description);
+        $(this.element).find("#id-order-details-text").find('.product-price').last().find("span").html(itemObject.price);   
+        $(this.element).find("#id-order-details-text").find('.product-quantity').last().find("span").html(itemObject.product_count);
+        $(this.element).find("#id-order-details-text").find('.product-quantity').last().css({fontWeight:"bold",fontSize:"25px"});
+    };
+    
+    
+    //Hides the modal
+    Plugin.prototype.hide = function() {
+        this._log("Hiding modal !");
+        var myWidget = $(this.element);
+        $(this.element).css({visibility:"hidden"});
+        
+    };    
+    //Hides the modal
+    Plugin.prototype.reset = function() {
+        this._log("Reset form !");
+        $(this.element).find("#id-order-details-text").html("");
+    };        
+    //Prints logging if debug enabled
+    Plugin.prototype._log = function(txt) {
+        if (this._debug) console.log(this._name + ":: " + txt);
+    };
+    //Enables debug
+    Plugin.prototype.enableDebug = function () {
+        this._debug = true;
+        this._log("Debug enabled !");
+    };
+    //Disables debug
+    Plugin.prototype.disableDebug = function () {
+        this._log("Debug enabled !");
+        this._debug = false;
+    };
+    //Removes any associated data
+    Plugin.prototype.destroy = function () {
+         //this.element.removeData();
+    };
+    
+    //Example of Getter 
+    Plugin.prototype.getData = function () {
+       this._log("In getData !");
+       return this._debug;
+    }; 
+   
+     
+
+    // A really lightweight plugin wrapper around the constructor, 
+    // preventing against multiple instantiations
+    $.fn[pluginName] = function ( options, myData ) {
+        var args = arguments;
+        
+         if (options === undefined || typeof options === 'object') {
+            // Creates a new plugin instance, for each selected element, and
+            // stores a reference withint the element's data
+            return this.each(function() {
+                if (!$.data(this, 'plugin_' + pluginName)) {
+                    $.data(this, 'plugin_' + pluginName, new Plugin(this, options));
+                }
+            });
+        } else if (typeof options === 'string' && options[0] !== '_' && options !== 'init') {
+            // Call a public pluguin method (not starting with an underscore) for each 
+            // selected element.
+            if (Array.prototype.slice.call(args, 1).length == 0 && $.inArray(options, $.fn[pluginName].getters) != -1) {
+                // If the user does not pass any arguments and the method allows to
+                // work as a getter then break the chainability so we can return a value
+                // instead the element reference.
+                var instance = $.data(this[0], 'plugin_' + pluginName);
+                return instance[options].apply(instance, Array.prototype.slice.call(args, 1));
+            } else {
+                // Invoke the speficied method on each selected element
+                return this.each(function() {
+                    var instance = $.data(this, 'plugin_' + pluginName);
+                    if (instance instanceof Plugin && typeof instance[options] === 'function') {
+                        instance[options].apply(instance, Array.prototype.slice.call(args, 1));
+                    } else {
+                        console.warn("Function " + options + " is not defined !");
+                    }
+                });
+            }
+        }
+    };       
+        
+    
+    //Declare here all the getters here !
+    $.fn[pluginName].getters = ['getData'];
+    //Declare the defaults here
+    $.fn[pluginName].defaults = {
+        propertyName: "value",
+        myColor:"yellow"
+    };
+})( jQuery, window, document );
 
 // -----------------------------------------------------------------------------
 // Session helper 
