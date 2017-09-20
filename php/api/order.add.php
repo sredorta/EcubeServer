@@ -34,5 +34,5 @@ Log::i("ORDER ADD", "Inserted id is : " . $myId);
 
 $json = new JsonResponse();
 $json->result = KEY_CODE_SUCCESS;
-$json->message = "";
+$json->message = $myId;
 $json->output();

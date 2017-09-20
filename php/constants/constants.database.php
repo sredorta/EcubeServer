@@ -34,6 +34,7 @@ define('DB_TABLE_STATIONS', "stations");
 define('DB_TABLE_PRODUCTS', "products");
 define('DB_TABLE_PRODUCT_STATION_MAP', "product_station_map");
 define('DB_TABLE_ORDERS', "orders");
+define('DB_TABLE_ORDER_DETAILS', "order_details");
 
 //TODO to be moved in a separated file
 //Return key codes in the json message

@@ -471,14 +471,41 @@ $(document).ready(function(){
                 data: serializedData,
                 success: function(response) {
                     if (response.result === "success") {
-                        console.log("Order created !!!!");
+                        console.log("Order created !!!! with Id : " + response.message);
+                        //Create the new order details            
+                        $("#id-product-list").find(".product-item").each(function () {
+                        if (parseInt($(this).find(".list-element-value").html()) > 0 ) {
+                            var myNewOrderDetail = {
+                                order_id : response.message,
+                                product_id: $(this).data("product_id"),
+                                product_count : parseInt($(this).find(".list-element-value").html())                       
+                            };
+                            console.log(myNewOrderDetail);
+                            var url = ProjectSettings.serverUrl + "/api/order_details.add.php";
+                            var serializedData = jQuery.param(myNewOrderDetail);
+                            $.ajax({
+                                url: url,
+                                type: "POST",
+                                data: serializedData,
+                                success: function(response) {
+                                    if (response.result === "success") {
+                                        console.log("added detail");
+                                    }   
+                                }
+                            });
+                }
+            });
+
+                        
+                        
+                        
                         //Here we need to update the cart with new message
                     }
                 },
                 fail: function() {
                     console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Got fail !");
                 }
-            });                
+            });                            
             
         } else {
             //Expand the plugin of Login modal Form

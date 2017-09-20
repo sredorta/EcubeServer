@@ -37,4 +37,5 @@ include ("../class/class.station.php");                //user class
 include ("../class/class.product.php");                //user class
 include ("../class/class.email.php");               //Email send helper
 include ("../class/class.order.php");               //Order class
+include ("../class/class.order_details.php");               //Order class
 Log::i("", "------- End of loading --------"); //Show that we have loaded the file
