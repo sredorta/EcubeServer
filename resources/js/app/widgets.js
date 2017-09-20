@@ -3550,7 +3550,8 @@ $(document).ready(function(){
         $(this.element).find('.product-image-small').last().attr("src", itemObject.picture);
         $(this.element).find('.product-description').last().html(itemObject.description);
         $(this.element).find('.product-price').last().find("span").html(itemObject.price);
-        $(this.element).find('.product-item').data('product_id', itemObject.product_id);
+        $(this.element).find('.product-item').last().data('product_id', "" + itemObject.product_id);
+        $(this.element).find('.product-item').last().data('product_price', itemObject.price);
                
         //Handle plus and minus
         $(this.element).find('.button-plus').last().on('click', function() {

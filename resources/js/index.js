@@ -440,11 +440,46 @@ $(document).ready(function(){
             //Now get the order and place order in cart
             //Identify from which station we have selected for order
             console.log("Selected station id: " + Globals.mainMap.getStationIdFromMarker(Globals.mainMap.markerStationsSelected[0]));
+            var total = 0;
             $("#id-product-list").find(".product-item").each(function () {
-                console.log("product_id: " + $(this).data("product_id"));
-                console.log("quantity : " + $(this).find(".list-element-value").html());
-                console.log("station_id : " +  Globals.mainMap.getStationIdFromMarker(Globals.mainMap.markerStationsSelected[0]));
+                if (parseInt($(this).find(".list-element-value").html()) > 0 ) {
+                    var quantity = parseInt($(this).find(".list-element-value").html());
+                    var price = parseInt($(this).data("product_price"));
+                    console.log("product_id: " + $(this).data("product_id"));
+                    console.log("product_price: " + price);
+                    console.log("quantity : " + quantity);
+                    console.log("station_id : " +  Globals.mainMap.getStationIdFromMarker(Globals.mainMap.markerStationsSelected[0]));
+                    total = total + (quantity * price);
+                }
             });
+            console.log("TOTAL : " + total);
+            //Create the new order
+            var myNewOrder = {
+                    station_id: Globals.mainMap.getStationIdFromMarker(Globals.mainMap.markerStationsSelected[0]),
+                    user_id: Globals.data.myself.id,
+                    total: total,
+                    status: "pending"
+            };
+            console.log("Creating order :");
+            console.log(myNewOrder);
+            //Now do ajax call and create the order !!!!
+            var url = ProjectSettings.serverUrl + "/api/order.add.php";
+            var serializedData = jQuery.param(myNewOrder);
+            $.ajax({
+                url: url,
+                type: "POST",
+                data: serializedData,
+                success: function(response) {
+                    if (response.result === "success") {
+                        console.log("Order created !!!!");
+                        //Here we need to update the cart with new message
+                    }
+                },
+                fail: function() {
+                    console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Got fail !");
+                }
+            });                
+            
         } else {
             //Expand the plugin of Login modal Form
             console.log("need login !!!");
