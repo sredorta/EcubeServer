@@ -537,7 +537,10 @@ $(document).ready(function(){
                         var allMyOrders = JSON.parse(response.orders);
                         var myHtml = "";
                         for (var i= 0; i< allMyOrders.length; i++) {
-                            myHtml = myHtml + '<li class="order-element-display" data-orderid=' + allMyOrders[i].order_id + ' data-totalprice=' + allMyOrders[i].total + '><a style="color:black">' + '<div class="div-need-wrap">' + '<p class="text-big"><i class="notification-visited mdi mdi-18px mdi-file-document"></i>  ORDER#'  + allMyOrders[i].order_id +'</p><p class="text-small">Total: ' + allMyOrders[i].total + '&euro;</p><p class="text-small">' + "Status : " + allMyOrders[i].status + '</p></div></a></li>';
+                            myHtml = myHtml + '<li class="order-element-display" data-orderstatus=' + allMyOrders[i].status + ' data-orderid=' + allMyOrders[i].order_id + ' data-totalprice=' + allMyOrders[i].total + '><a style="color:black">' + '<div class="div-need-wrap">' + '<p class="text-big"><i class="notification-visited mdi mdi-18px mdi-file-document"></i>  ORDER#'  + allMyOrders[i].order_id +'</p><p class="text-small">Total: ' + allMyOrders[i].total + '&euro;</p><p class="text-small">' + "Status : " + allMyOrders[i].status + '</p></div></a></li>';
+                        }
+                        if (myHtml=== "") {
+                            myHtml = '<li><a style="color:grey">' + '<div class="div-need-wrap">' + '<p class="text-big"><i class="notification-visited mdi mdi-18px mdi-file-document"></i>No orders available</p></div></a></li>';
                         }
                         $("#id-header-navbar-button-cart-list").html(myHtml).css({textAlign:"left"});
                         $("#id-header-navbar-button-cart-list").find(".text-small").css({margin:"0"});
@@ -546,10 +549,14 @@ $(document).ready(function(){
                            $('#id-header-navbar-button-cart').click(); //Hide the cart list
                            var orderid = $(this).data("orderid"); 
                            var totalprice =  $(this).data("totalprice");
+                           var orderstatus = $(this).data("orderstatus");
                            $('#id-order-submit').pluginModalFormOrderSubmit();
-                           $('#id-order-submit').pluginModalFormOrderSubmit("show", orderid, totalprice);
+                           $('#id-order-submit').pluginModalFormOrderSubmit("show", orderid, totalprice, orderstatus);
                         });
                     }   
+                },
+                fail: function() {
+                    console.log("fail");
                 }
             });
        }

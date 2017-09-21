@@ -3908,6 +3908,7 @@ $(document).ready(function(){
         this.options = $.extend( {}, $.fn[pluginName].defaults, options) ;        
         this._name = pluginName;
         this._orderId = "";
+        this._orderStatus = "";
         this._total = 0;
         this._debug = true;
         this.init();
@@ -3955,8 +3956,32 @@ $(document).ready(function(){
                 success: function(response) {
                     if (response.result === "success") {
                         console.log("payed order");
-                        myObject.reset();
-                        myObject.hide();
+                        //Now add notification for user that order is being processed
+                        var myNotification = {
+                            message: "Order " + myObject._orderId + " is being processed",
+                            visited: 0,
+                            timestamp: parseInt(new Date().getTime() / 1000)
+                        };
+                        var url = ProjectSettings.serverUrl + "/api/user.notifications.add.php";
+                        var serializedData = jQuery.param(myNotification);
+                        console.log(serializedData);
+                        console.log(url);
+                        console.log("Adding notification...");
+                        $.ajax({
+                            url: url,
+                            type: "POST",
+                            data: serializedData,
+                            success: function(response) {
+                                console.log("Added notif successfully on db !");
+                                console.log(response);
+                                if (response.result === "success") {
+                                    Globals.data.sync_notifications();
+                                }
+                                myObject.reset();
+                                myObject.hide();
+                            }
+                        });
+
                     }   
                 }
             });
@@ -3991,17 +4016,26 @@ $(document).ready(function(){
     };
 
     //Shows the modal
-    Plugin.prototype.show = function(orderId, totalPrice) {
+    Plugin.prototype.show = function(orderId, totalPrice, orderStatus) {
         var myWidget = $(this.element);
         var myObject = this;
         this._log("Showing modal !");
         console.log("Order id is: " + orderId);
         console.log("Order total is: " + totalPrice);
+        console.log("status is: #" + orderStatus + "#");
         this._orderId = orderId;
+        this._orderStatus = orderStatus;
         $(this.element).find("#id-order-submit-modal-card-header").html("Order #" + orderId);
         $(this.element).find("#id-order-submit-total-price").find("span").html(totalPrice);
         
         $(this.element).css({visibility:"visible",display:"block"});
+        
+        if (this._orderStatus !== "pending") {
+            $(this.element).find("#id-order-modal-button-pay").css({display:"none"});
+        } else {
+            $(this.element).find("#id-order-modal-button-pay").css({display:"inline"});
+        }
+        
         //Do ajax to get details of the order
             var myOrders = {
                 order_id : myObject._orderId
