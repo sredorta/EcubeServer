@@ -472,6 +472,8 @@ $(document).ready(function(){
                 success: function(response) {
                     if (response.result === "success") {
                         console.log("Order created !!!! with Id : " + response.message);
+                        $("#id-product-list").pluginProductList("reset"); //Remove products view so that user knows order has been done
+                        
                         //Create the new order details            
                         $("#id-product-list").find(".product-item").each(function () {
                         if (parseInt($(this).find(".list-element-value").html()) > 0 ) {
@@ -516,7 +518,7 @@ $(document).ready(function(){
     });
     
     // -------------------------------------------------------------------------
-    //  CART CLICK
+    //  NAVBAR CART CLICK
     // -------------------------------------------------------------------------
     $('#id-header-navbar-button-cart').on('click', function() {
        console.log('clicked');

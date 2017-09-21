@@ -493,7 +493,7 @@ button.input-group-addon {
 #id-card-products {
     display: flex;
     flex-direction:column;
-    height:80%;
+    height:95%;
 }
 #id-card-products h1 {
     margin-top:5px;
