@@ -4039,23 +4039,18 @@ $(document).ready(function(){
         } else {
             $(this.element).find("#id-order-modal-button-pay").css({display:"inline"});
         }
-        //Handle the map
-        console.log("MAP !!!!!!!!!!!!!!!!!!!!!!!");
+        //Handle the map that shows station of the order
         $(this.element).find("#id-order-submit-map").css({width:"100%",height:"100px"});
         var map = new Map(document.getElementById("id-order-submit-map"));
         map.init();
         map.markerStations = new Array();
-        console.log(Globals.mainMap.markerStations);
         var i = 0;
         for(i=0;i<Globals.mainMap.markerStations.length ; i++) {
             if (Globals.data.stations[i].station_id == orderStation) {
                 map.addStationMarker(Globals.data.stations[i]);
                 map.zoomTo(Globals.data.stations[i].latitude, Globals.data.stations[i].longitude, 16);
-                console.log("Found : " + Globals.mainMap.markerStations[i].labelContent);
             }
         }
-
-        
         
         //Do ajax to get details of the order
             var myOrders = {
