@@ -3909,6 +3909,7 @@ $(document).ready(function(){
         this._name = pluginName;
         this._orderId = "";
         this._orderStatus = "";
+        this._orderStation = "";
         this._total = 0;
         this._debug = true;
         this.init();
@@ -3923,6 +3924,7 @@ $(document).ready(function(){
             <div id="id-order-submit-modal-card" class="modal-card modal-card-center"> \
                 <i class="modal-close mdi mdi-24px mdi-close-circle-outline"></i>\
                 <h1 id="id-order-submit-modal-card-header">Order details</h1> \
+                <div id="id-order-submit-map"></div> \
                    <div id="id-order-details-text"></div> \
                    <h2 id="id-order-submit-total-price">Total : <span>100</span> &euro;</h2> \
                    <div> \
@@ -4016,15 +4018,17 @@ $(document).ready(function(){
     };
 
     //Shows the modal
-    Plugin.prototype.show = function(orderId, totalPrice, orderStatus) {
+    Plugin.prototype.show = function(orderId, totalPrice, orderStatus, orderStation) {
         var myWidget = $(this.element);
         var myObject = this;
         this._log("Showing modal !");
         console.log("Order id is: " + orderId);
         console.log("Order total is: " + totalPrice);
         console.log("status is: #" + orderStatus + "#");
+        console.log("order station is: " + orderStation);
         this._orderId = orderId;
         this._orderStatus = orderStatus;
+        this._orderStation = orderStation;
         $(this.element).find("#id-order-submit-modal-card-header").html("Order #" + orderId);
         $(this.element).find("#id-order-submit-total-price").find("span").html(totalPrice);
         
@@ -4035,6 +4039,23 @@ $(document).ready(function(){
         } else {
             $(this.element).find("#id-order-modal-button-pay").css({display:"inline"});
         }
+        //Handle the map
+        console.log("MAP !!!!!!!!!!!!!!!!!!!!!!!");
+        $(this.element).find("#id-order-submit-map").css({width:"100%",height:"100px"});
+        var map = new Map(document.getElementById("id-order-submit-map"));
+        map.init();
+        map.markerStations = new Array();
+        console.log(Globals.mainMap.markerStations);
+        var i = 0;
+        for(i=0;i<Globals.mainMap.markerStations.length ; i++) {
+            if (Globals.data.stations[i].station_id == orderStation) {
+                map.addStationMarker(Globals.data.stations[i]);
+                map.zoomTo(Globals.data.stations[i].latitude, Globals.data.stations[i].longitude, 16);
+                console.log("Found : " + Globals.mainMap.markerStations[i].labelContent);
+            }
+        }
+
+        
         
         //Do ajax to get details of the order
             var myOrders = {

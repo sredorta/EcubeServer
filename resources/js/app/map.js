@@ -110,6 +110,12 @@ Map.prototype.zoomToUserHomeLocationMarker = function() {
    this.map.setZoom(parseInt(Globals.data.myself.Pref_zoomValue));
 };
 
+Map.prototype.zoomTo = function(lat,lng,zoom) {
+    var coords = {lat: parseFloat(lat), lng: parseFloat(lng)};
+    this.map.panTo(coords);
+    this.map.setZoom(parseInt(zoom));
+};
+
 //Removes user home location marker
 Map.prototype.removeUserHomeLocationMarker = function() {
     if (this.markerHomePosition !== null) this.markerHomePosition.setMap(null);
