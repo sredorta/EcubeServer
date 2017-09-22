@@ -444,7 +444,7 @@ $(document).ready(function(){
             $("#id-product-list").find(".product-item").each(function () {
                 if (parseInt($(this).find(".list-element-value").html()) > 0 ) {
                     var quantity = parseInt($(this).find(".list-element-value").html());
-                    var price = parseInt($(this).data("product_price"));
+                    var price = parseFloat($(this).data("product_price"));
                     console.log("product_id: " + $(this).data("product_id"));
                     console.log("product_price: " + price);
                     console.log("quantity : " + quantity);
@@ -472,16 +472,25 @@ $(document).ready(function(){
                 success: function(response) {
                     if (response.result === "success") {
                         console.log("Order created !!!! with Id : " + response.message);
-                        $("#id-product-list").pluginProductList("reset"); //Remove products view so that user knows order has been done
-                        
+                        var orderDetailsArray = new Array();
                         //Create the new order details            
                         $("#id-product-list").find(".product-item").each(function () {
-                        if (parseInt($(this).find(".list-element-value").html()) > 0 ) {
+                          if (parseInt($(this).find(".list-element-value").html()) > 0 ) {
                             var myNewOrderDetail = {
                                 order_id : response.message,
                                 product_id: $(this).data("product_id"),
                                 product_count : parseInt($(this).find(".list-element-value").html())                       
                             };
+                            orderDetailsArray.push(myNewOrderDetail);
+                          }
+                        });                        
+                        
+                        //Reset form
+                        $("#id-product-list").pluginProductList("reset"); //Remove products view so that user knows order has been done
+                        //Save details in db
+                        var i = 0;
+                        for(i=0; i< orderDetailsArray.length; i++) {
+                            var myNewOrderDetail = orderDetailsArray[i];
                             console.log(myNewOrderDetail);
                             var url = ProjectSettings.serverUrl + "/api/order_details.add.php";
                             var serializedData = jQuery.param(myNewOrderDetail);
@@ -494,14 +503,11 @@ $(document).ready(function(){
                                         console.log("added detail");
                                     }   
                                 }
-                            });
-                }
-            });
-
-                        
-                        
-                        
-                        //Here we need to update the cart with new message
+                            });                           
+                        }
+                        //Disable any selected station on the main map
+                        Globals.mainMap.markerStationsSelected = null;
+                        Globals.mainMap.updateStationMarkers();
                     }
                 },
                 fail: function() {

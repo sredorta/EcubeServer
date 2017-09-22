@@ -4048,6 +4048,7 @@ $(document).ready(function(){
                 data: serializedData,
                 success: function(response) {
                     if (response.result === "success") {
+                        console.log("Order details:");
                         console.log(response.orderDetails);
                         var myOrderDetails = JSON.parse(response.orderDetails);
                         var i;
