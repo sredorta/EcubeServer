@@ -25,12 +25,6 @@ $myStation->timestamp = time();
 if (isset($_POST['table_stations'])) {
    $myTable = $_POST['table_stations'];
 }   
-
-
-
-$myStation->name = "station88";
-$myStation->longitude = "7.1";
-$myStation->latitude = "43.6";
         
 $myTable = "stations";
 
