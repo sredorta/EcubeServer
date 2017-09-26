@@ -151,7 +151,7 @@ Map.prototype.addStationMarker = function(station) {
     var myObject = this;
     var coords = {lat: parseFloat(station.latitude), lng: parseFloat(station.longitude)}; 
     //Determine if station is active or not
-    var timeThreshold = parseInt(new Date().getTime() / 1000) - ProjectSettings.syncIntervalMinutes*60000;
+    var timeThreshold = parseInt(new Date().getTime() / 1000) - ProjectSettings.syncIntervalMinutes*60;
     var icon = "./resources/img/cube-blue.png";
     var clickable = true;
     if (station.timestamp < timeThreshold ){
@@ -209,6 +209,24 @@ Map.prototype.setStationMarkerColor = function(station_id,color) {
             myMarker.setIcon("./resources/img/cube-grey.png");
     }   
 };
+//We provide a station and return current color
+Map.prototype.getStationMarkerColor = function(station_id) {
+    var myMarker = this.getMarkerFromStation(station_id);
+    var color = myMarker.getIcon();
+    switch (color) {
+        case "./resources/img/cube-yellow.png" :
+            return "yellow";
+        case "./resources/img/cube-green.png" :
+            return "green";
+        case "./resources/img/cube-grey.png" :
+            return "grey";  
+        case "./resources/img/cube-blue.png" :
+            return "blue";
+        default :
+            return "grey";
+    }   
+};
+
 
 Map.prototype.updateStationMarkers = function() {
     var myObject = this;
@@ -228,7 +246,8 @@ Map.prototype.updateStationMarkers = function() {
     }
     //Check if a station exists but no marker and if so recreate marker
     for(i=0; i<Globals.data.stations.length; i++) {
-        var timeThreshold = parseInt(new Date().getTime() / 1000) - ProjectSettings.syncIntervalMinutes*60000;
+        var timeThreshold = parseInt(new Date().getTime() / 1000) - ProjectSettings.syncIntervalMinutes*60;
+        console.log("Time threshold : " + timeThreshold);
         var icon = "./resources/img/cube-blue.png";
         var clickable = true;
         if (this.stationIsSelected(Globals.data.stations[i].station_id)) icon = "./resources/img/cube-yellow.png";
@@ -258,6 +277,9 @@ Map.prototype.updateStationMarkers = function() {
                 //Update icon color and clickable
                 myObject.markerStations[j].setIcon(icon);
                 myObject.markerStations[j].setClickable(clickable);
+                var latlng = new google.maps.LatLng(Globals.data.stations[i].latitude , Globals.data.stations[i].longitude);
+                myObject.markerStations[j].setPosition(latlng);
+                
             }
         }
         if (!found) {
@@ -344,8 +366,13 @@ Map.prototype.markerStationOnClick = function(station_id) {
     } else {
         //In the case of the main map we only allow one station selected
         for (i=0; i<this.markerStations.length; i++) {
-            this.setStationMarkerColor(this.getStationIdFromMarker(this.markerStations[i]), "blue");
-        }
+            if (this.getStationMarkerColor(this.getStationIdFromMarker(this.markerStations[i])) === "grey") {
+                this.setStationMarkerColor(this.getStationIdFromMarker(this.markerStations[i]), "grey");
+            } else {
+                this.setStationMarkerColor(this.getStationIdFromMarker(this.markerStations[i]), "blue");
+            }
+            console.log(this.markerStations[i].getIcon());
+        }       
         this.setStationMarkerColor(station_id, "yellow");
         var myMarker = this.getMarkerFromStation(station_id);
         this.markerStationsSelected = new Array();
