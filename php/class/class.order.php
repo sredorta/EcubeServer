@@ -14,6 +14,7 @@ class Order {
     public $user_id;
     public $total;
     public $status;
+    public $locker;
     				
     function __construct() {}
     

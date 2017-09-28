@@ -235,12 +235,7 @@ $(document).ready(function(){
          console.log(Globals.data.stations);
          Globals.mainMap.addStationMarkers();
       });
-      
-      
-      
-      
-      
-      
+         
       
       
     //----------------------------------------------------------------------
@@ -428,6 +423,15 @@ $(document).ready(function(){
         console.log("clicked product remove");
        $('#id-premium-product-remove-modal').pluginProductRemove();
        $('#id-premium-product-remove-modal').pluginProductRemove("show");        
+    });
+
+    //----------------------------------------------------------------------
+    // MANAGE ORDERS
+    //----------------------------------------------------------------------               
+    $("#id-header-navbar-manage-orders").on('click', function() {
+        console.log("clicked manage orders");
+       $('#id-premium-manage-orders-modal').pluginManageOrders();
+       $('#id-premium-manage-orders-modal').pluginManageOrders("show");        
     });
 
     //----------------------------------------------------------------------

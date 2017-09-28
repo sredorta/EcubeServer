@@ -531,6 +531,23 @@ button.input-group-addon {
     font-size: 13px;
     /*color:#4CAF50#c1e2b3*/
 }
+
+.order-item {
+    width:100%;
+    height:auto;
+    padding:5px;
+    display:flex;
+    border-radius: 5px;
+    vertical-align: middle;
+    align-items: center;
+    display:block;
+    background:white;
+    margin-bottom: 3px;
+    color:#1b5e20;
+    font-size: 13px;
+    /*color:#4CAF50#c1e2b3*/
+}
+
 .product-image-small {
     height:50px;
     width:50px;

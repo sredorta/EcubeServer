@@ -3896,6 +3896,326 @@ $(document).ready(function(){
     };
 })( jQuery, window, document );
 
+
+//------------------------------------------------------------------------------
+//  pluginManageOrders: ManageOrders handling
+//------------------------------------------------------------------------------
+;(function ( $, window, document, undefined ) {
+    var pluginName = 'pluginManageOrders';
+
+    // The actual plugin constructor
+    function Plugin( element, options ) {
+        this.element = element;
+        this.options = $.extend( {}, $.fn[pluginName].defaults, options) ;        
+        this._name = pluginName;
+        this._debug = true;
+    }
+    //Main function for the pluggin
+    Plugin.prototype.init = function () {
+        var myWidget = $(this.element);
+        var myObject = this;
+        // You can use this.element and this.options
+        var widgetHTML = '\
+              <div id="id-premium-manage-orders-modal-card" class="modal-card modal-card-center"> \
+                <i class="modal-close mdi mdi-24px mdi-close-circle-outline"></i>\
+                <h1><i class="mdi mdi-18px mdi-delete"></i> Manage orders</h1> \
+                 <div id="id-premium-manage-orders-list">\
+                 </div>\
+              </div>';     
+
+        $(this.element).html(widgetHTML);
+        $(this.element).find('#id-premium-manage-orders-modal-card').css({width:"400px"});
+
+        $(this.element).find('#id-premium-manage-orders-list').css({height:"300px", overflowY:"scroll", padding:"2px", backgroundColor:"#ddd"});
+        $('#id-premium-manage-orders-modal').pluginManageOrders("reset");
+        var url = ProjectSettings.serverUrl + "/api/order.get.all_users.php";
+        var serializedData = "";
+        $.ajax({
+                url: url,
+                type: "POST",
+                data: serializedData,
+                success: function(response) {
+                    if (response.result === "success") {
+                        var allMyOrders = JSON.parse(response.orders);
+                        console.log(allMyOrders);
+                        var myHtml = "";
+                        for (var i= 0; i< allMyOrders.length; i++) {
+                            $('#id-premium-manage-orders-modal').pluginManageOrders("addItem", allMyOrders[i], allMyOrders);
+                        }
+                    }
+            },
+            fail: function() {
+                console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Got fail !");
+            }
+        });       
+        //Close modal on click
+        $(this.element).find(".modal-close").on('click', function () {
+         //   console.log("Triggering Global.stations.selection_change");
+         //   jQuery(window).trigger('Global.stations.selection_change');
+         //   console.log("removing");
+            myObject.hide();
+            myObject.reset();
+        });
+        
+    //End of modal productList   
+    };
+    
+    //Shows the modal
+    Plugin.prototype.addItem = function(itemObject ,orderList) {
+        this._log("addItem !");
+        console.log("Assigning station id to : " + itemObject.station_id);
+        var myWidget = this;
+        var widgetHTML = '\
+                        <div class="order-item" data-stationid="' + itemObject.station_id + '" data-orderid="' + itemObject.order_id + '" data-locker="' + itemObject.locker + '"> \
+                            <p class="manage-orders-order-id">Fraises de carros, les meilleures 500g la barquette</p> \
+                            <p class="manage-orders-order-price">TOTAL : <span>50</span> &euro;</p> \
+                            <p class="manage-orders-order-status">Fraises de carros, les meilleures 500g la barquette</p> \
+                            <p class="manage-orders-deliver"> \
+                                <span> \
+                                <button type="button" class="order-deliver-start btn btn-info btn-xs"><i class="mdi mdi-18px mdi-arrow-down-bold-circle"></i> Deliver start</button> \
+                                <button type="button" class="order-deliver-end btn btn-primary btn-xs"><i class="mdi mdi-18px mdi-arrow-up-bold-circle"></i> Deliver End</button> \
+                                </span> \
+                            </p> \
+                            <p class="manage-orders-collect"> \
+                                <span> \
+                                <button type="button" class="order-collect-start btn btn-info btn-xs"><i class="mdi mdi-18px mdi-arrow-down-bold-circle"></i> Collect start</button> \
+                                <button type="button" class="order-collect-end btn btn-primary btn-xs"><i class="mdi mdi-18px mdi-arrow-up-bold-circle"></i> Collect End</button> \
+                                </span> \
+                            </p> \
+                        </div>';
+        $(this.element).find("#id-premium-manage-orders-list").append(widgetHTML);
+        //$(this.element).find("#id-premium-manage-orders-list").find('.product-image-small').last().attr("src", itemObject.picture);
+        $(this.element).find("#id-premium-manage-orders-list").find('.manage-orders-order-id').last().html("ORDER #" + itemObject.order_id).css({fontSize:"20px",fontWeight:"bold"});
+        $(this.element).find("#id-premium-manage-orders-list").find('.manage-orders-order-total').last().find("span").html(itemObject.price);
+        $(this.element).find("#id-premium-manage-orders-list").find('.manage-orders-order-status').last().html("STATUS : " + itemObject.status);
+        $(this.element).find("p").css({margin:"0"});
+        
+        //Start a deliver, assign a free locker and open the door
+        $(this.element).find("#id-premium-manage-orders-list").find('.order-deliver-start').last().on("click", function() {
+            var station_id = $(this).parent().parent().parent().data("stationid");
+            var myFreeLocker;
+            var found = true;
+            for (myFreeLocker=0; myFreeLocker < ProjectSettings.lockerMax; myFreeLocker++) {
+                found = false;
+                for (var i= 0; i< orderList.length; i++) {                     
+                    //Check for lockers already used on same station
+                    if (orderList[i].station_id == station_id) {
+                        if (myFreeLocker == orderList[i].locker) {  //Ensure a valid locker assigned
+                            console.log ("Locker already in use : " + myFreeLocker);
+                           found = true;
+                        }
+                    }
+                }
+                if (found == false) break;
+
+            }            
+            console.log("Found free locker for station " + station_id + " : " + myFreeLocker);
+            $(this).parent().parent().parent().data("locker", myFreeLocker);
+            //Update locker on the order
+            var url = ProjectSettings.serverUrl + "/api/order.update.php";
+            var myOrder = {
+                    order_id: $(this).parent().parent().parent().data("orderid"),
+                    status: "deliver_start",
+                    locker: myFreeLocker
+            };
+            var serializedData = jQuery.param(myOrder);
+            console.log(serializedData);
+            $.ajax({
+                url: url,
+                type: "POST",
+                data: serializedData,
+                success: function(response) {
+                    console.log("here !");
+                    console.log(response);
+                    if (response.result === "success") {
+                        console.log("Updated order status successfully !!!!!!!!!!!!!!!!");
+                        //Now need to open the door
+                        var url = ProjectSettings.serverUrl + "/api/stations.update.php";
+                        var myStation = {
+                            station_id: station_id,
+                            action: "OPEN_LOCKER_" + myFreeLocker
+                        };
+                        var serializedData = jQuery.param(myStation);
+                        console.log(serializedData);
+                        $.ajax({
+                            url: url,
+                            type: "POST",
+                            data: serializedData,
+                            success: function(response) {
+                                console.log("OPEN LOCKER !!!!!!!!!!!!!!!!!");
+                                $(this).parent().parent().parent().data("locker", myFreeLocker);
+                                console.log("Stored data LOCKER a value of: " + myFreeLocker);
+                                myWidget.init();
+                            },
+                            fail: function() {
+                                console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Got fail !");
+                            }
+                        });
+                    }
+                },
+                fail: function() {
+                    console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Got fail !");
+                }
+            });                  
+            
+                      
+
+        });
+        //End a deliver, close door and change status of order and send notification
+        $(this.element).find("#id-premium-manage-orders-list").find('.order-deliver-end').last().on("click", function() {
+            var station_id = $(this).parent().parent().parent().data("stationid");
+            var locker = $(this).parent().parent().parent().data("locker");
+            var order_id = $(this).parent().parent().parent().data("orderid");
+            var url = ProjectSettings.serverUrl + "/api/stations.update.php";
+            var myStation = {
+                station_id: station_id,
+                action: "CLOSE_LOCKER_" + locker
+            };
+            var serializedData = jQuery.param(myStation);
+            console.log(serializedData);
+            $.ajax({
+                url: url,
+                type: "POST",
+                data: serializedData,
+                success: function(response) {
+                    console.log("CLOSE LOCKER !!!!!!!!!!!!!!!!!");
+                    var url = ProjectSettings.serverUrl + "/api/order.update.php";
+                    var myOrder = {
+                        order_id: order_id,
+                        status: "deliver_end",
+                        locker: locker
+                    };
+                    var serializedData = jQuery.param(myOrder);
+                    console.log(serializedData);
+                    $.ajax({
+                        url: url,
+                        type: "POST",
+                        data: serializedData,
+                        success: function(response) {
+                            console.log("here !");
+                            console.log(response);
+                            if (response.result === "success") {
+                                //TODO : add notification to user that delivery is done !!!!
+                            }
+                        },
+                        fail: function() {
+                            
+                        }
+                    });
+                    
+                    
+                    
+                },
+                fail: function() {
+                    console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Got fail !");
+                }
+           }); 
+
+        });        
+    };      
+    
+    
+    //Shows the modal
+    Plugin.prototype.show = function() {
+        this._log("Showing modal !");
+        this.init();
+        //$(this.element).find(".modal-card").css({width: '-=100%'});
+        $(this.element).css({visibility:"visible",display:"block"});
+        $(this.element).find(".modal-card").css({width: '50%'});
+    };  
+    //Hides the modal
+    Plugin.prototype.hide = function() {
+        this._log("Hiding modal !");
+        var myWidget = $(this.element);
+        $(this.element).css({visibility:"hidden"});
+        
+    };    
+    //Hides the modal
+    Plugin.prototype.reset = function() {
+        this._log("Reset form !");
+        $(this.element).find("#id-premium-manage-orders-list").html("");
+        
+    };        
+    //Prints logging if debug enabled
+    Plugin.prototype._log = function(txt) {
+        if (this._debug) console.log(this._name + ":: " + txt);
+    };
+    //Enables debug
+    Plugin.prototype.enableDebug = function () {
+        this._debug = true;
+        this._log("Debug enabled !");
+    };
+    //Disables debug
+    Plugin.prototype.disableDebug = function () {
+        this._log("Debug enabled !");
+        this._debug = false;
+    };
+    //Removes any associated data
+    Plugin.prototype.destroy = function () {
+         //this.element.removeData();
+    };
+    
+    //Example of Getter 
+    Plugin.prototype.getData = function () {
+       this._log("In getData !");
+       return this._debug;
+    }; 
+   
+     
+
+    // A really lightweight plugin wrapper around the constructor, 
+    // preventing against multiple instantiations
+    $.fn[pluginName] = function ( options, myData ) {
+        var args = arguments;
+        
+         if (options === undefined || typeof options === 'object') {
+            // Creates a new plugin instance, for each selected element, and
+            // stores a reference withint the element's data
+            return this.each(function() {
+                if (!$.data(this, 'plugin_' + pluginName)) {
+                    $.data(this, 'plugin_' + pluginName, new Plugin(this, options));
+                }
+            });
+        } else if (typeof options === 'string' && options[0] !== '_' && options !== 'init') {
+            // Call a public pluguin method (not starting with an underscore) for each 
+            // selected element.
+            if (Array.prototype.slice.call(args, 1).length == 0 && $.inArray(options, $.fn[pluginName].getters) != -1) {
+                // If the user does not pass any arguments and the method allows to
+                // work as a getter then break the chainability so we can return a value
+                // instead the element reference.
+                var instance = $.data(this[0], 'plugin_' + pluginName);
+                return instance[options].apply(instance, Array.prototype.slice.call(args, 1));
+            } else {
+                // Invoke the speficied method on each selected element
+                return this.each(function() {
+                    var instance = $.data(this, 'plugin_' + pluginName);
+                    if (instance instanceof Plugin && typeof instance[options] === 'function') {
+                        instance[options].apply(instance, Array.prototype.slice.call(args, 1));
+                    } else {
+                        console.warn("Function " + options + " is not defined !");
+                    }
+                });
+            }
+        }
+    };       
+        
+    
+    //Declare here all the getters here !
+    $.fn[pluginName].getters = ['getData'];
+    //Declare the defaults here
+    $.fn[pluginName].defaults = {
+        propertyName: "value",
+        myColor:"yellow"
+    };
+})( jQuery, window, document );
+
+
+
+
+
+
+
+
 //------------------------------------------------------------------------------
 //  pluginModalFormOrderSubmit: Modal form for order submit or cancel
 //------------------------------------------------------------------------------
