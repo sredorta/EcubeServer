@@ -31,9 +31,12 @@ $myDb->openDatabase(); // If there is an error a Json is sent with the error mes
 
 if ($myDb->existsElement($myTable, "name = '" . $myStation->name . "'") == true) {
     $myDb->updateField($myTable, "timestamp", time(), "name = '" . $myStation->name . "'");
+    $row = $myDb->getRow($myTable, "action", "name = '" . $myStation->name . "'");
+    $action = $row['action'];
+    
     $json = new JsonResponse();
     $json->result = KEY_CODE_SUCCESS;
-    $json->message = "TimeStamp updated";
+    $json->message = $action;
     $json->output();
 } else {
    //New station so it needs to be registered
