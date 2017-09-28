@@ -69,6 +69,12 @@ class JsonResponseStations extends JsonResponse {
     public $stations;
 }
 
+class JsonResponseStationStatus extends JsonResponse {
+    //We add account that is an object with all the fileds of a user class
+    public $action;
+}
+
+
 class JsonResponseProducts extends JsonResponse {
     //We add account that is an object with all the fileds of a user class
     public $products;

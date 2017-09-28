@@ -8,6 +8,7 @@ class Station {
     public $latitude;
     public $longitude;
     public $timestamp;
+    public $action;
     				
     function __construct() {}
     
